@@ -13,6 +13,12 @@
 #include "ppmIO.h"
 #include "image.h"
 
+
+
+// Note for Victoria: as of 7:20 on 8/1 nothing in here has been tested.
+
+
+
 // returns an allocated Polygon pointer initialized so that numVertex is 0 and
 // vertex is NULL.
 Polygon *polygon_create(){
@@ -147,5 +153,7 @@ void polygon_drawFill(Polygon *p, Image *src, Color c);
 
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm.
-void polygon_drawFillB(Polygon *p, Image *src, Color c);
+void polygon_drawFillB(Polygon *p, Image *src, Color c){
+    
+}
 
