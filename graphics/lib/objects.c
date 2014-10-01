@@ -428,6 +428,7 @@ Polyline *polyline_create(){
 //returns an allocated Polyline pointer with the vertex list initialized to the points in vlist
 Polyline *polyline_createp(int numV, Point *vlist){
 	Polyline *p;
+    int i;
 
 	p = malloc(sizeof(Polyline));
 
@@ -481,7 +482,7 @@ void polyline_set(Polyline *p, int numV, Point *vlist){
 void polyline_clear(Polyline *p){
 	if(p){
 		if(p->vertex){
-			//free(p->vertex);
+			free(p->vertex);
 		}
 		polyline_init(p);
 	}
