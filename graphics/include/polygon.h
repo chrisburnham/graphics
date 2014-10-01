@@ -48,6 +48,6 @@ void polygon drawFill(Polygon *p, Image *src, Color c);
 
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm.
-void polygon drawFillB(Polygon *p, Image *src, Color c);i
+void polygon drawFillB(Polygon *p, Image *src, Color c);
 
 #endif
