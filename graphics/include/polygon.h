@@ -1,6 +1,15 @@
 // Author: Victoria Tisdale, Chris Burnham
 // Created: Oct 1, 14
 
+#ifndef POLYGON_H
+#define PLOYGON_H
+
+typedef struct{ 
+	int nVertex; //number of vertices
+	Point *vertex; // vertex information
+	int zBuffer = 1; // whether to use the z-buffer; should default to true (1)
+} Polygon;
+
 // returns an allocated Polygon pointer initialized so that numVertex is 0 and 
 // vertex is NULL.
 Polygon *polygon create();
@@ -39,4 +48,6 @@ void polygon drawFill(Polygon *p, Image *src, Color c);
 
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm.
-void polygon drawFillB(Polygon *p, Image *src, Color c);
+void polygon drawFillB(Polygon *p, Image *src, Color c);i
+
+#endif
