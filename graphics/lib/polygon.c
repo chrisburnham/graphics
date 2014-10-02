@@ -8,15 +8,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "polygon.h"
-#include "objects.h"
 #include "ppmIO.h"
 #include "image.h"
-
-
-
-// Note for Victoria: as of 7:20 on 8/1 nothing in here has been tested.
-
+#include "objects.h"
+#include "polygon.h"
 
 
 // returns an allocated Polygon pointer initialized so that numVertex is 0 and
@@ -47,6 +42,8 @@ Polygon *polygon_createp(int numV, Point *vlist){
 	for(i=0; i<numV; i++){
         p->vertex[i] = vlist[i];
     }
+    
+    return p;
 }
 
 // frees the internal data for a Polygon and the Polygon pointer.
@@ -63,7 +60,7 @@ void polygon_free(Polygon *p){
 void polygon_init(Polygon *p){
     if(p){
 		p->zBuffer = 1;
-		p->numVertex = 0;
+		p->nVertex = 0;
         if(p->vertex){
 			free(p->vertex);
 		}
@@ -109,8 +106,8 @@ void polygon_zBuffer(Polygon *p, int flag){
 // polygon to the other.
 void polygon_copy(Polygon *to, Polygon *from){
     if(from){
-		polyline_set(to, from->numVertex, from->vertex);
-		polyline_zBuffer(to, from->zBuffer);
+		polygon_set(to, from->nVertex, from->vertex);
+		polygon_zBuffer(to, from->zBuffer);
 	}
 }
 
@@ -121,7 +118,7 @@ void polygon_print(Polygon *p, FILE *fp){
 	if(p){
 		fprintf(fp, "Polyline:\n");
 		if(p->vertex){
-			for(i = 0; i < p->numVertex; i++){
+			for(i = 0; i < p->nVertex; i++){
 				fprintf(fp, "(%f,%f,%f) , ", p->vertex[i].val[0], p->vertex[i].val[1], p->vertex[i].val[2]);
 			}
 			fprintf(fp, "\n");
@@ -137,17 +134,21 @@ void polygon_draw(Polygon *p, Image *src, Color c){
 	if(p){
 		if(p->vertex){
 			for(i = 1; i < p->nVertex; i++){
-				line_set(edge, p->vertex[i-1],  p->vertex[i]);
-				line_draw(edge, src, c);
+				line_set(&edge, p->vertex[i-1],  p->vertex[i]);
+				line_draw(&edge, src, c);
 			}
-            line_set(edge, p->vertex[0],  p->vertex[nVertex - 1]);
-            line_draw(edge, src, c);
+            line_set(&edge, p->vertex[0],  p->vertex[p->nVertex - 1]);
+            line_draw(&edge, src, c);
 		}
 	}
 }
 
 // draw the filled polygon using color c with the scanline rendering algorithm.
-void polygon_drawFill(Polygon *p, Image *src, Color c);
+void polygon_drawFill(Polygon *p, Image *src, Color c){
+    
+    printf("I'm a empty function");
+    
+}
 
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm. Will draw for the zero case.
