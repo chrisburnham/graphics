@@ -57,23 +57,9 @@ all:
 
 
 # put the specific executable rules here
-testbench: $(ODIR)/testbench.o
+test4b: $(ODIR)/test4b.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
-test: $(ODIR)/test.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
-
-test3a: $(ODIR)/test3a.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
-
-test3b: $(ODIR)/test3b.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
-
-test3c: $(ODIR)/test3c.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
-
-part4: $(ODIR)/part4.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean
 
