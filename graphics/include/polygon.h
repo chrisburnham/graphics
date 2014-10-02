@@ -7,12 +7,12 @@
 typedef struct{ 
 	int nVertex; //number of vertices
 	Point *vertex; // vertex information
-	int zBuffer = 1; // whether to use the z-buffer; should default to true (1)
+	int zBuffer; // whether to use the z-buffer; should default to true (1)
 } Polygon;
 
 // returns an allocated Polygon pointer initialized so that numVertex is 0 and 
 // vertex is NULL.
-Polygon *polygon_create();
+Polygon *polygon_create(void);
 
 // returns an allocated Polygon pointer with the vertex list initialized to a 
 // copy of the points in vlist.
