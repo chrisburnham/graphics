@@ -132,18 +132,16 @@ void polygon_print(Polygon *p, FILE *fp){
 // draw the outline of the polygon using color c.
 void polygon_draw(Polygon *p, Image *src, Color c){
     int i;
-	Line *edge;
+	Line edge;
     
 	if(p){
 		if(p->vertex){
-			edge = malloc(sizeof(Line));
 			for(i = 1; i < p->nVertex; i++){
 				line_set(edge, p->vertex[i-1],  p->vertex[i]);
 				line_draw(edge, src, c);
 			}
             line_set(edge, p->vertex[0],  p->vertex[nVertex - 1]);
             line_draw(edge, src, c);
-			free(edge);
 		}
 	}
 }
@@ -152,8 +150,83 @@ void polygon_draw(Polygon *p, Image *src, Color c){
 void polygon_drawFill(Polygon *p, Image *src, Color c);
 
 // draw the filled polygon using color c with the Barycentric coordinates
-// algorithm.
+// algorithm. Will draw for the zero case.
 void polygon_drawFillB(Polygon *p, Image *src, Color c){
+    float a, b, g, dXab, dYab, dXac, dYac, xyabDiff, xyacDiff, abDenom, acDenom;
+    int minX, maxX, minY, maxY;
+    int i, j;
+    float epsilon;
     
+    if(p){
+        if(p->nVertex == 3){
+            maxX = -1;
+            maxY = -1;
+            minX = (src->cols) + 10;
+            minY = (src->rows) + 10;
+            
+            for(i=0; i<3; i++){
+                if( ((int)(p->vertex[i].val[0]) + 1) > maxX ){
+                    maxX = (int)(p->vertex[i].val[0]) + 1;
+                }
+                if( (int)(p->vertex[i].val[0]) < minX ){
+                    minX = (int)(p->vertex[i].val[0]);
+                }
+                if( ((int)(p->vertex[i].val[1]) + 1) > maxY ){
+                    maxY = (int)(p->vertex[i].val[1]) + 1;
+                }
+                if( (int)(p->vertex[i].val[1]) < minY ){
+                    minY = (int)(p->vertex[i].val[1]);
+                }
+            }
+            
+            if( maxX > minX && maxY > minY ){
+            // if this is false something about our bounding box is wrong
+
+                
+                epsilon = -.00001; // closer than this we consider zero
+                
+                //calculating peices for beta and gama that are not point dependent
+                dXab = p->vertex[1].val[0] - p->vertex[0].val[0];
+                dYab = p->vertex[0].val[1] - p->vertex[1].val[1];
+                dXac = p->vertex[2].val[0] - p->vertex[0].val[0];
+                dYac = p->vertex[0].val[1] - p->vertex[2].val[1];
+                
+                xyabDiff = ((p->vertex[0].val[0]) * (p->vertex[1].val[1]))
+                - ((p->vertex[1].val[0]) * (p->vertex[0].val[1]));
+                
+                xyacDiff = ((p->vertex[0].val[0]) * (p->vertex[2].val[1]))
+                - ((p->vertex[2].val[0]) * (p->vertex[0].val[1]));
+                
+                abDenom = (dYab * (p->vertex[2].val[0]))
+                + (dYab * (p->vertex[2].val[1])) + xyabDiff;
+                
+                acDenom = (dYac * (p->vertex[1].val[0]))
+                + (dYac * (p->vertex[1].val[1])) + xyacDiff;
+                
+                for(i=minX; i<maxX; i++){ // loop through bounding box
+                    for(j=minY; j<maxY; j++){
+                        b = ( (dYac * (i + 0.5)) + (dXac * (j + 0.5)) + xyacDiff)
+                        / acDenom;
+                        if( b > epsilon ){
+                            g = ( (dYab * (i + 0.5)) + (dXab * (j + 0.5))
+                            + xyabDiff) / abDenom;
+                            if( g > epsilon ){
+                                a = 1.0 - b - g;
+                                if( a > epsilon ){
+                                    image_setColor(src, j, i, c);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            printf("Not given a triangle. Given polygon has %i verticies", p->nVertex);
+        }
+    }
 }
+
+
+
 
