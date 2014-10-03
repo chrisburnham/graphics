@@ -63,6 +63,14 @@ test4b: $(ODIR)/test4b.o
 polyspeed: $(ODIR)/polyspeed.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
+test4c: $(ODIR)/test4c.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+test4c-loop: $(ODIR)/test4c-loop.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+part6: $(ODIR)/part6.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean
 
