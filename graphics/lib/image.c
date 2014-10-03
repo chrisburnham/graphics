@@ -262,6 +262,13 @@ Color image_getColor(Image *src, int r, int c){
 	return color;
 }
 
+//colors based off of a 8 by 8 bit map passed in as a array of colors
+void image_setBitmap(Image *src, int r, int c, int fixR, int fixC, Color *vals){	
+	src->data[r][c].rgb[0] = vals[8*((r-fixR)%8) + (c-fixC)%8].c[0];
+	src->data[r][c].rgb[1] = vals[8*((r-fixR)%8) + (c-fixC)%8].c[1];
+	src->data[r][c].rgb[2] = vals[8*((r-fixR)%8) + (c-fixC)%8].c[2];
+}
+
 void squareNoise(Image *src, int num){
 	int rows, cols, i, j, k, max_size, x, y, size;
 	float dim;
