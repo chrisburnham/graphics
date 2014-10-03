@@ -49,6 +49,9 @@ void image_setColor(Image *src, int r, int c, Color val);
 //returns a Color structure built from the pixel values
 Color image_getColor(Image *src, int r, int c);
 
+//colors based off of a 8 by 8 bit map passed in as a array of colors
+void image_setBitmap(Image *src, int r, int c, int fixR, int fixC, Color *vals);
+
 void squareNoise(Image *src, int num);
 
 /* Color functions */
