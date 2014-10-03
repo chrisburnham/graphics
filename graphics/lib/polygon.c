@@ -58,10 +58,10 @@ void polygon_free(Polygon *p){
 
 // initializes the existing Polygon to an empty Polygon.
 void polygon_init(Polygon *p){
-    if(p){
+  if(p){
 		p->zBuffer = 1;
 		p->nVertex = 0;
-        if(p->vertex){
+    if(p->vertex){
 			free(p->vertex);
 		}
 		p->vertex = NULL;
@@ -91,7 +91,9 @@ void polygon_clear(Polygon *p){
 		if(p->vertex){
 			free(p->vertex);
 		}
-		polygon_init(p);
+		p->zBuffer = 1;
+		p->nVertex = 0;
+		p->vertex = NULL;
 	}
 }
 
@@ -146,66 +148,79 @@ void polygon_draw(Polygon *p, Image *src, Color c){
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFill(Polygon *p, Image *src, Color c){
     
-    printf("I'm a empty function");
+    printf("0");
     
 }
 
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm. Will draw for the zero case.
 void polygon_drawFillB(Polygon *p, Image *src, Color c){
-    float a, b, g, dXab, dYab, dXac, dYac, xyabDiff, xyacDiff, abDenom, acDenom;
-    int minX, maxX, minY, maxY;
-    int i, j;
-    float epsilon;
+    float a, b, g, dXab, dYab, dXac, dYac, xyabDiff, xyacDiff, abDenom, acDenom,
+		epsilon, Xa, Xb, Xc, Ya, Yb, Yc;
+    int maxX, minY, maxY,  i, j;
     
     if(p){
         if(p->nVertex == 3){
-            maxX = -1;
-            maxY = -1;
-            minX = (src->cols) + 10;
-            minY = (src->rows) + 10;
-            
-            for(i=0; i<3; i++){
-                if( ((int)(p->vertex[i].val[0]) + 1) > maxX ){
-                    maxX = (int)(p->vertex[i].val[0]) + 1;
-                }
-                if( (int)(p->vertex[i].val[0]) < minX ){
-                    minX = (int)(p->vertex[i].val[0]);
-                }
-                if( ((int)(p->vertex[i].val[1]) + 1) > maxY ){
-                    maxY = (int)(p->vertex[i].val[1]) + 1;
-                }
-                if( (int)(p->vertex[i].val[1]) < minY ){
-                    minY = (int)(p->vertex[i].val[1]);
-                }
+						Xa = p->vertex[0].val[0];
+						Ya = p->vertex[0].val[1];
+						Xb = p->vertex[1].val[0];
+						Yb = p->vertex[1].val[1];
+						Xc = p->vertex[2].val[0];
+						Yc = p->vertex[2].val[1];
+						
+						maxX = (int)(Xa) + 1;
+						if( ((int)(Xb) + 1) > maxX ){
+							maxX = (int)(Xb) + 1;
             }
-            
-            if( maxX > minX && maxY > minY ){
+						if( ((int)(Xc) + 1) > maxX ){
+							maxX = (int)(Xc) + 1;
+            }
+
+						i = (int)(Xa);
+            if( (int)(Xb) < i ){
+              i = (int)(Xb);
+            }
+						if( (int)(Xc) < i ){
+              i = (int)(Xc);
+            }
+
+            maxY = (int)(Ya) + 1;
+						if( ((int)(Yb) + 1) > maxY ){
+							maxY = (int)(Yb) + 1;
+            }
+						if( ((int)(Yc) + 1) > maxY ){
+							maxY = (int)(Yc) + 1;
+            }
+
+						minY = (int)(Ya);
+            if( (int)(Yb) < minY ){
+              minY = (int)(Yb);
+            }
+						if( (int)(Yc) < minY ){
+              minY = (int)(Yc);
+            }
+
+            if( maxX > i && maxY > minY ){
             // if this is false something about our bounding box is wrong
 
-                
                 epsilon = -.00001; // closer than this we consider zero
                 
                 //calculating peices for beta and gama that are not point dependent
-                dXab = p->vertex[1].val[0] - p->vertex[0].val[0];
-                dYab = p->vertex[0].val[1] - p->vertex[1].val[1];
-                dXac = p->vertex[2].val[0] - p->vertex[0].val[0];
-                dYac = p->vertex[0].val[1] - p->vertex[2].val[1];
+                dXab = Xb - Xa;
+                dYab = Ya - Yb;
+                dXac = Xa - Xc;
+                dYac = Yc - Ya;
                 
-                xyabDiff = ((p->vertex[0].val[0]) * (p->vertex[1].val[1]))
-                - ((p->vertex[1].val[0]) * (p->vertex[0].val[1]));
+                xyabDiff = (Xa * Yb) - (Xb * Ya);
                 
-                xyacDiff = ((p->vertex[0].val[0]) * (p->vertex[2].val[1]))
-                - ((p->vertex[2].val[0]) * (p->vertex[0].val[1]));
+                xyacDiff = (Xc * Ya) - (Xa * Yc);
                 
-                abDenom = (dYab * (p->vertex[2].val[0]))
-                + (dYab * (p->vertex[2].val[1])) + xyabDiff;
+                abDenom = (dYab * Xc) + (dXab * Yc) + xyabDiff;
                 
-                acDenom = (dYac * (p->vertex[1].val[0]))
-                + (dYac * (p->vertex[1].val[1])) + xyacDiff;
-                
-                for(i=minX; i<maxX; i++){ // loop through bounding box
-                    for(j=minY; j<maxY; j++){
+                acDenom = (dYac * Xb) + (dXac * Yb) + xyacDiff;
+
+                for(; i<maxX; i++){ // loop through bounding box
+                    for(j = minY; j<maxY; j++){
                         b = ( (dYac * (i + 0.5)) + (dXac * (j + 0.5)) + xyacDiff)
                         / acDenom;
                         if( b > epsilon ){
@@ -214,13 +229,18 @@ void polygon_drawFillB(Polygon *p, Image *src, Color c){
                             if( g > epsilon ){
                                 a = 1.0 - b - g;
                                 if( a > epsilon ){
-                                    image_setColor(src, j, i, c);
+																		src->data[j][i].rgb[0] = c.c[0];
+                                    src->data[j][i].rgb[1] = c.c[1];
+                                    src->data[j][i].rgb[2] = c.c[2];
                                 }
                             }
                         }
                     }
                 }
             }
+						else{
+							printf("bonding box error:\nminX:%i, maxX:%i, minY:%i, maxY:%i\n", i, maxX, minY, maxY);
+						}
         }
         else{
             printf("Not given a triangle. Given polygon has %i verticies", p->nVertex);
