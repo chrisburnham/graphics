@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
   polygon_drawFill(p, src, White);
 
   printf("writing output\n");
-  image_write(src, "test4a.ppm");
+  image_write(src, "../images/test4a.ppm");
 
   image_free(src);
 

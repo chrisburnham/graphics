@@ -5,6 +5,8 @@ Chris Burnham
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
+#include "image.h"
+
 typedef struct{
 	double val[4];	//four element vector of doubles
 } Point;

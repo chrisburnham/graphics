@@ -4,6 +4,9 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
+#include "objects.h"
+#include "image.h"
+
 typedef struct{ 
 	int nVertex; //number of vertices
 	Point *vertex; // vertex information

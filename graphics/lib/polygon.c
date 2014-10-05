@@ -8,11 +8,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "ppmIO.h"
 #include "image.h"
-#include "objects.h"
+#include "list.h"
 #include "polygon.h"
-
+#include "scanline.h"
 
 // returns an allocated Polygon pointer initialized so that numVertex is 0 and
 // vertex is NULL.
@@ -144,9 +145,7 @@ void polygon_draw(Polygon *p, Image *src, Color c){
 
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFill(Polygon *p, Image *src, Color c){
-    
-    printf("0");
-    
+  scanline_drawFill(p, src, c);
 }
 
 // draw the filled polygon using color c with the Barycentric coordinates
@@ -340,6 +339,3 @@ void polygon_drawFillBwithTexture(Polygon *p, Image *src, Color *c){
         }
     }
 }
-
-
-
