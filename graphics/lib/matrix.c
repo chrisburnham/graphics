@@ -1,45 +1,72 @@
-/* matrix function and type defs
- Chris Burnham and Victoria Tisdale 10/11
+/* matrix function definitions
+ Chris Burnham and Victoria Tisdale 11/11
  */
 
-#ifndef OBJECTS_H
-#define OBJECTS_H
-
-typedef struct{
-    double m[4][4];
-} Matrix;
-
-typedef Point Vector;
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include "objects.h"
+#include "matrix.h"
 
 
 /*Vector Functions*/
 
 //set the Vector to (x,y,z,0.0)
-void vector_set(Vector *v, double x, double y, double z);
+void vector_set(Vector *v, double x, double y, double z){
+    v->val[0] = x;
+    v->val[1] = y;
+    v->val[2] = z;
+    v->val[3] = 0.0;
+}
 
 //print out the Vector to stream fp in a pretty form
-void vector_print(Vector *v, FILE *fp);
+void vector_print(Vector *v, FILE *fp){
+    fprintf(fp, "(%f,%f,%f,%f)\n", v->val[0], v->val[1], v->val[2], v->val[3]);
+}
 
 //returns the Euclidean length of the vector, assuming the homogeneous coordinate is 1.0
-double vector_length(Vector *v);
+double vector_length(Vector *v){
+    return sqrt( v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] + v->val[3]*v->val[3] );
+}
 
 //normalize the Vector to unit length. Do not modify the homogeneous coordinate
-void vector_normalize(Vector *v);
+void vector_normalize(Vector *v){
+    double length;
+    length = sqrt(  v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] + v->val[3]*v->val[3] );
+    v.val[0] = v.val[0] / length;
+    v.val[1] = v.val[1] / length;
+    v.val[2] = v.val[2] / length;
+    v.val[3] = v.val[3] / length;
+}
 
 //returns the scalar product of a and b
-double vector_dot(Vector *a, Vector *b);
+double vector_dot(Vector *a, Vector *b){
+    return a->val[0]*b->val[0] + a->val[1]*b->val[1] + a->val[2]*b->val[2] + a->val[3]*b->val[3];
+}
 
 //calculates the cross product of a and b and puts the result in c
-void vector_cross(Vector *a, Vector *b, Vector *c);
+void vector_cross(Vector *a, Vector *b, Vector *c){
+    c->val[0] = a->val[1]*b->vla[2] - a->val[2]*b->val[1];
+    c->val[1] = a->val[2]*b->vla[0] - a->val[0]*b->val[2];
+    c->val[2] = a->val[0]*b->vla[1] - a->val[1]*b->val[0];
+}
 
 
 /*2D and Generic Matrix Functions*/
 
 //print out the matrix in a nice 4X4 arrangement with a blank line below
-void matrix_print(Matrix *m, FILE *fp);
+void matrix_print(Matrix *m, FILE *fp){
+    int i;
+    for(i = 0; i < 4; i++){
+        fprintf(fp, "[%f, %f, %f, %f]\n", m->m[i][0], m->m[i][1], m->m[i][2], m->m[i][3]);
+    }
+    fprintf(fp, "\n");
+}
 
 //set the matrix to all zeros
-void matrix_clear(Matrix *m);
+void matrix_clear(Matrix *m){
+    
+}
 
 //set the matrix to the idenity matrix
 void matrix_identity(Matrix *m);
@@ -109,6 +136,3 @@ void matrix_shearZ(Matrix *m, double shx, double shy);
 //premultiply the matrix by a perspective matrix parameterized by d
 void matrix_perspective(Matrix *m, double d);
 
-
-
-#endif
