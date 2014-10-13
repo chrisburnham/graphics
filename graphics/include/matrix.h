@@ -2,8 +2,8 @@
  Chris Burnham and Victoria Tisdale 10/11
  */
 
-#ifndef OBJECTS_H
-#define OBJECTS_H
+#ifndef MATRIX_H
+#define MATRIX_H
 
 #include "objects.h"
 #include "polygon.h"

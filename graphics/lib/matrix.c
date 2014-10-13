@@ -34,10 +34,10 @@ double vector_length(Vector *v){
 void vector_normalize(Vector *v){
     double length;
     length = sqrt(  v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] + v->val[3]*v->val[3] );
-    v.val[0] = v.val[0] / length;
-    v.val[1] = v.val[1] / length;
-    v.val[2] = v.val[2] / length;
-    v.val[3] = v.val[3] / length;
+    v->val[0] = v->val[0] / length;
+    v->val[1] = v->val[1] / length;
+    v->val[2] = v->val[2] / length;
+    v->val[3] = v->val[3] / length;
 }
 
 //returns the scalar product of a and b
@@ -47,9 +47,9 @@ double vector_dot(Vector *a, Vector *b){
 
 //calculates the cross product of a and b and puts the result in c
 void vector_cross(Vector *a, Vector *b, Vector *c){
-    c->val[0] = a->val[1]*b->vla[2] - a->val[2]*b->val[1];
-    c->val[1] = a->val[2]*b->vla[0] - a->val[0]*b->val[2];
-    c->val[2] = a->val[0]*b->vla[1] - a->val[1]*b->val[0];
+    c->val[0] = a->val[1]*b->val[2] - a->val[2]*b->val[1];
+    c->val[1] = a->val[2]*b->val[0] - a->val[0]*b->val[2];
+    c->val[2] = a->val[0]*b->val[1] - a->val[1]*b->val[0];
 }
 
 
@@ -117,22 +117,22 @@ void matrix_transpose(Matrix *m){
 //multiply left and right and put the result in m. The result matrix can also be the left or right matrix.
 void matrix_multiply(Matrix *left, Matrix *right, Matrix *m){
     Matrix result;
-    result[0][0] = (left->m[0][0]*right->m[0][0] + left->m[0][1]*right->m[1][0] + left->m[0][2]*right->m[2][0] + left->m[0][3]*right->m[3][0]);
-    result[0][1] = (left->m[0][0]*right->m[0][1] + left->m[0][1]*right->m[1][1] + left->m[0][2]*right->m[2][1] + left->m[0][3]*right->m[3][1]);
-    result[0][2] = (left->m[0][0]*right->m[0][2] + left->m[0][1]*right->m[1][2] + left->m[0][2]*right->m[2][2] + left->m[0][3]*right->m[3][2]);
-    result[0][3] = (left->m[0][0]*right->m[0][3] + left->m[0][1]*right->m[1][3] + left->m[0][2]*right->m[2][3] + left->m[0][3]*right->m[3][3]);
-    result[1][0] = (left->m[1][0]*right->m[0][0] + left->m[1][1]*right->m[1][0] + left->m[1][2]*right->m[2][0] + left->m[1][3]*right->m[3][0]);
-    result[1][1] = (left->m[1][0]*right->m[0][1] + left->m[1][1]*right->m[1][1] + left->m[1][2]*right->m[2][1] + left->m[1][3]*right->m[3][1]);
-    result[1][2] = (left->m[1][0]*right->m[0][2] + left->m[1][1]*right->m[1][2] + left->m[1][2]*right->m[2][2] + left->m[1][3]*right->m[3][2]);
-    result[1][3] = (left->m[1][0]*right->m[0][3] + left->m[1][1]*right->m[1][3] + left->m[1][2]*right->m[2][3] + left->m[1][3]*right->m[3][3]);
-    result[2][0] = (left->m[2][0]*right->m[0][0] + left->m[2][1]*right->m[1][0] + left->m[2][2]*right->m[2][0] + left->m[2][3]*right->m[3][0]);
-    result[2][1] = (left->m[2][0]*right->m[0][1] + left->m[2][1]*right->m[1][1] + left->m[2][2]*right->m[2][1] + left->m[2][3]*right->m[3][1]);
-    result[2][2] = (left->m[2][0]*right->m[0][2] + left->m[2][1]*right->m[1][2] + left->m[2][2]*right->m[2][2] + left->m[2][3]*right->m[3][2]);
-    result[2][3] = (left->m[2][0]*right->m[0][3] + left->m[2][1]*right->m[1][3] + left->m[2][2]*right->m[2][3] + left->m[2][3]*right->m[3][3]);
-    result[3][0] = (left->m[3][0]*right->m[0][0] + left->m[3][1]*right->m[1][0] + left->m[3][2]*right->m[2][0] + left->m[3][3]*right->m[3][0]);
-    result[3][1] = (left->m[3][0]*right->m[0][1] + left->m[3][1]*right->m[1][1] + left->m[3][2]*right->m[2][1] + left->m[3][3]*right->m[3][1]);
-    result[3][2] = (left->m[3][0]*right->m[0][2] + left->m[3][1]*right->m[1][2] + left->m[3][2]*right->m[2][2] + left->m[3][3]*right->m[3][2]);
-    result[3][3] = (left->m[3][0]*right->m[0][3] + left->m[3][1]*right->m[1][3] + left->m[3][2]*right->m[2][3] + left->m[3][3]*right->m[3][3]);
+    result.m[0][0] = (left->m[0][0]*right->m[0][0] + left->m[0][1]*right->m[1][0] + left->m[0][2]*right->m[2][0] + left->m[0][3]*right->m[3][0]);
+    result.m[0][1] = (left->m[0][0]*right->m[0][1] + left->m[0][1]*right->m[1][1] + left->m[0][2]*right->m[2][1] + left->m[0][3]*right->m[3][1]);
+    result.m[0][2] = (left->m[0][0]*right->m[0][2] + left->m[0][1]*right->m[1][2] + left->m[0][2]*right->m[2][2] + left->m[0][3]*right->m[3][2]);
+    result.m[0][3] = (left->m[0][0]*right->m[0][3] + left->m[0][1]*right->m[1][3] + left->m[0][2]*right->m[2][3] + left->m[0][3]*right->m[3][3]);
+    result.m[1][0] = (left->m[1][0]*right->m[0][0] + left->m[1][1]*right->m[1][0] + left->m[1][2]*right->m[2][0] + left->m[1][3]*right->m[3][0]);
+    result.m[1][1] = (left->m[1][0]*right->m[0][1] + left->m[1][1]*right->m[1][1] + left->m[1][2]*right->m[2][1] + left->m[1][3]*right->m[3][1]);
+    result.m[1][2] = (left->m[1][0]*right->m[0][2] + left->m[1][1]*right->m[1][2] + left->m[1][2]*right->m[2][2] + left->m[1][3]*right->m[3][2]);
+    result.m[1][3] = (left->m[1][0]*right->m[0][3] + left->m[1][1]*right->m[1][3] + left->m[1][2]*right->m[2][3] + left->m[1][3]*right->m[3][3]);
+    result.m[2][0] = (left->m[2][0]*right->m[0][0] + left->m[2][1]*right->m[1][0] + left->m[2][2]*right->m[2][0] + left->m[2][3]*right->m[3][0]);
+    result.m[2][1] = (left->m[2][0]*right->m[0][1] + left->m[2][1]*right->m[1][1] + left->m[2][2]*right->m[2][1] + left->m[2][3]*right->m[3][1]);
+    result.m[2][2] = (left->m[2][0]*right->m[0][2] + left->m[2][1]*right->m[1][2] + left->m[2][2]*right->m[2][2] + left->m[2][3]*right->m[3][2]);
+    result.m[2][3] = (left->m[2][0]*right->m[0][3] + left->m[2][1]*right->m[1][3] + left->m[2][2]*right->m[2][3] + left->m[2][3]*right->m[3][3]);
+    result.m[3][0] = (left->m[3][0]*right->m[0][0] + left->m[3][1]*right->m[1][0] + left->m[3][2]*right->m[2][0] + left->m[3][3]*right->m[3][0]);
+    result.m[3][1] = (left->m[3][0]*right->m[0][1] + left->m[3][1]*right->m[1][1] + left->m[3][2]*right->m[2][1] + left->m[3][3]*right->m[3][1]);
+    result.m[3][2] = (left->m[3][0]*right->m[0][2] + left->m[3][1]*right->m[1][2] + left->m[3][2]*right->m[2][2] + left->m[3][3]*right->m[3][2]);
+    result.m[3][3] = (left->m[3][0]*right->m[0][3] + left->m[3][1]*right->m[1][3] + left->m[3][2]*right->m[2][3] + left->m[3][3]*right->m[3][3]);
     m = &result;
 }
 
@@ -281,7 +281,7 @@ void matrix_rotateY(Matrix *m, double cth, double sth){
     double tmp;
     for(i=0; i<4; i++){
         tmp = m->m[0][i]*cth + m->m[2][i]*sth;
-        m->m[2][i] = m->m[2][i]*cth - m->m[0][i]*2th;
+        m->m[2][i] = m->m[2][i]*cth - m->m[0][i]*sth;
         m->m[0][i] = tmp;
     }
 }
@@ -296,6 +296,7 @@ void matrix_rotateXYZ(Matrix *m, Vector *u, Vector *v, Vector *w){
         m->m[2][i] = m->m[0][i]*w->val[0] + m->m[1][i]*w->val[1] + m->m[2][i]*w->val[2];
         m->m[0][i] = tmp0;
         m->m[1][i] = tmp1;
+    }
 }
 
 //premultiply the matrix by a shear Z matrix parameterized by shx and shy
