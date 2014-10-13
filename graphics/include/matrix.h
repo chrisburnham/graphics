@@ -5,6 +5,9 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
+#include "objects.h"
+#include "polygon.h"
+
 typedef struct{
     double m[4][4];
 } Matrix;
