@@ -35,7 +35,7 @@ DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 EXECUTABLES = test5a
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = test5a.o
+_OBJ = test5a.o test5d.o test5b.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -58,6 +58,12 @@ all:
 
 # put the specific executable rules here
 test5a: $(ODIR)/test5a.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+test5d: $(ODIR)/test5d.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+test5b: $(ODIR)/test5b.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean

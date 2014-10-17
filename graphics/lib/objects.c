@@ -48,6 +48,11 @@ void point_drawf(Point *p, Image *src, FPixel c){
 	image_setf(src, p->val[0], p->val[1], c);
 }
 
+//print out the point
+void point_print(Point *p, FILE *fp){
+	fprintf(fp, "(%f, %f, %f, %f)\n", p->val[0], p->val[1], p->val[2], p->val[3]);
+}
+
 /* Line functions */
 //initialize a 2D line
 void line_set2D(Line *l, double x0, double y0, double x1, double y1){

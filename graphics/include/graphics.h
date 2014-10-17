@@ -9,5 +9,6 @@
 #include "scanline.h"
 #include "polygon.h"
 #include "matrix.h"
+#include "view.h"
 
 #endif
