@@ -8,11 +8,11 @@
 #include "matrix.h"
 
 typedef struct{
-	Point center;
-	double width;
-	Vector xaxis;
-	double C;
-	double R;
+	Point vrp;
+	double dx;
+	Vector x;
+	double screenx;
+	double screeny;
 } View2D;
 
 typedef struct {

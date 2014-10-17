@@ -7,10 +7,10 @@
 //sets the vtm to be the virw transfermation defined by the 2D View structure
 void matrix_setView2D(Matrix *vtm, View2D *view){
 	matrix_identity(vtm);
-	matrix_translate2D(vtm, -view->center.val[0], -view->center.val[1]);
-	matrix_rotateZ(vtm, view->xaxis.val[0], -view->xaxis.val[1]);
-	matrix_scale2D(vtm, (view->C / view->width), (-view->C / view->width)); // S(C/ du, R/ dv) where dv = du*R/ C
-	matrix_translate2D(vtm, (view->C / 2.0), (view->R / 2.0));
+	matrix_translate2D(vtm, -view->vrp.val[0], -view->vrp.val[1]);
+	matrix_rotateZ(vtm, view->x.val[0], -view->x.val[1]);
+	matrix_scale2D(vtm, (view->screenx / view->dx), (-view->screenx / view->dx)); // S(C/ du, R/ dv) where dv = du*R/ C
+	matrix_translate2D(vtm, (view->screenx / 2.0), (view->screeny / 2.0));
 	
 }
 

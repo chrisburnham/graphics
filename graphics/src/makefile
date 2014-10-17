@@ -32,7 +32,7 @@ _DEPS = ppmIO.h objects.h image.h polygon.h matrix.h
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = test5a
+EXECUTABLES = test5a test5d test5b
 
 # put a list of all the object files here for all executables (with .o endings)
 _OBJ = test5a.o test5d.o test5b.o
