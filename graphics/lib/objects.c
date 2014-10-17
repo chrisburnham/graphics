@@ -551,7 +551,7 @@ void polyline_print(Polyline *p, FILE *fp){
 void polyline_normalize(Polyline *p){
 	int i;
 	for(i=0; i<p->numVertex; i++){
-		point_normalize(p->vertex[i]);
+		point_normalize(&p->vertex[i]);
 	}
 }
 

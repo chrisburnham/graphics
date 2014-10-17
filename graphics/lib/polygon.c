@@ -323,7 +323,7 @@ void polygon_drawFillBwithTexture(Polygon *p, Image *src, Color *c){
                             if( g > epsilon ){
                                 a = 1.0 - b - g;
                                 if( a > epsilon ){
-																		image_setBitmap(src, j, i, Ya, Xa, c);
+									image_setBitmap(src, j, i, Ya, Xa, c);
                                 }
                             }
                         }
@@ -340,9 +340,9 @@ void polygon_drawFillBwithTexture(Polygon *p, Image *src, Color *c){
     }
 }
 
-void polygon_normalize(Polyon *p){
+void polygon_normalize(Polygon *p){
     int i;
-    for (i=0; i<nVertex; i++){
-        point_normalize(p->vertex[i]);
+    for (i=0; i<p->nVertex; i++){
+        point_normalize(&p->vertex[i]);
     }
 }
