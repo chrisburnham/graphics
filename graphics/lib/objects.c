@@ -32,10 +32,18 @@ void point_set(Point *p, double x, double y, double z, double h){
 	p->val[3] = h;
 }
 
+//set the four values of the vector to x, y, z, and 1, respectively
 void point_set1(Point *p, double x, double y, double z){
 	p->val[0] = x;
 	p->val[1] = y;
 	p->val[2] = z;
+	p->val[3] = 1;
+}
+
+//normalize the cooridnates by dividing by h
+void point_normalize(Point *p){
+	p->val[0] = p->val[0] / p->val[3];
+	p->val[1] = p->val[1] / p->val[3];
 	p->val[3] = 1;
 }
 
@@ -77,6 +85,17 @@ void line_set(Line *l, Point ta, Point tb){
 //set the z-buffer flag to the given value
 void line_zBuffer(Line *l, int flag){
 	l->zBuffer = flag;
+}
+
+//normalize the endpoints x and y coordinates
+void line_normalize(Line *l){
+	l->a.val[0] = l->a.val[0] / l->a.val[3];
+	l->a.val[1] = l->a.val[1] / l->a.val[3];
+	l->a.val[3] = 1;
+
+	l->b.val[0] = l->b.val[0] / l->b.val[3];
+	l->b.val[1] = l->b.val[1] / l->b.val[3];
+	l->b.val[3] = 1;
 }
 
 //copy the line data structure
@@ -525,6 +544,14 @@ void polyline_print(Polyline *p, FILE *fp){
 			}
 			fprintf(fp, "\n");
 		}
+	}
+}
+
+//normalize the x and y coordinates of the points
+void polyline_normalize(Polyline *p){
+	int i;
+	for(i=0; i<p->numVertex; i++){
+		point_normalize(p->vertex[i]);
 	}
 }
 

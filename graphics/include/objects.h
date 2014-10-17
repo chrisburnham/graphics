@@ -46,8 +46,11 @@ void point_set3D(Point *p, double x, double y, double z);
 //set the four values of the vector to x, y, z, and h, respectively
 void point_set(Point *p, double x, double y, double z, double h);
 
-//set the four values of the vector to x, y, z, and h, respectively
+//set the four values of the vector to x, y, z, and 1, respectively
 void point_set1(Point *p, double x, double y, double z);
+
+//normalize the x and y cooridnates by dividing by h
+void point_normalize(Point *p);
 
 //copy the point data structure
 void point_copy(Point *to, Point *from);
@@ -70,6 +73,9 @@ void line_set(Line *l, Point ta, Point tb);
 
 //set the z-buffer flag to the given value
 void line_zBuffer(Line *l, int flag);
+
+//normalize the endpoints x and y coordinates
+void line_normalize(Line *l);
 
 //copy the line data structure
 void line_copy(Line *to, Line *from);
@@ -124,6 +130,9 @@ void polyline_copy(Polyline *to, Polyline *from);
 
 //prints Polyline data to the stream designated by the FILE pointer
 void polyline_print(Polyline *p, FILE *fp);
+
+//normalize the x and y coordinates of the points
+void polyline_normalize(Polyline *p);
 
 //draw the polyline using color c
 void polyline_draw(Polyline *p, Image *src, Color c);
