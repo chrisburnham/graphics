@@ -57,4 +57,6 @@ void polygon_drawFillB(Polygon *p, Image *src, Color c);
 // algorithm. Will draw for the zero case. uses a texture from a 8by8 color array
 void polygon_drawFillBwithTexture(Polygon *p, Image *src, Color *c);
 
+
+
 #endif

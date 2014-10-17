@@ -46,6 +46,9 @@ void point_set3D(Point *p, double x, double y, double z);
 //set the four values of the vector to x, y, z, and h, respectively
 void point_set(Point *p, double x, double y, double z, double h);
 
+//set the four values of the vector to x, y, z, and h, respectively
+void point_set1(Point *p, double x, double y, double z);
+
 //copy the point data structure
 void point_copy(Point *to, Point *from);
 

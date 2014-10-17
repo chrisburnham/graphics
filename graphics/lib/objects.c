@@ -32,6 +32,13 @@ void point_set(Point *p, double x, double y, double z, double h){
 	p->val[3] = h;
 }
 
+void point_set1(Point *p, double x, double y, double z){
+	p->val[0] = x;
+	p->val[1] = y;
+	p->val[2] = z;
+	p->val[3] = 1;
+}
+
 //copy the point data structure
 void point_copy(Point *to, Point *from){
 	*to = *from;
