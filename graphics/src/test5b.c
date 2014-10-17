@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
       matrix_xformLine( &vtm, &tline );
       printf("line (%.2f %.2f) (%.2f %.2f)\n", tline.a.val[0], tline.a.val[1], 
              tline.b.val[0], tline.b.val[1] );
-      
+
       line_draw( &tline, src, color[i] );
     }
 

@@ -246,6 +246,9 @@ void image_fillz(Image *src, float z){
 
 //copies the Color data to the proper pixel
 void image_setColor(Image *src, int r, int c, Color val){
+	if( src->rows <= r || src->cols <= c) {
+		return;
+	}
 	src->data[r][c].rgb[0] = val.c[0];
 	src->data[r][c].rgb[1] = val.c[1];
 	src->data[r][c].rgb[2] = val.c[2];
