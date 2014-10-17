@@ -5,6 +5,7 @@ Chris Burnham
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
+#include <stdio.h>
 #include "image.h"
 
 typedef struct{

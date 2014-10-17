@@ -2,6 +2,8 @@
  Chris Burnham and Victoria Tisdale 10/16
 */
 
+#include "view.h"
+
 //sets the vtm to be the virw transfermation defined by the 2D View structure
 void matrix_setView2D(Matrix *vtm, View2D *view){
 	matrix_identity(vtm);
@@ -21,11 +23,11 @@ void matrix_setView3D(Matrix *vtm, View3D *view){
 	matrix_translate(vtm, -view->vrp.val[0], -view->vrp.val[1], -view->vrp.val[2]);
 
 	vpn = view->vpn;
-	vector_cross(view->vup, vpn, u);
-	vector_cross(vpn, u, vup);
-	vector_normalize(u);
-	vector_normalize(vup);
-	vector_normalize(vpn);
+	vector_cross(&view->vup, &vpn, &u);
+	vector_cross(&vpn, &u, &vup);
+	vector_normalize(&u);
+	vector_normalize(&vup);
+	vector_normalize(&vpn);
 
 	matrix_rotateXYZ(vtm, &u, &vup, &vpn);
 	matrix_translate(vtm, 0.0, 0.0, view->d);

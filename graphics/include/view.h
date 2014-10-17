@@ -2,11 +2,9 @@
  Chris Burnham and Victoria Tisdale 10/16
  */
 
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef VIEW_H
+#define VIEW_H
 
-#include "objects.h"
-#include "polygon.h"
 #include "matrix.h"
 
 typedef struct{

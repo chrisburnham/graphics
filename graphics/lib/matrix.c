@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "objects.h"
-#include "polygon.h"
 #include "matrix.h"
 
 

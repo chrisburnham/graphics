@@ -112,6 +112,4 @@ void matrix_shearZ(Matrix *m, double shx, double shy);
 //premultiply the matrix by a perspective matrix parameterized by d
 void matrix_perspective(Matrix *m, double d);
 
-
-
 #endif

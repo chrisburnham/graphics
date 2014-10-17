@@ -3,7 +3,6 @@ Chris Burnham
 */
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
 #include "ppmIO.h"
 #include "objects.h"
