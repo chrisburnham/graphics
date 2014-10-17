@@ -339,3 +339,10 @@ void polygon_drawFillBwithTexture(Polygon *p, Image *src, Color *c){
         }
     }
 }
+
+void polygon_normalize(Polyon *p){
+    int i;
+    for (i=0; i<nVertex; i++){
+        point_normalize(p->vertex[i]);
+    }
+}
