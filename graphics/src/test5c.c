@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 		  point_set1( &(view.vrp), 3, 2, -2 );
 		} */
 	
-		float alpha = abs(nFrames - (0.5*nFrames)) /  (0.5*nFrames);
+		float alpha = abs(t - (0.5*nFrames)) /  (0.5*nFrames);
 		point_set1( &(view.vrp), 3*alpha, 2*alpha, -2*alpha - (1.0-alpha)*3 );
 
 		vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
@@ -141,6 +141,8 @@ int main(int argc, char *argv[]) {
 		/*printf("Writing image\n");
 		image_write( src, "cube.ppm" );*/
 	}
+	system("convert frame-*.ppm cube.gif");
+	system("rm frame-*.ppm");
 
   return(0);
 }
