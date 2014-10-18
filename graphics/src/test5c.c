@@ -13,6 +13,7 @@
 int main(int argc, char *argv[]) {
   const int rows = 180;
   const int cols = 320;
+	const int nFrames = 100;
   View3D view;
   Matrix vtm;
   Polygon side[6];
@@ -21,7 +22,8 @@ int main(int argc, char *argv[]) {
   Point  v[8];
   Color  color[6];
   Image *src;
-  int i;
+  int i, t;
+	char filename[256];
 
   // set some colors
   color_set( &color[0], 0, 0, 1 );
@@ -31,104 +33,114 @@ int main(int argc, char *argv[]) {
   color_set( &color[4], 0, 1, 1 );
   color_set( &color[5], 1, 1, 0 );
 
-  // initialize polygons
-  for(i=0;i<6;i++) {
-    polygon_init( &side[i] );
-  }
+	for(t=0;t<nFrames;t++) {
 
-  // corners of a cube, centered at (0, 0, 0)
-  point_set1( &v[0], -1, -1, -1 );
-  point_set1( &v[1],  1, -1, -1 );
-  point_set1( &v[2],  1,  1, -1 );
-  point_set1( &v[3], -1,  1, -1 );
-  point_set1( &v[4], -1, -1,  1 );
-  point_set1( &v[5],  1, -1,  1 );
-  point_set1( &v[6],  1,  1,  1 );
-  point_set1( &v[7], -1,  1,  1 );
+		// initialize polygons
+		for(i=0;i<6;i++) {
+		  polygon_init( &side[i] );
+		}
 
-  // front side
-  polygon_set( &side[0], 4, &(v[0]) );
+		// corners of a cube, centered at (0, 0, 0)
+		point_set1( &v[0], -1, -1, -1 );
+		point_set1( &v[1],  1, -1, -1 );
+		point_set1( &v[2],  1,  1, -1 );
+		point_set1( &v[3], -1,  1, -1 );
+		point_set1( &v[4], -1, -1,  1 );
+		point_set1( &v[5],  1, -1,  1 );
+		point_set1( &v[6],  1,  1,  1 );
+		point_set1( &v[7], -1,  1,  1 );
 
-  // back side
-  polygon_set( &side[1], 4, &(v[4]) );
+		// front side
+		polygon_set( &side[0], 4, &(v[0]) );
 
-  // top side
-  point_copy( &tv[0], &v[2] );
-  point_copy( &tv[1], &v[3] );
-  point_copy( &tv[2], &v[7] );
-  point_copy( &tv[3], &v[6] );
+		// back side
+		polygon_set( &side[1], 4, &(v[4]) );
 
-  polygon_set( &side[2], 4, tv );
+		// top side
+		point_copy( &tv[0], &v[2] );
+		point_copy( &tv[1], &v[3] );
+		point_copy( &tv[2], &v[7] );
+		point_copy( &tv[3], &v[6] );
 
-  // bottom side
-  point_copy( &tv[0], &v[0] );
-  point_copy( &tv[1], &v[1] );
-  point_copy( &tv[2], &v[5] );
-  point_copy( &tv[3], &v[4] );
+		polygon_set( &side[2], 4, tv );
 
-  polygon_set( &side[3], 4, tv );
+		// bottom side
+		point_copy( &tv[0], &v[0] );
+		point_copy( &tv[1], &v[1] );
+		point_copy( &tv[2], &v[5] );
+		point_copy( &tv[3], &v[4] );
 
-  // left side
-  point_copy( &tv[0], &v[0] );
-  point_copy( &tv[1], &v[3] );
-  point_copy( &tv[2], &v[7] );
-  point_copy( &tv[3], &v[4] );
+		polygon_set( &side[3], 4, tv );
 
-  polygon_set( &side[4], 4, tv );
+		// left side
+		point_copy( &tv[0], &v[0] );
+		point_copy( &tv[1], &v[3] );
+		point_copy( &tv[2], &v[7] );
+		point_copy( &tv[3], &v[4] );
 
-  // right side
-  point_copy( &tv[0], &v[1] );
-  point_copy( &tv[1], &v[2] );
-  point_copy( &tv[2], &v[6] );
-  point_copy( &tv[3], &v[5] );
+		polygon_set( &side[4], 4, tv );
 
-  polygon_set( &side[5], 4, tv );
+		// right side
+		point_copy( &tv[0], &v[1] );
+		point_copy( &tv[1], &v[2] );
+		point_copy( &tv[2], &v[6] );
+		point_copy( &tv[3], &v[5] );
 
-  // grab command line argument to determine viewpoint
-  // and set up the view structure
-  if( argc > 1 ) {
-    float alpha = atof( argv[1] );
-    if( alpha < 0.0 || alpha > 1.0 )
-      alpha = 0.0;
+		polygon_set( &side[5], 4, tv );
 
-    point_set1( &(view.vrp), 3*alpha, 2*alpha, -2*alpha - (1.0-alpha)*3 );
-  }
-  else {
-    point_set1( &(view.vrp), 3, 2, -2 );
-  }
-  vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
+		// grab command line argument to determine viewpoint
+		// and set up the view structure
+		/*if( argc > 1 ) {
+		  float alpha = atof( argv[1] );
+		  if( alpha < 0.0 || alpha > 1.0 )
+		    alpha = 0.0;
 
-  vector_set( &(view.vup), 0, 1, 0 );
-  view.d = 1;  // focal length
-  view.du = 2;
-  view.dv = view.du * (float)rows / cols;
-  view.f = 0; // front clip plane
-  view.b = 4; // back clip plane
-  view.screenx = cols;
-  view.screeny = rows;
+		  point_set1( &(view.vrp), 3*alpha, 2*alpha, -2*alpha - (1.0-alpha)*3 );
+		}
+		else {
+		  point_set1( &(view.vrp), 3, 2, -2 );
+		} */
+	
+		float alpha = abs(nFrames - (0.5*nFrames)) /  (0.5*nFrames);
+		point_set1( &(view.vrp), 3*alpha, 2*alpha, -2*alpha - (1.0-alpha)*3 );
 
-  matrix_setView3D( &vtm, &view );
+		vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
 
-  // create image
-  src = image_create( rows, cols );
+		vector_set( &(view.vup), 0, 1, 0 );
+		view.d = 1;  // focal length
+		view.du = 2;
+		view.dv = view.du * (float)rows / cols;
+		view.f = 0; // front clip plane
+		view.b = 4; // back clip plane
+		view.screenx = cols;
+		view.screeny = rows;
 
-  // use a temprary polygon to transform stuff
-  polygon_init( &tpoly );
+		matrix_setView3D( &vtm, &view );
 
-  printf("Drawing Polygons\n");
-  for(i=0;i<6;i++) {
-    polygon_copy( &tpoly, &side[i] );
-    matrix_xformPolygon( &vtm, &tpoly );
+		// create image
+		src = image_create( rows, cols );
 
-    // normalize by homogeneous coordinate before drawing
-    polygon_normalize( &tpoly );
+		// use a temprary polygon to transform stuff
+		polygon_init( &tpoly );
 
-    polygon_draw( &tpoly, src, color[i] );
-    polygon_print( &tpoly, stdout );
-  }
+		//printf("Drawing Polygons\n");
+		for(i=0;i<6;i++) {
+		  polygon_copy( &tpoly, &side[i] );
+		  matrix_xformPolygon( &vtm, &tpoly );
 
-  printf("Writing image\n");
-  image_write( src, "cube.ppm" );
+		  // normalize by homogeneous coordinate before drawing
+		  polygon_normalize( &tpoly );
+
+		  polygon_draw( &tpoly, src, color[i] );
+		  //polygon_print( &tpoly, stdout );
+		}
+
+		sprintf(filename, "frame-%04d.ppm", t );
+    image_write( src, filename );
+		
+		/*printf("Writing image\n");
+		image_write( src, "cube.ppm" );*/
+	}
 
   return(0);
 }

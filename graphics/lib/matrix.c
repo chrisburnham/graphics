@@ -252,7 +252,7 @@ void matrix_scale(Matrix *m, double sx, double sy, double sz){
     for(i=0; i<4; i++){
         m->m[0][i] = m->m[0][i] * sx;
         m->m[1][i] = m->m[1][i] * sy;
-        m->m[2][i] = m->m[2][i] * sy;
+        m->m[2][i] = m->m[2][i] * sz;
     }
 }
 
@@ -304,7 +304,7 @@ void matrix_shearZ(Matrix *m, double shx, double shy){
 void matrix_perspective(Matrix *m, double d){
     int i;
     for(i=0; i<4; i++){
-        m->m[3][i] = m->m[3][i] / d;
+        m->m[3][i] = (m->m[2][i] / d);
     }
 }
 
