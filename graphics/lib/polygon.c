@@ -50,10 +50,19 @@ Polygon *polygon_createp(int numV, Point *vlist){
 // frees the internal data for a Polygon and the Polygon pointer.
 void polygon_free(Polygon *p){
     if(p){
-		if(p->vertex){
-			free(p->vertex);
-		}
+			if(p->vertex){
+				free(p->vertex);
+			}
 		free(p);
+	}
+}
+
+// frees the internal data for a Polygon. (for when there isn't really a pointer)
+void polygon_dealloc(Polygon *p){
+    if(p){
+			if(p->vertex){
+				free(p->vertex);
+			}
 	}
 }
 
