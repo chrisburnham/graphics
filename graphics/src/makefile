@@ -32,10 +32,10 @@ _DEPS = graphics.h
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = test5a test5d test5b test5c test5vt
+EXECUTABLES = test5a test5d test5b test5c test5vt part4cb space
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = test5a.o test5d.o test5b.o test5c.o test5vt.o
+_OBJ = test5a.o test5d.o test5b.o test5c.o test5vt.o part4cb.o space.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -70,6 +70,12 @@ test5c: $(ODIR)/test5c.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 test5vt: $(ODIR)/test5vt.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+part4cb: $(ODIR)/part4cb.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+space: $(ODIR)/space.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean
