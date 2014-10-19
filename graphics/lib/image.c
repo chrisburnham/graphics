@@ -218,8 +218,8 @@ void image_fillrgb(Image *src, float r, float g, float b){
 	if(src){
 		for(i=0; i<(src->rows * src->cols); i++){
 			src->data[0][i].rgb[0] = r;
-			src->data[0][i].rgb[0] = g;
-			src->data[0][i].rgb[0] = b;
+			src->data[0][i].rgb[1] = g;
+			src->data[0][i].rgb[2] = b;
 		}
 	}
 }
@@ -249,9 +249,11 @@ void image_setColor(Image *src, int r, int c, Color val){
 	if( (r<0 || c<0)||(src->rows <= r || src->cols <= c)) {
 		return;
 	}
-	src->data[r][c].rgb[0] = val.c[0];
-	src->data[r][c].rgb[1] = val.c[1];
-	src->data[r][c].rgb[2] = val.c[2];
+	else{
+		src->data[r][c].rgb[0] = val.c[0];
+		src->data[r][c].rgb[1] = val.c[1];
+		src->data[r][c].rgb[2] = val.c[2];
+	}
 }
 
 //returns a Color structure built from the pixel values

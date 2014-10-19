@@ -5,14 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "ppmIO.h"
-#include "image.h"
-#include "objects.h"
-#include "list.h"
-#include "fractals.h"
-#include "scanline.h"
-#include "polygon.h"
-#include "matrix.h"
+#include "graphics.h"
 
 
 int main(int argc, char *argv[]) {
@@ -20,6 +13,7 @@ int main(int argc, char *argv[]) {
   const int rows = 600;
   const int cols = 800;
   const int Resolution = 50;
+	Color white;
   Color Grey;
   Color dkGrey;
   Color Red;
@@ -28,7 +22,7 @@ int main(int argc, char *argv[]) {
   Point unitSquare[4];
   Point pt[Resolution];
   Point ptt[Resolution];
-  int i, index = 0;
+  int i, j, index = 0;
   Matrix VTM, GTM, LTM;
   Polygon *ship[50];
   Color shipColor[50];
@@ -56,6 +50,14 @@ int main(int argc, char *argv[]) {
   srand(42);
 
   src = image_create(rows, cols);
+	color_set(&white, 1.0, 1.0, 1.0);
+	for(i=0; i<rows; i++){
+		for(j=0; j<cols; j++){
+			if((rand()%50) == 13){
+				image_setColor(src, i, j, white);
+			}
+		}
+	}
 
   // initialize the three matrices
   matrix_identity(&VTM);
@@ -315,7 +317,7 @@ int main(int argc, char *argv[]) {
     polygon_drawFill(ship[i], src, shipColor[i]);
   }
 
-  image_write(src, "test5a.ppm");
+  image_write(src, "space.ppm");
 
 
   image_free(src);

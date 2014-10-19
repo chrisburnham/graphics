@@ -105,7 +105,7 @@ void polygon_zBuffer(Polygon *p, int flag){
 // De-allocates/allocates space and copies the vertex and color data from one
 // polygon to the other.
 void polygon_copy(Polygon *to, Polygon *from){
-    if(from){
+  if(from){
 		polygon_set(to, from->nVertex, from->vertex);
 		polygon_zBuffer(to, from->zBuffer);
 	}
@@ -123,6 +123,12 @@ void polygon_print(Polygon *p, FILE *fp){
 			}
 			fprintf(fp, "\n");
 		}
+		else{
+			fprintf(fp, "no verticies\n");
+		}
+	}
+	else{
+		fprintf(fp, "no polygon\n");
 	}
 }
 
@@ -225,11 +231,13 @@ void polygon_drawFillB(Polygon *p, Image *src, Color c){
                             if( g > epsilon ){
                                 a = 1.0 - b - g;
                                 if( a > epsilon ){
-																		scale = (a*b*g + 0.02) / .058; // = 1; 
+																	if( !( (i<0 || j<0)||(src->rows <= i || src->cols <= j) )) {
+																		scale = 1; //(a*b*g + 0.02) / .058; 
 																		// set to 1 for normal coloring
 																		src->data[j][i].rgb[0] = (c.c[0] * scale);
                                     src->data[j][i].rgb[1] = (c.c[1] * scale);
                                     src->data[j][i].rgb[2] = (c.c[2] * scale);
+																	}
                                 }
                             }
                         }
