@@ -24,6 +24,9 @@ Polygon *polygon_createp(int numV, Point *vlist);
 // frees the internal data for a Polygon and the Polygon pointer.
 void polygon_free(Polygon *p);
 
+// frees the internal data for a Polygon. (for when there isn't really a pointer)
+void polygon_dealloc(Polygon *p);
+
 // initializes the existing Polygon to an empty Polygon.
 void polygon_init(Polygon *p);
 
