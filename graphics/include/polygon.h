@@ -52,6 +52,8 @@ void polygon_draw(Polygon *p, Image *src, Color c);
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFill(Polygon *p, Image *src, Color c);
 
+void polygon_drawFillwithTexture(Polygon *p, Image *src, Color *c);
+
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm.
 void polygon_drawFillB(Polygon *p, Image *src, Color c);

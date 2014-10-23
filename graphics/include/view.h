@@ -28,7 +28,7 @@ typedef struct {
 	int screeny;
 } View3D;
 
-//sets the vtm to be the virw transfermation defined by the 2D View structure
+//sets the vtm to be the view transformation defined by the 2D View structure
 void matrix_setView2D(Matrix *vtm, View2D *view);
 
 //3D viewing pipeline. VTM is complete view matrix. none of the values of the View structure should be edited.

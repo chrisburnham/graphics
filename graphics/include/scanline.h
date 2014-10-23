@@ -12,3 +12,4 @@
 #include "objects.h"
 
 void scanline_drawFill(Polygon *p, Image *src, Color c ) ;
+void scanline_drawFill2(Polygon *p, Image *src, Color *c) ;

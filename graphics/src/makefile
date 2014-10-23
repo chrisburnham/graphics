@@ -81,6 +81,9 @@ part5cb: $(ODIR)/part5cb.o
 space: $(ODIR)/space.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
+test4vt: $(ODIR)/test4vt.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)    
+
 .PHONY: clean
 
 clean:

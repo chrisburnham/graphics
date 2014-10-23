@@ -246,7 +246,7 @@ void circle_draw(Circle *c, Image *src, Color p){
 	p2 = 1 + y;
 	cx = c->c.val[0];
 	cy = c->c.val[1];
-	
+
 	image_setColor(src, x + cy, y + cx, p);
 	image_setColor(src, -x - 1 + cy, y + cx, p);
 	image_setColor(src, -y - 1 + cy, x + cx, p);

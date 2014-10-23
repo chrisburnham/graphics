@@ -163,6 +163,12 @@ void polygon_drawFill(Polygon *p, Image *src, Color c){
   scanline_drawFill(p, src, c);
 }
 
+// draw the filled polygon using color c with the scanline rendering algorithm.
+void polygon_drawFillwithTexture(Polygon *p, Image *src, Color *c){
+  scanline_drawFill2(p, src, c);
+}
+
+
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm. Will draw for the zero case. scale makes futher from center less bright
 void polygon_drawFillB(Polygon *p, Image *src, Color c){
