@@ -105,9 +105,11 @@ int main(int argc, char *argv[]) {
       matrix_translate2D(&ltm, vp[0].val[0], vp[0].val[1]);
       matrix_xformPolygon(&ltm, &poly[i]);
       matrix_xformPolygon(&vtm, &poly[i]);
+      printf("begin scanline fill...\n");
       polygon_drawFill(&poly[i], src, color[i%5]);
+      printf("...end scanline fill\n");
     }
-
+    printf("hello: %d\n", t);
     sprintf(filename, "test5vt-%04d.ppm", t );
     image_write( src, filename );
 

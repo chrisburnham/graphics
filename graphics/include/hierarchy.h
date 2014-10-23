@@ -44,6 +44,10 @@ typedef struct {
   Element *tail; // keep around a pointer to the last object
 } Module;
 
+typedef struct {
+  Color color;
+} DrawState;
+
 // Allocate and return an initialized but empty Element.
 Element *element_create();
 
@@ -98,5 +102,11 @@ void module_rotateZ(Module *md, double cth, double sth);
 
 // Matrix operand to add a 2D shear matrix to the tail of the module’s list.
 void module_shear2D(Module *md, double shx, double shy);
+
+// Draw the module into the image using the given view transformation matrix 
+// [VTM], Lighting and DrawState by traversing the list of Elements. (For now, 
+// Lighting can be an empty structure.)
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, 
+    Lighting *lighting, Image *src);
 
 #endif

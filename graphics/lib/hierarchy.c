@@ -17,56 +17,72 @@ Element *element_create(){
 Element *element_init(ObjectType type, void *obj){
   Element *e;
   e = malloc(sizeof(Element));
+
+  switch(type) {
+    case ObjNone{
+      // do stuff??
+      break
+    }
+    case ObjLine {
+      Line *line = obj;
+      e->obj = line
+      break;
+    }
+    case ObjPoint {
+      Point *point = obj;
+      e->obj = point;
+      break;
+    }
+    case ObjPolyline {
+      Polyline *polyline = obj;
+      e->obj = polyline;
+      break;
+    }
+    case ObjPolygon {
+      Polygon *polygon = obj;
+      e->obj = polygon;
+      break;
+    }
+    case ObjIdentity {
+      Matrix *matrix = obj;
+      e->obj = matrix;
+      break;
+    }
+    case ObjMatrix {
+      Matrix *matrix = obj;
+      e->obj = matrix;
+      break;
+    }
+    case ObjColor {
+      Color *color = obj;
+      e->obj = color;
+      break;
+    }
+    case ObjBodyColor {
+      Color *color = obj;
+      e->obj = color;
+      break;
+    }
+    case ObjSurfaceColor {
+      Color *color = obj;
+      e->obj = color;
+      break;
+    }
+    case ObjSurfaceCoeff {
+      float *coeff = obj;
+      e->obj = coeff;
+      break;
+    }
+    case ObjLight {
+      // do other stuff
+      break;
+    }
+    case ObjModule {
+      e->obj = obj;
+      break;
+    }
+  }
   e->objType = type;
-  if (type == ObjNone){
-    // do stuff??
-  }
-  else if (type == ObjLine){
-    Line *line = obj;
-    e->obj = line
-  }
-  else if (type == ObjPoint){
-    Point *point = obj;
-    e->obj = point;
-  }
-  else if (type == ObjPolyline){
-    Polyline *polyline = obj;
-    e->obj = polyline;
-  }
-  else if (type == ObjPolygon){
-    Polygon *polygon = obj;
-    e->obj = polygon;
-  }
-  else if (type == ObjIdentity){
-    Matrix *matrix = obj;
-    e->obj = matrix;
-  }
-  else if (type == ObjMatrix){
-    Matrix *matrix = obj;
-    e->obj = matrix;
-  }
-  else if (type == ObjColor){
-    Color *color = obj;
-    e->obj = color;
-  }
-  else if (type == ObjBodyColor){
-    Color *color = obj;
-    e->obj = color;
-  }
-  else if (type == ObjSurfaceColor{
-    Color *color = obj;
-    e->obj = color;
-  }
-  else if (type == ObjSurfaceCoeff){
-    float *coeff = obj;
-    e->obj = coeff;
-  }
-  else if (type == ObjLight){
-    // do other stuff
-  }
-  else if (type == ObjModule){
-    e->obj = obj;
-  }
 }
 
 // free the element and the object it contains, as appropriate.
@@ -189,4 +205,65 @@ void module_shear2D(Module *md, double shx, double shy){
   matrix_shear2D(m);
   e = element_init(ObjMatrix, m);
   module_insert(md, e);
+}
+
+// Draw the module into the image using the given view transformation matrix 
+// [VTM], Lighting and DrawState by traversing the list of Elements. (For now, 
+// Lighting can be an empty structure.)
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, 
+    Lighting *lighting, Image *src){
+  Element *e;
+  Matrix *LTM;
+  matrix_identity(LTM)
+  e = md->head;
+  while(e != NULL){
+    switch(e->type) {
+      case ObjNone {
+        // do stuff??
+      }
+      case ObjLine {
+        Line *line;
+        memcpy((void *)line, e->obj, sizeof(Line));
+        matrix_xformLine(VTM, line);
+        matrix_xformLine(GTM, line);
+        matrix_xformLine(LTM, line);
+        line_draw(l, src, ds->color);
+      }
+      case ObjPoint {
+        break;
+      }
+      case ObjPolyline {
+        break;
+      }
+      case ObjPolygon {
+        break;
+      }
+      case ObjIdentity {
+        break;
+      }
+      case ObjMatrix {
+        break;
+      }
+      case ObjColor {
+        break;
+      }
+      case ObjBodyColor {
+        break;
+      }
+      case ObjSurfaceColor {
+
+      }
+      case ObjSurfaceCoeff {
+        break;
+      }
+      case ObjLight {
+        // do other stuff
+        break;
+      }
+      case ObjModule {
+        break;
+      }      
+    }
+    e = e->next;
+  }
 }
