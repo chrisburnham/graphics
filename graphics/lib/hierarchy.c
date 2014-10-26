@@ -4,6 +4,8 @@
 
 #include "list.h"
 
+/* 2D and Generic Module Functions */
+
 // Allocate and return an initialized but empty Element.
 Element *element_create(){
   Element *e;
@@ -21,40 +23,48 @@ Element *element_init(ObjectType type, void *obj){
   switch(type) {
     case ObjNone{
       // do stuff??
+			e->obj = NULL;
       break
     }
     case ObjLine {
-      Line *line = obj;
+      Line *line;
+			line_copy(line, obj);
       e->obj = line
       break;
     }
     case ObjPoint {
-      Point *point = obj;
+      Point *point;
+			point_copy(point, obj);
       e->obj = point;
       break;
     }
     case ObjPolyline {
-      Polyline *polyline = obj;
+      Polyline *polyline;
+			polyline_copy(polyline, obj);
       e->obj = polyline;
       break;
     }
     case ObjPolygon {
-      Polygon *polygon = obj;
+      Polygon *polygon;
+			polygon_copy(polygon, obj):
       e->obj = polygon;
       break;
     }
     case ObjIdentity {
-      Matrix *matrix = obj;
+      Matrix *matrix;
+			matrix_copy(matrix, obj);
       e->obj = matrix;
       break;
     }
     case ObjMatrix {
-      Matrix *matrix = obj;
+      Matrix *matrix;
+			matrix_copy(matrix, obj);
       e->obj = matrix;
       break;
     }
     case ObjColor {
-      Color *color = obj;
+      Color *color;
+			color_copy(color, obj);
       e->obj = color;
       break;
     }
@@ -64,7 +74,8 @@ Element *element_init(ObjectType type, void *obj){
       break;
     }
     case ObjSurfaceColor {
-      Color *color = obj;
+      Color *color;
+			color_copy(color, obj);
       e->obj = color;
       break;
     }
@@ -75,6 +86,7 @@ Element *element_init(ObjectType type, void *obj){
     }
     case ObjLight {
       // do other stuff
+			e->obj = NULL;
       break;
     }
     case ObjModule {
@@ -214,46 +226,109 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
     Lighting *lighting, Image *src){
   Element *e;
   Matrix *LTM;
-  matrix_identity(LTM)
+
+  matrix_identity(LTM);
   e = md->head;
   while(e != NULL){
     switch(e->type) {
       case ObjNone {
         // do stuff??
+				break;
       }
       case ObjLine {
         Line *line;
-        memcpy((void *)line, e->obj, sizeof(Line));
-        matrix_xformLine(VTM, line);
-        matrix_xformLine(GTM, line);
+        line_copy(line, e->obj);
         matrix_xformLine(LTM, line);
-        line_draw(l, src, ds->color);
+        matrix_xformLine(GTM, line);
+        matrix_xformLine(VTM, line);
+        line_draw(line, src, ds->color);
       }
       case ObjPoint {
+				Point *point;
+        point_copy(point, e->obj);
+        matrix_xformPoint(LTM, point);
+        matrix_xformPoint(GTM, point);
+        matrix_xformPoint(VTM, point);
+        point_draw(point, src, ds->color);
         break;
       }
       case ObjPolyline {
+				Polyline *polyline;
+        polyline_copy(polyline, e->obj);
+        matrix_xformPolyline(LTM, polyline);
+        matrix_xformPolyline(GTM, polyline);
+        matrix_xformPolyline(VTM, polyline);
+        polyline_draw(polyline, src, ds->color);
         break;
       }
       case ObjPolygon {
+				Polygon *polygon;
+        polygon_copy(polygon, e->obj);
+        matrix_xformPolygon(LTM, polygon);
+        matrix_xformPolygon(GTM, polygon);
+        matrix_xformPolygon(VTM, polygon);
+
+				switch(ds->shade){
+					case ShadeFrame {
+						polygon_draw(polygon, src, ds->color);
+						break;
+					}
+					case ShadeConstant { //might be supposed to use ds->color
+						polygon_drawFill(polygon, src, ds->flatColor);
+						break;
+					}
+					case ShadeDepth { //needs to be changed
+						polygon_drawFill(polygon, src, ds->flatColor);
+						break;
+					}
+					case ShadeDepth { //needs to be changed
+						polygon_drawFill(polygon, src, ds->flatColor);
+						break;
+					}
+					case ShadeFlat { //needs to be changed
+						polygon_drawFill(polygon, src, ds->flatColor);
+						break;
+					}
+					case ShadeGouraud { //needs to be changed
+						polygon_drawFill(polygon, src, ds->flatColor);
+						break;
+					}
+					// where optional ShadePhong would go
+				}
         break;
       }
       case ObjIdentity {
+				Matrix *matrix;
+				matrix_copy(matrix, e->obj);
+				matrix_multiply(LTM, matrix, LTM);
         break;
       }
       case ObjMatrix {
+				Matrix *matrix;
+				matrix_copy(matrix, e->obj);
+				matrix_multiply(LTM, matrix, LTM);
         break;
       }
       case ObjColor {
+				Color *color;
+				color_copy(color, e->obj);
+				ds->color = color;
         break;
       }
       case ObjBodyColor {
+				Color *color;
+				color_copy(color, e->obj);
+				ds->body = color;
         break;
       }
       case ObjSurfaceColor {
-
+				Color *color;
+				color_copy(color, e->obj);
+				ds->flatColor = color;
+        break;
       }
       case ObjSurfaceCoeff {
+				ds->surfaceCoeff = *e-obj;
         break;
       }
       case ObjLight {
@@ -261,9 +336,59 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
         break;
       }
       case ObjModule {
+				Matrix *newGTM;
+				DrawState *newds;
+				matrix_multiply(GTM, LTM, newGTM);
+				drawstate_copy(newds, ds);
+				module_draw(e->obj, VTM, newGTM, newds, lighting, src);
         break;
       }      
     }
     e = e->next;
   }
 }
+
+/* 3D Module Functions */
+
+// Matrix operand to add a 3D translation to the Module
+void module_translate(Module *md, double tx, double ty, double tz);
+
+// Matrix operand to add a 3D scale to the Module
+void module_scale(Module *md, double sx, double sy, double sz);
+
+// Matrix operand to add a rotation about the X-axis to the Module
+void module_rotateX(Module *md, double cth, double sth);
+
+// Matrix operand to add a rotation about the Y-axis to the Module
+void module_rotateY(Module *md, double cth, double sth);
+
+// Matrix operand to add a rotation that orients to the orthonormal axes u,v,w
+void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w);
+
+// Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines. If solid is non-zero, use polygons. Make sure each polygon has surface normals defined for it.
+void module_cube(Module *md, int solid);
+
+/* Shading/Color Module Functions */
+
+// Adds the foreground color value to the tail of the module's list
+void module_color(Module *md, Color *c);
+
+/* DrawState Functions */
+
+// create a new DrawState structure and initialize the fields
+DrawState *drawstate_create(void);
+
+// set the color field to c
+void drawstate_setColor(DrawState *s, Color c);
+
+// set the body field to c
+void drawstate_setBody(DrawState *s, Color c);
+
+// set the surface field to c
+void drawstate_setSurface(DrawState *s, Color c);
+
+// set the surfaceCoeff field to f
+void drawstate_setSurfaceCoeff( DrawState *s, float f);
+
+// copy the DrawState data
+void drawstate_copy(DrawState *to, DrawState *from);

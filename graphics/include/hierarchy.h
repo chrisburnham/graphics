@@ -29,14 +29,14 @@ typedef union {
   Matrix matrix;
   Color color;
   float coeff;
-  void *module;
+  void *module; //don't know if we can make this not a void pointer
 } Object;
 
 // Module structure
-typedef struct {
+typedef struct Anode{
   ObjectType type;
   Object obj;
-  void *next;
+  struct Anode *next; //should work instead of void pointer
 } Element;
 
 typedef struct {
@@ -44,9 +44,31 @@ typedef struct {
   Element *tail; // keep around a pointer to the last object
 } Module;
 
+typedef enum {
+	ShadeFrame,			// draw only the borders of objects, including polygons
+	ShadeConstant,	// draw objects using the current foreground color, fill polygons
+	ShadeDepth,			// draw objects using the current foreground color, fill polygons
+	ShadeFlat,			// draw objects using shading calculations, but each polygon is a constant value
+	ShadeGouraud		// draw objects using Gouraud shading
+	// optional ShadePhong would go here
+} ShadeMethod;
+
 typedef struct {
-  Color color;
+  Color color;			// the foreground color, used in the default drawing mode
+	Color flatClor;		// the color to flat-fill a polygon based on a shading calculation
+	Color body;				// the body reflection color, used for shading calculations
+	Color surface;		// the surface reflection color, used for shading calculations
+	float surfaceCoeff;//a float that represents the shininess of the surface
+	ShadeMethod shade;// an enumerated type ShadeMethod
+	int zBufferFlag;	// whether to use z-buffer hidden surface removal
+	Point viewer;			// a  Point representing the view location in 3D (identical to the VRP in View3D)	
 } DrawState;
+
+typedef struct{
+  int nLights;
+} Lighting;
+
+/* 2D and Generic Module Functions */
 
 // Allocate and return an initialized but empty Element.
 Element *element_create();
@@ -108,5 +130,50 @@ void module_shear2D(Module *md, double shx, double shy);
 // Lighting can be an empty structure.)
 void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, 
     Lighting *lighting, Image *src);
+
+/* 3D Module Functions */
+
+// Matrix operand to add a 3D translation to the Module
+void module_translate(Module *md, double tx, double ty, double tz);
+
+// Matrix operand to add a 3D scale to the Module
+void module_scale(Module *md, double sx, double sy, double sz);
+
+// Matrix operand to add a rotation about the X-axis to the Module
+void module_rotateX(Module *md, double cth, double sth);
+
+// Matrix operand to add a rotation about the Y-axis to the Module
+void module_rotateY(Module *md, double cth, double sth);
+
+// Matrix operand to add a rotation that orients to the orthonormal axes u,v,w
+void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w);
+
+// Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines. If solid is non-zero, use polygons. Make sure each polygon has surface normals defined for it.
+void module_cube(Module *md, int solid);
+
+/* Shading/Color Module Functions */
+
+// Adds the foreground color value to the tail of the module's list
+void module_color(Module *md, Color *c);
+
+/* DrawState Functions */
+
+// create a new DrawState structure and initialize the fields
+DrawState *drawstate_create(void);
+
+// set the color field to c
+void drawstate_setColor(DrawState *s, Color c);
+
+// set the body field to c
+void drawstate_setBody(DrawState *s, Color c);
+
+// set the surface field to c
+void drawstate_setSurface(DrawState *s, Color c);
+
+// set the surfaceCoeff field to f
+void drawstate_setSurfaceCoeff( DrawState *s, float f);
+
+// copy the DrawState data
+void drawstate_copy(DrawState *to, DrawState *from);
 
 #endif
