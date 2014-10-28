@@ -27,60 +27,61 @@ Element *element_init(ObjectType type, void *obj){
       break
     }
     case ObjLine {
-      Line *line;
-			line_copy(line, obj);
+      Line line;
+			line_copy(&line, (Line*)obj);
       e->obj = line
       break;
     }
     case ObjPoint {
-      Point *point;
-			point_copy(point, obj);
+      Point point;
+			point_copy(&point, (Point*)obj);
       e->obj = point;
       break;
     }
     case ObjPolyline {
-      Polyline *polyline;
-			polyline_copy(polyline, obj);
+      Polyline polyline;
+			polyline_init(&polyline);
+			polyline_copy(&polyline, (Polyline*)obj);
       e->obj = polyline;
       break;
     }
     case ObjPolygon {
-      Polygon *polygon;
-			polygon_copy(polygon, obj):
+      Polygon polygon;
+			polygon_init(&polygon);
+			polygon_copy(&polygon, (Polygon*)obj):
       e->obj = polygon;
       break;
     }
     case ObjIdentity {
-      Matrix *matrix;
-			matrix_copy(matrix, obj);
-      e->obj = matrix;
+      e->obj = NULL;
       break;
     }
     case ObjMatrix {
-      Matrix *matrix;
-			matrix_copy(matrix, obj);
+      Matrix matrix;
+			matrix_copy(&matrix, (Matrix*)obj);
       e->obj = matrix;
       break;
     }
     case ObjColor {
-      Color *color;
-			color_copy(color, obj);
+      Color color;
+			color_copy(&color, (Color*)obj);
       e->obj = color;
       break;
     }
     case ObjBodyColor {
-      Color *color = obj;
+      Color color;
+			color_copy(&color, (Color*)obj);
       e->obj = color;
       break;
     }
     case ObjSurfaceColor {
-      Color *color;
-			color_copy(color, obj);
+      Color color;
+			color_copy(&color, (Color*)obj);
       e->obj = color;
       break;
     }
     case ObjSurfaceCoeff {
-      float *coeff = obj;
+      float coeff = (float)obj;
       e->obj = coeff;
       break;
     }
@@ -95,10 +96,17 @@ Element *element_init(ObjectType type, void *obj){
     }
   }
   e->objType = type;
+	e->next = NULL;
 }
 
 // free the element and the object it contains, as appropriate.
 void element_delete(Element *e){
+	if(e->objType == Polyline){
+		polyline_clear(e->obj.polyline);
+	}
+	else if(e->objType == Polygon){
+		polygon_clear(e->obj.polygon);
+	}
   free (e->obj);
   free (e);
 }
@@ -237,7 +245,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
       }
       case ObjLine {
         Line *line;
-        line_copy(line, e->obj);
+        line_copy(line, &e->obj.line);
         matrix_xformLine(LTM, line);
         matrix_xformLine(GTM, line);
         matrix_xformLine(VTM, line);
@@ -245,7 +253,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
       }
       case ObjPoint {
 				Point *point;
-        point_copy(point, e->obj);
+        point_copy(point, &e->obj.point);
         matrix_xformPoint(LTM, point);
         matrix_xformPoint(GTM, point);
         matrix_xformPoint(VTM, point);
@@ -254,16 +262,19 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
       }
       case ObjPolyline {
 				Polyline *polyline;
-        polyline_copy(polyline, e->obj);
+				polyline_init(polyline);
+        polyline_copy(polyline, &e->obj.polyline);
         matrix_xformPolyline(LTM, polyline);
         matrix_xformPolyline(GTM, polyline);
         matrix_xformPolyline(VTM, polyline);
         polyline_draw(polyline, src, ds->color);
+				polyline_clear(polyline);
         break;
       }
       case ObjPolygon {
 				Polygon *polygon;
-        polygon_copy(polygon, e->obj);
+				polygon_init(polygon);
+        polygon_copy(polygon, &e->obj.polygon);
         matrix_xformPolygon(LTM, polygon);
         matrix_xformPolygon(GTM, polygon);
         matrix_xformPolygon(VTM, polygon);
@@ -295,40 +306,39 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 					}
 					// where optional ShadePhong would go
 				}
+				polygon_clear(polygon);
         break;
       }
       case ObjIdentity {
-				Matrix *matrix;
-				matrix_copy(matrix, e->obj);
-				matrix_multiply(LTM, matrix, LTM);
+				matrix_identity(LTM);
         break;
       }
       case ObjMatrix {
 				Matrix *matrix;
-				matrix_copy(matrix, e->obj);
+				matrix_copy(matrix, &e->obj.matrix);
 				matrix_multiply(LTM, matrix, LTM);
         break;
       }
       case ObjColor {
 				Color *color;
-				color_copy(color, e->obj);
+				color_copy(color, &e->obj.color);
 				ds->color = color;
         break;
       }
       case ObjBodyColor {
 				Color *color;
-				color_copy(color, e->obj);
+				color_copy(color, &e->obj.color);
 				ds->body = color;
         break;
       }
       case ObjSurfaceColor {
 				Color *color;
-				color_copy(color, e->obj);
+				color_copy(color, &e->obj.color);
 				ds->flatColor = color;
         break;
       }
       case ObjSurfaceCoeff {
-				ds->surfaceCoeff = *e-obj;
+				ds->surfaceCoeff = e->obj.coeff;
         break;
       }
       case ObjLight {
@@ -351,21 +361,86 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 /* 3D Module Functions */
 
 // Matrix operand to add a 3D translation to the Module
-void module_translate(Module *md, double tx, double ty, double tz);
+void module_translate(Module *md, double tx, double ty, double tz){
+	Element *e;
+	Matrix *m;
+	int i;
+	for(i=0; i<4; i++){
+		m->m[0][i] = m->m[0][i] + m->m[3][i] * tx;
+		m->m[1][i] = m->m[1][i] + m->m[3][i] * ty;
+  	m->m[2][i] = m->m[2][i] + m->m[3][i] * tz;
+  }
+	e = element_create();
+	element_init(Matrix, m);
+	module_insert(md, m);
+}
 
 // Matrix operand to add a 3D scale to the Module
-void module_scale(Module *md, double sx, double sy, double sz);
+void module_scale(Module *md, double sx, double sy, double sz){
+	Element *e;
+	Matrix *m;
+	int i;
+	for(i=0; i<4; i++){
+		m->m[0][i] = m->m[0][i] * sx;
+		m->m[1][i] = m->m[1][i] * sy;
+		m->m[2][i] = m->m[2][i] * sz;
+  }
+	e = element_create();
+	element_init(Matrix, m);
+	module_insert(md, m);	
+}
 
 // Matrix operand to add a rotation about the X-axis to the Module
-void module_rotateX(Module *md, double cth, double sth);
+void module_rotateX(Module *md, double cth, double sth){
+	Element *e;
+	Matrix *m;
+	int i;
+	double tmp;
+	for(i=0; i<4; i++){
+		tmp = m->m[1][i]*cth - m->m[2][i]*sth;
+		m->m[2][i] = m->m[1][i]*sth + m->m[2][i]*cth;
+		m->m[1][i] = tmp;
+  }
+	e = element_create();
+	element_init(Matrix, m);
+	module_insert(md, m);	
+}
 
 // Matrix operand to add a rotation about the Y-axis to the Module
-void module_rotateY(Module *md, double cth, double sth);
+void module_rotateY(Module *md, double cth, double sth){
+	Element *e;
+	Matrix *m;
+	int i;
+	double tmp;
+	for(i=0; i<4; i++){
+		tmp = m->m[0][i]*cth + m->m[2][i]*sth;
+		m->m[2][i] = m->m[2][i]*cth - m->m[0][i]*sth;
+		m->m[0][i] = tmp;
+  }
+	e = element_create();
+	element_init(Matrix, m);
+	module_insert(md, m);	
+}
 
 // Matrix operand to add a rotation that orients to the orthonormal axes u,v,w
-void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w);
+void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w){
+	Element *e;
+	Matrix *m;
+	int i;
+	double tmp0, tmp1;
+	for(i=0; i<4; i++){
+		tmp0 = m->m[0][i]*u->val[0] + m->m[1][i]*u->val[1] + m->m[2][i]*u->val[2];
+		tmp1 = m->m[0][i]*v->val[0] + m->m[1][i]*v->val[1] + m->m[2][i]*v->val[2];
+		m->m[2][i] = m->m[0][i]*w->val[0] + m->m[1][i]*w->val[1] + m->m[2][i]*w->val[2];
+		m->m[0][i] = tmp0;
+		m->m[1][i] = tmp1;
+  }
+	e = element_create();
+	element_init(Matrix, m);
+	module_insert(md, m);	
+}
 
-// Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines. If solid is non-zero, use polygons. Make sure each polygon has surface normals defined for it.
+// Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines. If solid is non-zero, use polygons.
 void module_cube(Module *md, int solid);
 
 /* Shading/Color Module Functions */
