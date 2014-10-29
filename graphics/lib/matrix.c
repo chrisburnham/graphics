@@ -23,6 +23,11 @@ void vector_print(Vector *v, FILE *fp){
     fprintf(fp, "(%f,%f,%f,%f)\n", v->val[0], v->val[1], v->val[2], v->val[3]);
 }
 
+//copy the src vector into the dest vector
+void vector_copy(Vector *dest, Vector *src){
+	*dest = *src;
+}
+
 //returns the Euclidean length of the vector, assuming the homogeneous coordinate is 1.0
 double vector_length(Vector *v){
     return sqrt( v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] + v->val[3]*v->val[3] );

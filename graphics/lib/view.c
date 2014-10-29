@@ -4,6 +4,15 @@
 
 #include "view.h"
 
+//sets up the view
+void view2D_set(View2D *view, Point *vrp, double dx, Vector *x, double screenx, double screeny){
+	point_copy(&(view->vrp), vrp);
+	view->dx = dx;
+	vector_copy(&(view->x), x);
+	view->screenx = screenx;
+	view->screeny = screeny;
+}
+
 //sets the vtm to be the virw transfermation defined by the 2D View structure
 void matrix_setView2D(Matrix *vtm, View2D *view){
 	matrix_identity(vtm);

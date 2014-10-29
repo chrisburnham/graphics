@@ -23,6 +23,9 @@ void vector_set(Vector *v, double x, double y, double z);
 //print out the Vector to stream fp in a pretty form
 void vector_print(Vector *v, FILE *fp);
 
+//copy the src vector into the dest vector
+void vector_copy(Vector *dest, Vector *src);
+
 //returns the Euclidean length of the vector, assuming the homogeneous coordinate is 1.0
 double vector_length(Vector *v);
 
