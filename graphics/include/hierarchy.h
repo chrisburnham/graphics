@@ -36,7 +36,7 @@ typedef union {
 typedef struct Anode{
   ObjectType type;
   Object obj;
-  struct Anode *next; //should work instead of void pointer
+  struct Anode*next; //should work instead of void pointer
 } Element;
 
 typedef struct {
@@ -55,7 +55,7 @@ typedef enum {
 
 typedef struct {
   Color color;			// the foreground color, used in the default drawing mode
-	Color flatClor;		// the color to flat-fill a polygon based on a shading calculation
+	Color flatColor;		// the color to flat-fill a polygon based on a shading calculation
 	Color body;				// the body reflection color, used for shading calculations
 	Color surface;		// the surface reflection color, used for shading calculations
 	float surfaceCoeff;//a float that represents the shininess of the surface
@@ -71,7 +71,7 @@ typedef struct{
 /* 2D and Generic Module Functions */
 
 // Allocate and return an initialized but empty Element.
-Element *element_create();
+Element *element_create(void);
 
 // Allocate an Element and store a duplicate of the data pointed to by obj in 
 // the Element. Modules do not get duplicated. The function needs to handle each
@@ -82,7 +82,7 @@ Element *element_init(ObjectType type, void *obj);
 void element_delete(Element *e);
 
 // Allocate an empty module.
-Module *module_create();
+Module *module_create(void);
 
 // clear the module’s list of Elements, freeing memory as appropriate.
 void module_clear(Module *md);

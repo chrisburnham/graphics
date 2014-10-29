@@ -10,5 +10,6 @@
 #include "polygon.h"
 #include "matrix.h"
 #include "view.h"
+#include "hierarchy.h"
 
 #endif
