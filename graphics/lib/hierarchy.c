@@ -132,13 +132,15 @@ Module *module_create(){
 // clear the module’s list of Elements, freeing memory as appropriate.
 void module_clear(Module *md){
   Element *e;
-  e = md->head;
-  while (e->next != NULL){ 
-    md->head = e->next;
-    element_delete(e);
-    e = md->head;
-  }
-  element_delete(e);
+	if(md->head){
+		e = md->head;
+		while (e->next != NULL){ 
+		  md->head = e->next;
+		  element_delete(e);
+		  e = md->head;
+		}
+		element_delete(e);
+	}
   md->head = NULL;
   md->tail = NULL;
 }
