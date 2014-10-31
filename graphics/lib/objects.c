@@ -54,7 +54,7 @@ void point_copy(Point *to, Point *from){
 
 //draw the point into src using color c
 void point_draw(Point *p, Image *src, Color c){
-	image_setColor(src, p->val[0], p->val[1], c);
+	image_setColor(src, p->val[1], p->val[0], c);
 }
 
 //draw the p into src using FPixel c
@@ -228,6 +228,11 @@ void line_draw(Line *l, Image *src, Color c){
 			}
 		}
 	}
+}
+
+//print out the line
+void line_print(Line *l, FILE *fp){
+	fprintf(fp, "line (%f,%f,%f,%f) to (%f,%f,%f,%f)\n", l->a.val[0], l->a.val[1], l->a.val[2], l->a.val[3], l->b.val[0], l->b.val[1], l->b.val[2], l->b.val[3]);
 }
 
 /* Circle functions */

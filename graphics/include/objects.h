@@ -83,6 +83,9 @@ void line_copy(Line *to, Line *from);
 //draw the line into src using color c
 void line_draw(Line *l, Image *src, Color c);
 
+//print out the line
+void line_print(Line *l, FILE *fp);
+
 /* Circle functions */
 //initialize to center tc and radius tr
 void circle_set(Circle *c, Point tc, double tr);

@@ -68,6 +68,8 @@ int main(int argc, char *argv[]) {
   view2D_set( &view, &vrp, 2, &xaxis, 640, 360 );
   matrix_setView2D( &vtm, &view );
 
+	matrix_print(&vtm, stdout);
+
   // create a body
   body = module_create();
 
@@ -162,6 +164,7 @@ int main(int argc, char *argv[]) {
 	// create the image and draw the module
   src = image_create( view.screeny, view.screenx );
   ds = drawstate_create(); // default color is white
+
   module_draw( scene, &vtm, &gtm, ds, NULL, src );
 
 	// write out the image

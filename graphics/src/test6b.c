@@ -9,6 +9,7 @@ Draws three 3D X-wings as line drawings
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "graphics.h"
 
 /*
@@ -317,11 +318,11 @@ int main(int argc, char *argv[]) {
 
 	// free the modules
   module_delete( scene );
-  module_delete( wing );
+  module_delete( wing ); 
   module_delete( wings );
-  module_delete( laser );
+  module_delete( laser ); 
   module_delete( body );
-  module_delete( engine );
+  module_delete( engine ); 
 
 	// free the drawstate
 	free(ds);

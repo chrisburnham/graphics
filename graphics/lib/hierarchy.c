@@ -14,6 +14,9 @@
 Element *element_create(){
   Element *e;
   e = malloc(sizeof(Element));
+	e->type = ObjNone;
+	e->obj.module = NULL;
+	e->next = NULL;
   return e;
 }
 
@@ -100,10 +103,10 @@ Element *element_init(ObjectType type, void *obj){
       break;
     
   }
-	polyline_clear(&polyline);
-	polygon_clear(&polygon);
+	
   e->type = type;
 	e->next = NULL;
+	return e;
 }
 
 // free the element and the object it contains, as appropriate.
@@ -121,19 +124,21 @@ void element_delete(Element *e){
 Module *module_create(){
   Module *mod;
   mod = malloc(sizeof(Module));
+	mod->head = NULL;
+	mod->tail = NULL;
 	return mod;
 }
 
 // clear the module’s list of Elements, freeing memory as appropriate.
 void module_clear(Module *md){
   Element *e;
-      e = md->head;
+  e = md->head;
   while (e->next != NULL){ 
     md->head = e->next;
     element_delete(e);
     e = md->head;
   }
-  free(e);
+  element_delete(e);
   md->head = NULL;
   md->tail = NULL;
 }
@@ -141,15 +146,19 @@ void module_clear(Module *md){
 // Free all of the memory associated with a module, including the memory pointed to by md.
 void module_delete(Module *md){
   module_clear(md);
-  free(md->head);
-  free(md->tail);
   free(md);
 }
 
 // Generic insert of an element into the module at the tail of the list.
 void module_insert(Module *md, Element *e){
-  md->tail->next = e;
-  md->tail = e;
+	if(md->head){
+		md->tail->next = e;
+  	md->tail = e;
+	}
+  else{
+		md->head = e;
+  	md->tail = e;
+	}
 }
 
 // Adds a pointer to the Module sub to the tail of the module’s list.
@@ -198,22 +207,22 @@ void module_identity(Module *md){
 // Matrix operand to add a translation matrix to the tail of the module’s list.
 void module_translate2D(Module *md, double tx, double ty){
   Element *e;
-  Matrix *m;
-  matrix_identity(m);
-	m->m[0][3] = tx;
-	m->m[1][3] = ty;
-  e = element_init(ObjMatrix, m);
+  Matrix m;
+  matrix_identity(&m);
+	m.m[0][3] = tx;
+	m.m[1][3] = ty;
+  e = element_init(ObjMatrix, &m);
   module_insert(md, e);
 }
 
 // Matrix operand to add a scale matrix to the tail of the module’s list.
 void module_scale2D(Module *md, double sx, double sy){
   Element *e;
-  Matrix *m;
-  matrix_identity(m);
-	m->m[0][0] = sx;
-	m->m[1][1] = sy;
-  e = element_init(ObjMatrix, m);
+  Matrix m;
+  matrix_identity(&m);
+	m.m[0][0] = sx;
+	m.m[1][1] = sy;
+  e = element_init(ObjMatrix, &m);
   module_insert(md, e);
 }
 
@@ -221,24 +230,24 @@ void module_scale2D(Module *md, double sx, double sy){
 // list
 void module_rotateZ(Module *md, double cth, double sth){
   Element *e;
-  Matrix *m;
-  matrix_identity(m);
-	m->m[0][0] = cth;
-	m->m[1][1] = cth;
-	m->m[0][1] = -sth;
-	m->m[1][0] = sth;
-  e = element_init(ObjMatrix, m);
+  Matrix m;
+  matrix_identity(&m);
+	m.m[0][0] = cth;
+	m.m[1][1] = cth;
+	m.m[0][1] = -sth;
+	m.m[1][0] = sth;
+  e = element_init(ObjMatrix, &m);
   module_insert(md, e);
 }
 
 // Matrix operand to add a 2D shear matrix to the tail of the module’s list.
 void module_shear2D(Module *md, double shx, double shy){
   Element *e;
-  Matrix *m;
-  matrix_identity(m);
-	m->m[0][1] = shx;
-	m->m[1][0] = shy;
-  e = element_init(ObjMatrix, m);
+  Matrix m;
+  matrix_identity(&m);
+	m.m[0][1] = shx;
+	m.m[1][0] = shy;
+  e = element_init(ObjMatrix, &m);
   module_insert(md, e);
 }
 
@@ -248,19 +257,19 @@ void module_shear2D(Module *md, double shx, double shy){
 void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, 
     Lighting *lighting, Image *src){
   Element *e;
-  Matrix *LTM;
-	Line *line;
-	Point *point;
-	Polyline *polyline;
-	Polygon *polygon;
-	Matrix *matrix;
-	Matrix *newGTM;
-	DrawState *newds;
+  Matrix LTM;
+	Line line;
+	Point point1, point2;
+	Polyline polyline;
+	Polygon polygon;
+	Matrix newGTM;
+	DrawState newds;
 
-	polygon_init(polygon);
-	polyline_init(polyline);
-  matrix_identity(LTM);
+	polygon_init(&polygon);
+	polyline_init(&polyline);
+  matrix_identity(&LTM);
   e = md->head;
+
   while(e != NULL){
     switch(e->type) {
       case ObjNone:
@@ -268,52 +277,58 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 				break;
       
       case ObjLine:
-        line_copy(line, &(e->obj.line));
-        matrix_xformLine(LTM, line);
-        matrix_xformLine(GTM, line);
-        matrix_xformLine(VTM, line);
-        line_draw(line, src, ds->color);
+        line_copy(&line, &(e->obj.line));
+        matrix_xformLine(&LTM, &line);
+        matrix_xformLine(GTM, &line);
+        matrix_xformLine(VTM, &line);
+				line_normalize(&line);
+        line_draw(&line, src, ds->color);
+				break;
       
-      case ObjPoint:
-        matrix_xformPoint(LTM, &(e->obj.point), point);
-        matrix_xformPoint(GTM, &(e->obj.point), point);
-        matrix_xformPoint(VTM, &(e->obj.point), point);
-        point_draw(point, src, ds->color);
+      case ObjPoint: // row col swapped mayb
+				point_copy(&point1, &(e->obj.point));
+        matrix_xformPoint(&LTM, &point1, &point2);
+        matrix_xformPoint(GTM, &point2, &point1);
+        matrix_xformPoint(VTM, &point1, &point2);
+				point_normalize(&point2);
+        point_draw(&point2, src, ds->color);
         break;
       
       case ObjPolyline:
-        polyline_copy(polyline, &(e->obj.polyline));
-        matrix_xformPolyline(LTM, polyline);
-        matrix_xformPolyline(GTM, polyline);
-        matrix_xformPolyline(VTM, polyline);
-        polyline_draw(polyline, src, ds->color);
+        polyline_copy(&polyline, &(e->obj.polyline));
+        matrix_xformPolyline(&LTM, &polyline);
+        matrix_xformPolyline(GTM, &polyline);
+        matrix_xformPolyline(VTM, &polyline);
+				polyline_normalize(&polyline);
+        polyline_draw(&polyline, src, ds->color);
         break;
       
       case ObjPolygon:
-        polygon_copy(polygon, &(e->obj.polygon));
-        matrix_xformPolygon(LTM, polygon);
-        matrix_xformPolygon(GTM, polygon);
-        matrix_xformPolygon(VTM, polygon);
+        polygon_copy(&polygon, &(e->obj.polygon));
+        matrix_xformPolygon(&LTM, &polygon);
+        matrix_xformPolygon(GTM, &polygon);
+        matrix_xformPolygon(VTM, &polygon);
+				polygon_normalize(&polygon);
 
 				switch(ds->shade){
 					case ShadeFrame:
-						polygon_draw(polygon, src, ds->color);
+						polygon_draw(&polygon, src, ds->color);
 						break;
 					
-					case ShadeConstant: //might be supposed to use ds->color
-						polygon_drawFill(polygon, src, ds->flatColor);
+					case ShadeConstant:
+						polygon_drawFill(&polygon, src, ds->color);
 						break;
 					
-					case ShadeDepth: //needs to be changed
-						polygon_drawFill(polygon, src, ds->flatColor);
+					case ShadeDepth: //will be changed
+						polygon_drawFill(&polygon, src, ds->body);
 						break;
 					
-					case ShadeFlat: //needs to be changed
-						polygon_drawFill(polygon, src, ds->flatColor);
+					case ShadeFlat: //will be changed
+						polygon_drawFill(&polygon, src, ds->body);
 						break;
 					
-					case ShadeGouraud: //needs to be changed
-						polygon_drawFill(polygon, src, ds->flatColor);
+					case ShadeGouraud: //will be changed
+						polygon_drawFill(&polygon, src, ds->color);
 						break;
 					
 					// where optional ShadePhong would go
@@ -321,12 +336,11 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
         break;
       
       case ObjIdentity:
-				matrix_identity(LTM);
+				matrix_identity(&LTM);
         break;
       
       case ObjMatrix:
-				matrix_copy(matrix, &(e->obj.matrix));
-				matrix_multiply(LTM, matrix, LTM);
+				matrix_multiply(&(e->obj.matrix), &LTM, &LTM);
         break;
       
       case ObjColor:
@@ -350,16 +364,16 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
         break;
       
       case ObjModule:
-				matrix_multiply(GTM, LTM, newGTM);
-				drawstate_copy(newds, ds);
-				module_draw(e->obj.module, VTM, newGTM, newds, lighting, src);
+				matrix_multiply(GTM, &LTM, &newGTM);
+				drawstate_copy(&newds, ds);
+				module_draw(e->obj.module, VTM, &newGTM, &newds, lighting, src);
         break;
            
     }
     e = e->next;
   }
-	polyline_clear(polyline);
-	polygon_clear(polygon);
+	polyline_clear(&polyline);
+	polygon_clear(&polygon);
 }
 
 /* 3D Module Functions */
@@ -367,67 +381,65 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 // Matrix operand to add a 3D translation to the Module
 void module_translate(Module *md, double tx, double ty, double tz){
 	Element *e;
-	Matrix *m;
-	matrix_identity(m);
-	m->m[0][3] = tx;
-	m->m[1][3] = ty;
-	m->m[2][3] = tz;
-	e = element_init(ObjMatrix, m);
+	Matrix m;
+	matrix_identity(&m);
+	m.m[0][3] = tx;
+	m.m[1][3] = ty;
+	m.m[2][3] = tz;
+	e = element_init(ObjMatrix, &m);
 	module_insert(md, e);
 }
 
 // Matrix operand to add a 3D scale to the Module
 void module_scale(Module *md, double sx, double sy, double sz){
 	Element *e;
-	Matrix *m;
-	matrix_identity(m);
-	m->m[0][0] = sx;
-	m->m[1][1] = sy;
-	m->m[2][2] = sz;
-	e = element_init(ObjMatrix, m);
+	Matrix m;
+	matrix_identity(&m);
+	m.m[0][0] = sx;
+	m.m[1][1] = sy;
+	m.m[2][2] = sz;
+	e = element_init(ObjMatrix, &m);
 	module_insert(md, e);	
 }
 
 // Matrix operand to add a rotation about the X-axis to the Module
 void module_rotateX(Module *md, double cth, double sth){
 	Element *e;
-	Matrix *m;
-	matrix_identity(m);
-	m->m[1][1] = cth;
-	m->m[1][2] = -sth;
-	m->m[2][1] = sth;
-	m->m[2][2] = cth;
-	e = element_init(ObjMatrix, m);
+	Matrix m;
+	matrix_identity(&m);
+	m.m[1][1] = cth;
+	m.m[1][2] = -sth;
+	m.m[2][1] = sth;
+	m.m[2][2] = cth;
+	e = element_init(ObjMatrix, &m);
 	module_insert(md, e);	
 }
 
 // Matrix operand to add a rotation about the Y-axis to the Module
 void module_rotateY(Module *md, double cth, double sth){
 	Element *e;
-	Matrix *m;
-	matrix_identity(m);
-	m->m[0][0] = cth;
-	m->m[0][2] = sth;
-	m->m[2][0] = -sth;
-	m->m[2][2] = cth;
-	e = element_create();
-	element_init(ObjMatrix, m);
+	Matrix m;
+	matrix_identity(&m);
+	m.m[0][0] = cth;
+	m.m[0][2] = sth;
+	m.m[2][0] = -sth;
+	m.m[2][2] = cth;
+	e = element_init(ObjMatrix, &m);
 	module_insert(md, e);	
 }
 
 // Matrix operand to add a rotation that orients to the orthonormal axes u,v,w
 void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w){
 	Element *e;
-	Matrix *m;\
+	Matrix m;
 	int i;
-	matrix_identity(m);
+	matrix_identity(&m);
 	for(i=0; i<3; i++){
-		m->m[0][i] = u->val[i];
-		m->m[1][i] = v->val[i];
-		m->m[2][i] = w->val[i];
+		m.m[0][i] = u->val[i];
+		m.m[1][i] = v->val[i];
+		m.m[2][i] = w->val[i];
 	}
-	e = element_create();
-	element_init(ObjMatrix, m);
+	e = element_init(ObjMatrix, &m);
 	module_insert(md, e);	
 }
 
@@ -464,8 +476,7 @@ void module_cube(Module *md, int solid){
 		line_set(&(edge[11]), vtex[6], vtex[7]);
 
 		for(i=0; i<12; i++){
-			e = element_create();
-			element_init(ObjLine, &(edge[i]));
+			e = element_init(ObjLine, &(edge[i]));
 			module_insert(md, e);
 		}
 	}
@@ -501,7 +512,7 @@ void module_cube(Module *md, int solid){
 		point_copy(&(square[1]), &(vtex[3]));
 		point_copy(&(square[2]), &(vtex[7]));
 		point_copy(&(square[3]), &(vtex[6]));
-		polygon_set(&side[0], 4, square);
+		polygon_set(&side[4], 4, square);
 
 		point_copy(&(square[0]), &(vtex[4]));
 		point_copy(&(square[1]), &(vtex[5]));
@@ -510,8 +521,7 @@ void module_cube(Module *md, int solid){
 		polygon_set(&side[5], 4, square);
 
 		for(i=0; i<6; i++){
-			e = element_create();
-			element_init(ObjPolygon, &(side[i]));
+			e = element_init(ObjPolygon, &(side[i]));
 			module_insert(md, e);
 		}
 	}
@@ -522,17 +532,24 @@ void module_cube(Module *md, int solid){
 // Adds the foreground color value to the tail of the module's list
 void module_color(Module *md, Color *c){
 	Element *e;
-	e = element_create();
-	element_init(ObjColor, c);
+	e = element_init(ObjColor, c);
 	module_insert(md, e);
 }
 
 /* DrawState Functions */
 
-// create a new DrawState structure and initialize the fields
+// create a new DrawState structure and initialize the fields. Colors default to white. Surface coeff to 0, shade to Constant, z to 0, viewer to (0,0,0,1)
 DrawState *drawstate_create(void){
 	DrawState *ds;
 	ds = malloc(sizeof(DrawState));
+	color_set(&(ds->color), 1, 1, 1);
+	color_set(&(ds->flatColor), 1, 1, 1);
+	color_set(&(ds->body), 1, 1, 1);
+	color_set(&(ds->surface), 1, 1, 1);
+	ds->surfaceCoeff = 0;
+	ds->shade = ShadeConstant;
+	ds->zBufferFlag = 0;
+	point_set3D(&(ds->viewer), 0, 0, 0);
 	return ds;
 }
 
