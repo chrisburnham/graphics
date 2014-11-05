@@ -11,5 +11,6 @@
 #include "matrix.h"
 #include "view.h"
 #include "hierarchy.h"
+#include "bezier.h"
 
 #endif
