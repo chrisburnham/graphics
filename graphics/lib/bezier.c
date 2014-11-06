@@ -174,5 +174,85 @@ void module_bezierCurve(Module *m, BezierCurve *b, int divisions){
 
 // use the de castelajau algorithm to subdivide the bezier surface divisions times, then draw either the lines connecting the control points, if solid is 0, or draw triangles using the four corner control points. For example, if divisions is 1, the 16 origional bezier curve control points will be used to generate 64 control points and four new bezier surfaces, 1 level of subdivision, and then the algorithm will draw lines or triangles to connect the adjacent control points.
 void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid){
-	printf("function goes here\n");
+	int i, j, k;
+	Line *l;
+	Polygon *p;
+	Point vlist[3];
+	Point grid[7][7];
+	Point tmp;
+	Point input[16];
+	BezierSurface newB;
+
+	if( divisions == 0 ){
+		if( solid == 0 ){
+			l = malloc(sizeof(Line));
+			for(i=0; i<3; i++){
+				for(j=0; j<3; j++){
+					line_set(l, b->pts[i][j], b->pts[i][j+1]);
+					module_line(m, l);
+
+					line_set(l, b->pts[i][j], b->pts[i+1][j]);
+					module_line(m, l);
+				}
+				line_set(l, b->pts[i][3], b->pts[i+1][3]);
+				module_line(m, l);
+
+				line_set(l, b->pts[3][i], b->pts[3][i+1]);
+				module_line(m, l);
+			}
+			free(l);
+		}
+		else{
+			p = polygon_create();
+			for(i=0; i<3; i++){
+				for(j=0; j<3; j++){
+					vlist[0] = b->pts[i][j];
+					vlist[1] = b->pts[i+1][j];
+					vlist[2] = b->pts[i][j+1];
+					polygon_set(p, 3, vlist);
+					module_polygon(m, p);
+
+					vlist[0] = b->pts[i][j+1];
+					vlist[2] = b->pts[i+1][j+1];
+					polygon_set(p, 3, vlist);
+					module_polygon(m, p);
+				}
+			}
+			polygon_free(p);
+		}
+	}
+	else{
+		for(i=0; i<4; i++){
+			grid[2*i][0] = b->pts[i][0];
+			point_set3D( &(grid[2*i][1]), (b->pts[i][0].val[0]+b->pts[i][1].val[0]) / 2.0, (b->pts[i][0].val[1]+b->pts[i][1].val[1]) / 2.0, (b->pts[i][0].val[2]+b->pts[i][1].val[2]) / 2.0 );
+			point_set3D( &tmp, (b->pts[i][1].val[0]+b->pts[i][2].val[0]) / 2.0, (b->pts[i][1].val[1]+b->pts[i][2].val[1]) / 2.0, (b->pts[i][1].val[2]+b->pts[i][2].val[2]) / 2.0 );
+			point_set3D( &(grid[2*i][2]), (grid[2*i][1].val[0]+tmp.val[0]) / 2.0, (grid[2*i][1].val[1]+tmp.val[1]) / 2.0, (grid[2*i][1].val[2]+tmp.val[2]) / 2.0 );
+			point_set3D( &(grid[2*i][5]), (b->pts[i][2].val[0]+b->pts[i][3].val[0]) / 2.0, (b->pts[i][2].val[1]+b->pts[i][3].val[1]) / 2.0, (b->pts[i][2].val[2]+b->pts[i][3].val[2]) / 2.0 );
+			point_set3D( &(grid[2*i][4]), (grid[2*i][5].val[0]+tmp.val[0]) / 2.0, (grid[2*i][5].val[1]+tmp.val[1]) / 2.0, (grid[2*i][5].val[2]+tmp.val[2]) / 2.0 );
+			point_set3D( &(grid[2*i][3]), (grid[2*i][2].val[0]+grid[2*i][4].val[0]) / 2.0, (grid[2*i][2].val[1]+grid[2*i][4].val[1]) / 2.0, (grid[2*i][2].val[2]+grid[2*i][4].val[2]) / 2.0 );
+			grid[2*i][6] = b->pts[i][3];
+		}
+		for(i=0; i<7; i++){
+			point_set3D( &(grid[1][i]), (grid[0][i].val[0]+grid[2][i].val[0]) / 2.0, (grid[0][i].val[1]+grid[2][i].val[1]) / 2.0, (grid[0][i].val[2]+grid[2][i].val[2]) / 2.0 );
+			point_set3D( &tmp, (grid[4][i].val[0]+grid[2][i].val[0]) / 2.0, (grid[4][i].val[1]+grid[2][i].val[1]) / 2.0, (grid[4][i].val[2]+grid[2][i].val[2]) / 2.0 );
+			point_set3D( &(grid[5][i]), (grid[4][i].val[0]+grid[6][i].val[0]) / 2.0, (grid[4][i].val[1]+grid[6][i].val[1]) / 2.0, (grid[4][i].val[2]+grid[6][i].val[2]) / 2.0 );
+			point_set3D( &(grid[2][i]), (grid[1][i].val[0]+tmp.val[0]) / 2.0, (grid[1][i].val[1]+tmp.val[1]) / 2.0, (grid[1][i].val[2]+tmp.val[2]) / 2.0 );
+			point_set3D( &(grid[4][i]), (grid[5][i].val[0]+tmp.val[0]) / 2.0, (grid[5][i].val[1]+tmp.val[1]) / 2.0, (grid[5][i].val[2]+tmp.val[2]) / 2.0 );
+			point_set3D( &(grid[3][i]), (grid[2][i].val[0]+grid[4][i].val[0]) / 2.0, (grid[2][i].val[1]+grid[4][i].val[1]) / 2.0, (grid[2][i].val[2]+grid[4][i].val[2]) / 2.0 );
+		}
+		bezierSurface_init(&newB);
+		for(i=0; i<4; i++){
+			for(j=0; j<4; j++){
+				for(k=0; k<4; k++){
+					input[j*4 + k] = grid[3*(i%2) + j][3*(i/2) + k];
+				}
+			}
+			bezierSurface_set(&newB, input);
+			module_bezierSurface(m, &newB, divisions - 1, solid);
+		}
+	}
 }
+
+
+
+
