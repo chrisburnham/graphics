@@ -48,4 +48,7 @@ void module_bezierCurve(Module *m, BezierCurve *b, int divisions);
 // use the de castelajau algorithm to subdivide the bezier surface divisions times, then draw either the lines connecting the control points, if solid is 0, or draw triangles using the four corner control points. For example, if divisions is 1, the 16 origional bezier curve control points will be used to generate 64 control points and four new bezier surfaces, 1 level of subdivision, and then the algorithm will draw lines or triangles to connect the adjacent control points.
 void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid);
 
+// adds a teapot to the module divisions is how many divisions the bezier surfaces should have, solid tells if it should use lines or be polygons
+void module_teapot(Module *m, int divisions, int solid);
+
 #endif

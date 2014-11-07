@@ -253,6 +253,379 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
 	}
 }
 
+// adds a teapot to the module divisions is how many divisions the bezier surfaces should have, solid tells if it should use lines or be polygons
+void module_teapot(Module *m, int divisions, int solid){
+	Point vertices[127];
+	Point vlist[16];
+	Module *rim, *body, *lid, *handle, *spout, *bottom;
+	BezierSurface b;
+	int i;
 
+	i = -1;
+	point_set3D( &(vertices[i=i+1]), 0.2000,  0.0000, 2.70000 );
+	point_set3D( &(vertices[i=i+1]), 0.2000, -0.1120, 2.70000 );
+  point_set3D( &(vertices[i=i+1]), 0.1120, -0.2000, 2.70000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -0.2000, 2.70000 );
+  point_set3D( &(vertices[i=i+1]), 1.3375,  0.0000, 2.53125 );
+	point_set3D( &(vertices[i=i+1]), 1.3375, -0.7490, 2.53125 );
+  point_set3D( &(vertices[i=i+1]), 0.7490, -1.3375, 2.53125 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -1.3375, 2.53125 );
+  point_set3D( &(vertices[i=i+1]), 1.4375,  0.0000, 2.53125 );
+	point_set3D( &(vertices[i=i+1]), 1.4375, -0.8050, 2.53125 );
+  point_set3D( &(vertices[i=i+1]), 0.8050, -1.4375, 2.53125 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -1.4375, 2.53125 );
+  point_set3D( &(vertices[i=i+1]), 1.5000,  0.0000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 1.5000, -0.8400, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 0.8400, -1.5000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -1.5000, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 1.7500,  0.0000, 1.87500 );
+	point_set3D( &(vertices[i=i+1]), 1.7500, -0.9800, 1.87500 );
+  point_set3D( &(vertices[i=i+1]), 0.9800, -1.7500, 1.87500 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -1.7500, 1.87500 );
+  point_set3D( &(vertices[i=i+1]), 2.0000,  0.0000, 1.35000 );
+	point_set3D( &(vertices[i=i+1]), 2.0000, -1.1200, 1.35000 );
+  point_set3D( &(vertices[i=i+1]), 1.1200, -2.0000, 1.35000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -2.0000, 1.35000 );
+  point_set3D( &(vertices[i=i+1]), 2.0000,  0.0000, 0.90000 );
+	point_set3D( &(vertices[i=i+1]), 2.0000, -1.1200, 0.90000 );
+  point_set3D( &(vertices[i=i+1]), 1.1200, -2.0000, 0.90000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -2.0000, 0.90000 );
+  point_set3D( &(vertices[i=i+1]),-2.0000,  0.0000, 0.90000 );
+	point_set3D( &(vertices[i=i+1]), 2.0000,  0.0000, 0.45000 );
+  point_set3D( &(vertices[i=i+1]), 2.0000, -1.1200, 0.45000 );
+	point_set3D( &(vertices[i=i+1]), 1.1200, -2.0000, 0.45000 );
+  point_set3D( &(vertices[i=i+1]), 0.0000, -2.0000, 0.45000 );
+	point_set3D( &(vertices[i=i+1]), 1.5000,  0.0000, 0.22500 );
+  point_set3D( &(vertices[i=i+1]), 1.5000, -0.8400, 0.22500 );
+	point_set3D( &(vertices[i=i+1]), 0.8400, -1.5000, 0.22500 );
+  point_set3D( &(vertices[i=i+1]), 0.0000, -1.5000, 0.22500 );
+	point_set3D( &(vertices[i=i+1]), 1.5000,  0.0000, 0.15000 );
+  point_set3D( &(vertices[i=i+1]), 1.5000, -0.8400, 0.15000 );
+	point_set3D( &(vertices[i=i+1]), 0.8400, -1.5000, 0.15000 );
+  point_set3D( &(vertices[i=i+1]), 0.0000, -1.5000, 0.15000 );
+	point_set3D( &(vertices[i=i+1]),-1.6000,  0.0000, 2.02500 );
+  point_set3D( &(vertices[i=i+1]),-1.6000, -0.3000, 2.02500 );
+	point_set3D( &(vertices[i=i+1]),-1.5000, -0.3000, 2.25000 );
+  point_set3D( &(vertices[i=i+1]),-1.5000,  0.0000, 2.25000 );
+	point_set3D( &(vertices[i=i+1]),-2.3000,  0.0000, 2.02500 );
+  point_set3D( &(vertices[i=i+1]),-2.3000, -0.3000, 2.02500 );
+	point_set3D( &(vertices[i=i+1]),-2.5000, -0.3000, 2.25000 );
+  point_set3D( &(vertices[i=i+1]),-2.5000,  0.0000, 2.25000 );
+	point_set3D( &(vertices[i=i+1]),-2.7000,  0.0000, 2.02500 );
+  point_set3D( &(vertices[i=i+1]),-2.7000, -0.3000, 2.02500 );
+	point_set3D( &(vertices[i=i+1]),-3.0000, -0.3000, 2.25000 );
+  point_set3D( &(vertices[i=i+1]),-3.0000,  0.0000, 2.25000 );
+	point_set3D( &(vertices[i=i+1]),-2.7000,  0.0000, 1.80000 );
+  point_set3D( &(vertices[i=i+1]),-2.7000, -0.3000, 1.80000 );
+	point_set3D( &(vertices[i=i+1]),-3.0000, -0.3000, 1.80000 );
+  point_set3D( &(vertices[i=i+1]),-3.0000,  0.0000, 1.80000 );
+	point_set3D( &(vertices[i=i+1]),-2.7000,  0.0000, 1.57500 );
+  point_set3D( &(vertices[i=i+1]),-2.7000, -0.3000, 1.57500 );
+	point_set3D( &(vertices[i=i+1]),-3.0000, -0.3000, 1.35000 );
+  point_set3D( &(vertices[i=i+1]),-3.0000,  0.0000, 1.35000 );
+	point_set3D( &(vertices[i=i+1]),-2.5000,  0.0000, 1.12500 );
+  point_set3D( &(vertices[i=i+1]),-2.5000, -0.3000, 1.12500 );
+	point_set3D( &(vertices[i=i+1]),-2.6500, -0.3000, 0.93750 );
+  point_set3D( &(vertices[i=i+1]),-2.6500,  0.0000, 0.93750 );
+	point_set3D( &(vertices[i=i+1]),-2.0000, -0.3000, 0.90000 );
+  point_set3D( &(vertices[i=i+1]),-1.9000, -0.3000, 0.60000 );
+	point_set3D( &(vertices[i=i+1]),-1.9000,  0.0000, 0.60000 );
+  point_set3D( &(vertices[i=i+1]), 1.7000,  0.0000, 1.42500 );
+	point_set3D( &(vertices[i=i+1]), 1.7000, -0.6600, 1.42500 );
+  point_set3D( &(vertices[i=i+1]), 1.7000, -0.6600, 0.60000 );
+	point_set3D( &(vertices[i=i+1]), 1.7000,  0.0000, 0.60000 );
+  point_set3D( &(vertices[i=i+1]), 2.6000,  0.0000, 1.42500 );
+	point_set3D( &(vertices[i=i+1]), 2.6000, -0.6600, 1.42500 );
+  point_set3D( &(vertices[i=i+1]), 3.1000, -0.6600, 0.82500 );
+	point_set3D( &(vertices[i=i+1]), 3.1000,  0.0000, 0.82500 );
+  point_set3D( &(vertices[i=i+1]), 2.3000,  0.0000, 2.10000 );
+	point_set3D( &(vertices[i=i+1]), 2.3000, -0.2500, 2.10000 );
+  point_set3D( &(vertices[i=i+1]), 2.4000, -0.2500, 2.02500 );
+	point_set3D( &(vertices[i=i+1]), 2.4000,  0.0000, 2.02500 );
+  point_set3D( &(vertices[i=i+1]), 2.7000,  0.0000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 2.7000, -0.2500, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 3.3000, -0.2500, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 3.3000,  0.0000, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 2.8000,  0.0000, 2.47500 );
+	point_set3D( &(vertices[i=i+1]), 2.8000, -0.2500, 2.47500 );
+  point_set3D( &(vertices[i=i+1]), 3.5250, -0.2500, 2.49375 );
+	point_set3D( &(vertices[i=i+1]), 3.5250,  0.0000, 2.49375 );
+  point_set3D( &(vertices[i=i+1]), 2.9000,  0.0000, 2.47500 );
+	point_set3D( &(vertices[i=i+1]), 2.9000, -0.1500, 2.47500 );
+  point_set3D( &(vertices[i=i+1]), 3.4500, -0.1500, 2.51250 );
+	point_set3D( &(vertices[i=i+1]), 3.4500,  0.0000, 2.51250 );
+  point_set3D( &(vertices[i=i+1]), 2.8000,  0.0000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 2.8000, -0.1500, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 3.2000, -0.1500, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 3.2000,  0.0000, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 0.0000,  0.0000, 3.15000 );
+	point_set3D( &(vertices[i=i+1]), 0.8000,  0.0000, 3.15000 );
+  point_set3D( &(vertices[i=i+1]), 0.8000, -0.4500, 3.15000 );
+	point_set3D( &(vertices[i=i+1]), 0.4500, -0.8000, 3.15000 );
+  point_set3D( &(vertices[i=i+1]), 0.0000, -0.8000, 3.15000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000,  0.0000, 2.85000 );
+  point_set3D( &(vertices[i=i+1]), 1.4000,  0.0000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 1.4000, -0.7840, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 0.7840, -1.4000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -1.4000, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 0.4000,  0.0000, 2.55000 );
+	point_set3D( &(vertices[i=i+1]), 0.4000, -0.2240, 2.55000 );
+  point_set3D( &(vertices[i=i+1]), 0.2240, -0.4000, 2.55000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -0.4000, 2.55000 );
+  point_set3D( &(vertices[i=i+1]), 1.3000,  0.0000, 2.55000 );
+	point_set3D( &(vertices[i=i+1]), 1.3000, -0.7280, 2.55000 );
+  point_set3D( &(vertices[i=i+1]), 0.7280, -1.3000, 2.55000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -1.3000, 2.55000 );
+  point_set3D( &(vertices[i=i+1]), 1.3000,  0.0000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 1.3000, -0.7280, 2.40000 );
+  point_set3D( &(vertices[i=i+1]), 0.7280, -1.3000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -1.3000, 2.40000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000,  0.0000, 0.00000 );
+	point_set3D( &(vertices[i=i+1]), 1.4250, -0.7980, 0.00000 );
+  point_set3D( &(vertices[i=i+1]), 1.5000,  0.0000, 0.07500 );
+	point_set3D( &(vertices[i=i+1]), 1.4250,  0.0000, 0.00000 );
+  point_set3D( &(vertices[i=i+1]), 0.7980, -1.4250, 0.00000 );
+	point_set3D( &(vertices[i=i+1]), 0.0000, -1.5000, 0.07500 );
+  point_set3D( &(vertices[i=i+1]), 0.0000, -1.4250, 0.00000 );
+	point_set3D( &(vertices[i=i+1]), 1.5000, -0.8400, 0.07500 );
+  point_set3D( &(vertices[i=i+1]), 0.8400, -1.5000, 0.07500 );
+
+	rim = module_create();
+	body = module_create();
+	lid = module_create();
+	handle = module_create();
+	spout = module_create();
+	bottom = module_create();
+	
+	bezierSurface_init(&b);
+
+	i = -1;	
+	vlist[i=i+1] = vertices[102];
+	vlist[i=i+1] = vertices[103];
+	vlist[i=i+1] = vertices[104];
+	vlist[i=i+1] = vertices[105];
+	vlist[i=i+1] = vertices[4];
+	vlist[i=i+1] = vertices[5];
+	vlist[i=i+1] = vertices[6];
+	vlist[i=i+1] = vertices[7];
+	vlist[i=i+1] = vertices[8];
+	vlist[i=i+1] = vertices[9];
+	vlist[i=i+1] = vertices[10];
+	vlist[i=i+1] = vertices[11];
+	vlist[i=i+1] = vertices[12];
+	vlist[i=i+1] = vertices[13];
+	vlist[i=i+1] = vertices[14];
+	vlist[i=i+1] = vertices[15];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(rim, &b, divisions, solid);
+
+	i = -1;
+	vlist[i=i+1] = vertices[12];
+	vlist[i=i+1] = vertices[13];
+	vlist[i=i+1] = vertices[14];
+	vlist[i=i+1] = vertices[15];
+	vlist[i=i+1] = vertices[16];
+	vlist[i=i+1] = vertices[17];
+	vlist[i=i+1] = vertices[18];
+	vlist[i=i+1] = vertices[19];
+  vlist[i=i+1] = vertices[20];
+	vlist[i=i+1] = vertices[21];
+	vlist[i=i+1] = vertices[22];
+	vlist[i=i+1] = vertices[23];
+	vlist[i=i+1] = vertices[24];
+	vlist[i=i+1] = vertices[25];
+	vlist[i=i+1] = vertices[26];
+	vlist[i=i+1] = vertices[27];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(body, &b, divisions, solid);
+
+	i = -1;
+  vlist[i=i+1] = vertices[24];
+	vlist[i=i+1] = vertices[25];
+	vlist[i=i+1] = vertices[26];
+	vlist[i=i+1] = vertices[27];
+	vlist[i=i+1] = vertices[29];
+	vlist[i=i+1] = vertices[30];
+	vlist[i=i+1] = vertices[31];
+	vlist[i=i+1] = vertices[32];
+  vlist[i=i+1] = vertices[33];
+	vlist[i=i+1] = vertices[34];
+	vlist[i=i+1] = vertices[35];
+	vlist[i=i+1] = vertices[36];
+	vlist[i=i+1] = vertices[37];
+	vlist[i=i+1] = vertices[38];
+	vlist[i=i+1] = vertices[39];
+	vlist[i=i+1] = vertices[40];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(body, &b, divisions, solid);
+
+	i = -1;	
+	vlist[i=i+1] = vertices[96];
+	vlist[i=i+1] = vertices[96];
+	vlist[i=i+1] = vertices[96];
+	vlist[i=i+1] = vertices[96];
+	vlist[i=i+1] = vertices[97];
+	vlist[i=i+1] = vertices[98];
+	vlist[i=i+1] = vertices[99];
+	vlist[i=i+1] = vertices[100];
+	vlist[i=i+1] = vertices[101];
+	vlist[i=i+1] = vertices[101];
+	vlist[i=i+1] = vertices[101];
+	vlist[i=i+1] = vertices[101];
+	vlist[i=i+1] = vertices[0];
+	vlist[i=i+1] = vertices[1];
+	vlist[i=i+1] = vertices[2];
+	vlist[i=i+1] = vertices[3];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(lid, &b, divisions, solid);
+
+	i = -1;
+	vlist[i=i+1] = vertices[0];
+	vlist[i=i+1] = vertices[1];
+	vlist[i=i+1] = vertices[2];
+	vlist[i=i+1] = vertices[3];
+	vlist[i=i+1] = vertices[106];
+	vlist[i=i+1] = vertices[107];
+	vlist[i=i+1] = vertices[108];
+	vlist[i=i+1] = vertices[109];
+	vlist[i=i+1] = vertices[110];
+	vlist[i=i+1] = vertices[111];
+	vlist[i=i+1] = vertices[112];
+	vlist[i=i+1] = vertices[113];
+	vlist[i=i+1] = vertices[114];
+	vlist[i=i+1] = vertices[115];
+	vlist[i=i+1] = vertices[116];
+	vlist[i=i+1] = vertices[117];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(lid, &b, divisions, solid);
+
+	i = -1;
+  vlist[i=i+1] = vertices[41];
+	vlist[i=i+1] = vertices[42];
+	vlist[i=i+1] = vertices[43];
+	vlist[i=i+1] = vertices[44];
+	vlist[i=i+1] = vertices[45];
+	vlist[i=i+1] = vertices[46];
+	vlist[i=i+1] = vertices[47];
+	vlist[i=i+1] = vertices[48];
+  vlist[i=i+1] = vertices[49];
+	vlist[i=i+1] = vertices[50];
+	vlist[i=i+1] = vertices[51];
+	vlist[i=i+1] = vertices[52];
+	vlist[i=i+1] = vertices[53];
+	vlist[i=i+1] = vertices[54];
+	vlist[i=i+1] = vertices[55];
+	vlist[i=i+1] = vertices[56];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(handle, &b, divisions, solid);
+
+	i = -1;
+  vlist[i=i+1] = vertices[53];
+	vlist[i=i+1] = vertices[54];
+	vlist[i=i+1] = vertices[55];
+	vlist[i=i+1] = vertices[56];
+	vlist[i=i+1] = vertices[57];
+	vlist[i=i+1] = vertices[58];
+	vlist[i=i+1] = vertices[59];
+	vlist[i=i+1] = vertices[60];
+	vlist[i=i+1] = vertices[61];
+	vlist[i=i+1] = vertices[62];
+	vlist[i=i+1] = vertices[63];
+	vlist[i=i+1] = vertices[64];
+	vlist[i=i+1] = vertices[28];
+	vlist[i=i+1] = vertices[65];
+	vlist[i=i+1] = vertices[66];
+	vlist[i=i+1] = vertices[67];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(handle, &b, divisions, solid);
+
+	i = -1;
+	vlist[i=i+1] = vertices[68];
+	vlist[i=i+1] = vertices[69];
+	vlist[i=i+1] = vertices[70];
+	vlist[i=i+1] = vertices[71];
+	vlist[i=i+1] = vertices[72];
+	vlist[i=i+1] = vertices[73];
+	vlist[i=i+1] = vertices[74];
+	vlist[i=i+1] = vertices[75];
+  vlist[i=i+1] = vertices[76];
+	vlist[i=i+1] = vertices[77];
+	vlist[i=i+1] = vertices[78];
+	vlist[i=i+1] = vertices[79];
+	vlist[i=i+1] = vertices[80];
+	vlist[i=i+1] = vertices[81];
+	vlist[i=i+1] = vertices[82];
+	vlist[i=i+1] = vertices[83];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(spout, &b, divisions, solid);
+
+	i = -1;
+	vlist[i=i+1] = vertices[80];
+	vlist[i=i+1] = vertices[81];
+	vlist[i=i+1] = vertices[82];
+	vlist[i=i+1] = vertices[83];
+	vlist[i=i+1] = vertices[84];
+	vlist[i=i+1] = vertices[85];
+	vlist[i=i+1] = vertices[86];
+	vlist[i=i+1] = vertices[87];
+	vlist[i=i+1] = vertices[88];
+	vlist[i=i+1] = vertices[89];
+	vlist[i=i+1] = vertices[90];
+	vlist[i=i+1] = vertices[91];
+	vlist[i=i+1] = vertices[92];
+	vlist[i=i+1] = vertices[93];
+	vlist[i=i+1] = vertices[94];
+	vlist[i=i+1] = vertices[95];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(spout, &b, divisions, solid);
+
+	i = -1;
+	vlist[i=i+1] = vertices[118];
+	vlist[i=i+1] = vertices[118];
+	vlist[i=i+1] = vertices[118];
+	vlist[i=i+1] = vertices[118];
+	vlist[i=i+1] = vertices[124];
+	vlist[i=i+1] = vertices[122];
+	vlist[i=i+1] = vertices[119];
+	vlist[i=i+1] = vertices[121];
+  vlist[i=i+1] = vertices[123];
+	vlist[i=i+1] = vertices[126];
+	vlist[i=i+1] = vertices[125];
+	vlist[i=i+1] = vertices[120];
+	vlist[i=i+1] = vertices[40];
+	vlist[i=i+1] = vertices[39];
+	vlist[i=i+1] = vertices[38];
+	vlist[i=i+1] = vertices[37];
+
+	bezierSurface_set(&b, vlist);
+	module_bezierSurface(bottom, &b, divisions, solid);
+
+	module_rotateX(m, 0, -1);
+	for(i=0; i<4; i++){
+		module_module(m, rim);
+		module_module(m, body);
+		module_module(m, lid);
+		module_module(m, bottom);
+		module_rotateY(m, 0, 1);
+	}
+
+	module_module(m, handle);
+	module_module(m, spout);
+	
+	module_scale(m, -1, 1, 1);
+	module_rotateY(m, -1, 0);
+	
+	module_module(m, handle);
+	module_module(m, spout);
+}
 
 
