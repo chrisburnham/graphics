@@ -151,6 +151,9 @@ void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w);
 // Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines. If solid is non-zero, use polygons. Make sure each polygon has surface normals defined for it.
 void module_cube(Module *md, int solid);
 
+// Adds a unit cylinder Bruce Maxwells function
+void module_cylinder( Module *mod, int sides );
+
 /* Shading/Color Module Functions */
 
 // Adds the foreground color value to the tail of the module's list
