@@ -44,7 +44,6 @@ void point_set1(Point *p, double x, double y, double z){
 void point_normalize(Point *p){
 	p->val[0] = p->val[0] / p->val[3];
 	p->val[1] = p->val[1] / p->val[3];
-	p->val[3] = 1;
 }
 
 //copy the point data structure
@@ -91,11 +90,9 @@ void line_zBuffer(Line *l, int flag){
 void line_normalize(Line *l){
 	l->a.val[0] = l->a.val[0] / l->a.val[3];
 	l->a.val[1] = l->a.val[1] / l->a.val[3];
-	l->a.val[3] = 1;
 
 	l->b.val[0] = l->b.val[0] / l->b.val[3];
 	l->b.val[1] = l->b.val[1] / l->b.val[3];
-	l->b.val[3] = 1;
 }
 
 //copy the line data structure
@@ -162,7 +159,7 @@ void line_draw(Line *l, Image *src, Color c){
 			y = (int)a[1];
 			dx = (int)(b[0] - a[0]);
 			dy = (int)(b[1] - a[1]);
-			e = 2*dy - dx;
+			e = 3*dy - 2*dx;
 
 			for(i=0; i<dx; i++){
 				image_setColor(src, y, x, c);
