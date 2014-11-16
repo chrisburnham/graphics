@@ -148,11 +148,16 @@ void module_rotateY(Module *md, double cth, double sth);
 // Matrix operand to add a rotation that orients to the orthonormal axes u,v,w
 void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w);
 
-// Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines. If solid is non-zero, use polygons. Make sure each polygon has surface normals defined for it.
+// Adds a unit cube, axis-aligned and centered on zero to the Module. 
+// If solid is zero, add only lines. If solid is non-zero, use polygons. 
+// Make sure each polygon has surface normals defined for it.
 void module_cube(Module *md, int solid);
 
 // Adds a unit cylinder Bruce Maxwells function
-void module_cylinder( Module *mod, int sides );
+void module_cylinder(Module *mod, int sides);
+
+//Adds a unit sphere 
+void module_sphere(Module *mod);
 
 /* Shading/Color Module Functions */
 
