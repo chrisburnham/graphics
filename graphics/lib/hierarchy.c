@@ -744,16 +744,16 @@ void module_cylinder( Module *mod, int sides ) {
 
   // then average the x, y and z values to create new point
 
-  point_set3D(&pt[0], 0, 1.0, 0);  
-  point_set3D(&pt[1], 0, 0, 1.0);
-  point_set3D(&pt[2], 0, -1.0, 0);
-  point_set3D(&pt[3], 0, 0, -1.0);
-  point_set3D(&pt[4], 1.0, 0, 0);
-  point_set3D(&pt[5], -1.0, 0, 0);
+//   point_set3D(&pt[0], 0, 1.0, 0);  
+//   point_set3D(&pt[1], 0, 0, 1.0);
+//   point_set3D(&pt[2], 0, -1.0, 0);
+//   point_set3D(&pt[3], 0, 0, -1.0);
+//   point_set3D(&pt[4], 1.0, 0, 0);
+//   point_set3D(&pt[5], -1.0, 0, 0);
 
 
 
-}
+// }
 
 /* Shading/Color Module Functions */
 
