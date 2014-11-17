@@ -83,55 +83,55 @@ static int compXIntersect( const void *a, const void *b ) {
  */
 static Edge *makeEdgeRec( Point start, Point end, Image *src)
 {
-  Edge *edge;
+  Edge edge;
   float dscan = end.val[1] - start.val[1];
 
   if (start.val[1]>src->rows || end.val[1]<0){
     return ((Edge *)NULL);
   }
 
-  edge = malloc(sizeof(Edge));
-  edge->x0 = start.val[0];
-  edge->x1 = end.val[0];
-  edge->y0 = start.val[1];
-  edge->y1 = end.val[1];
+  //edge = malloc(sizeof(Edge));
+  edge.x0 = start.val[0];
+  edge.x1 = end.val[0];
+  edge.y0 = start.val[1];
+  edge.y1 = end.val[1];
 
-  edge->yStart = floor(edge->y0+0.5);
-  edge->yEnd = floor(edge->y1+0.5);
+  edge.yStart = floor(edge.y0+0.5);
+  edge.yEnd = floor(edge.y1+0.5);
   // edge->yStart = (int)(edge->y0+0.5);
   // edge->yEnd =  (int)(edge->y1+0.5);
 
-  if (edge->yEnd >= src->rows){
-    edge->yEnd = src->rows-1;
+  if (edge.yEnd >= src->rows){
+    edge.yEnd = src->rows-1;
   }
 
-  edge->dxPerScan = ( edge->x1 - edge->x0 )/(dscan);
-  if (edge->dxPerScan == 0){ // verticle line
-    edge->xIntersect = edge->x0 ;
+  edge.dxPerScan = ( edge.x1 - edge.x0 )/(dscan);
+  if (edge.dxPerScan == 0){ // verticle line
+    edge.xIntersect = edge.x0 ;
   }
 
-  else if (edge->y0 - floor(edge->y0) <= 0.5){
-    edge->xIntersect = edge->x0 + (0.5-(floor(edge->y0)-edge->y0))*edge->dxPerScan;
+  else if (edge.y0 - floor(edge.y0) <= 0.5){
+    edge.xIntersect = edge.x0 + (0.5-(floor(edge.y0)-edge.y0))*edge.dxPerScan;
   }
 
   else {
-    edge->xIntersect = edge->x0 + (1.0-(floor(edge->y0)-edge->y0)+0.5)*edge->dxPerScan;
+    edge.xIntersect = edge.x0 + (1.0-(floor(edge.y0)-edge.y0)+0.5)*edge.dxPerScan;
   }
 
-  if (edge->yStart < 0){
+  if (edge.yStart < 0){
     printf("*** yStart less than zero ***\n");
-    edge->xIntersect += fabs(edge->yStart)*edge->dxPerScan;
-    edge->x0 += fabs(edge->y0)*edge->dxPerScan;
-    edge->y0 = 0.0; 
-    edge->yStart = 0.0;
+    edge.xIntersect += fabs(edge.yStart)*edge.dxPerScan;
+    edge.x0 += fabs(edge.y0)*edge.dxPerScan;
+    edge.y0 = 0.0; 
+    edge.yStart = 0.0;
   }
 
   // not sure if this is right... pretty sure its wrong
-  if (edge->xIntersect > edge->x1){
-    edge->xIntersect = edge->x1;
+  if (edge.xIntersect > edge.x1){
+    edge.xIntersect = edge.x1;
   }
 
-  return( edge );
+  return( &edge );
 }
 
 
