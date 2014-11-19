@@ -83,55 +83,66 @@ static int compXIntersect( const void *a, const void *b ) {
  */
 static Edge *makeEdgeRec( Point start, Point end, Image *src)
 {
-  Edge edge;
+  Edge *edge;
   float dscan = end.val[1] - start.val[1];
 
   if (start.val[1]>src->rows || end.val[1]<0){
     return ((Edge *)NULL);
   }
 
-  //edge = malloc(sizeof(Edge));
-  edge.x0 = start.val[0];
-  edge.x1 = end.val[0];
-  edge.y0 = start.val[1];
-  edge.y1 = end.val[1];
+  edge = malloc(sizeof(Edge));
+  edge->x0 = start.val[0];
+  edge->x1 = end.val[0];
+  edge->y0 = start.val[1];
+  edge->y1 = end.val[1];
 
-  edge.yStart = floor(edge.y0+0.5);
-  edge.yEnd = floor(edge.y1+0.5);
-  // edge->yStart = (int)(edge->y0+0.5);
-  // edge->yEnd =  (int)(edge->y1+0.5);
+  edge->yStart = (int)(edge->y0+0.5);
+  edge->yEnd = (int)((edge->y1+0.5));
 
-  if (edge.yEnd >= src->rows){
-    edge.yEnd = src->rows-1;
+  if (edge->yEnd >= src->rows){
+    edge->yEnd = src->rows-1;
   }
 
-  edge.dxPerScan = ( edge.x1 - edge.x0 )/(dscan);
-  if (edge.dxPerScan == 0){ // verticle line
-    edge.xIntersect = edge.x0 ;
-  }
+  edge->dxPerScan = ( edge->x1 - edge->x0 )/(dscan);
 
-  else if (edge.y0 - floor(edge.y0) <= 0.5){
-    edge.xIntersect = edge.x0 + (0.5-(floor(edge.y0)-edge.y0))*edge.dxPerScan;
+  if (edge->y0 - floor(edge->y0) <= 0.5){
+    edge->xIntersect = edge->x0 + ((0.5-(floor(edge->y0)-edge->y0))*edge->dxPerScan);
   }
 
   else {
-    edge.xIntersect = edge.x0 + (1.0-(floor(edge.y0)-edge.y0)+0.5)*edge.dxPerScan;
+    edge->xIntersect = edge->x0 + (((1.0-(floor(edge->y0)-edge->y0))+0.5)*edge->dxPerScan);
   }
 
-  if (edge.yStart < 0){
+  if (edge->y0 < 0){
     printf("*** yStart less than zero ***\n");
-    edge.xIntersect += fabs(edge.yStart)*edge.dxPerScan;
-    edge.x0 += fabs(edge.y0)*edge.dxPerScan;
-    edge.y0 = 0.0; 
-    edge.yStart = 0.0;
+    edge->y0 = 0.0; 
+    edge->yStart = 0;
+    edge->x0 += fabs(edge->y0)*edge->dxPerScan;
+    edge->xIntersect = edge->x0;
   }
 
-  // not sure if this is right... pretty sure its wrong
-  if (edge.xIntersect > edge.x1){
-    edge.xIntersect = edge.x1;
-  }
+  // if(edge->x0 < edge->x1 && edge->xIntersect > edge->x1){
+  //   printf("  steep slope case 1\n");
+  //   // edge->dxPerScan = 0.0;
+  //   edge->xIntersect = (edge->x1+edge->x0)/2.0;
+  // }
+  // else if(edge->x0 > edge->x1 && edge->xIntersect < edge->x1){
+  //   printf("  steep slope case 2\n");
+  //   // edge->dxPerScan = 0.0;
+  //   edge->xIntersect = (edge->x1+edge->x0)/2.0;
+  // }
 
-  return( &edge );
+  // printf("edge->\n");
+  // printf("  x0: %f\n", edge->x0);
+  // printf("  y0: %f\n", edge->y0);
+  // printf("  x1: %f\n", edge->x1);
+  // printf("  y1: %f\n", edge->y1);
+  // printf("  yStart: %d\n", edge->yStart);
+  // printf("  yEnd: %d\n", edge->yEnd);
+  // printf("  xIntersect: %f\n", edge->xIntersect);
+  // printf("  dxPerScan: %f\n", edge->dxPerScan);
+
+  return( edge );
 }
 
 
@@ -236,18 +247,15 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c ) {
   Edge *current;
   Edge *tedge;
   int scan = 0;
-  int count = 0;
 
   active = ll_new( );
   tmplist = ll_new( );
 
   current = ll_head( edges );
 
-  for(scan = current->yStart;scan < src->rows;scan++ ) {
-    count = 0;
+  for( scan = current->yStart; scan < src->rows; scan++ ) {
     // printf("scan: %d\n", scan);
     while( current != NULL && current->yStart == scan ) {
-      count ++;
       ll_insert( active, current, compXIntersect );
       current = ll_next( edges );
     }
@@ -258,7 +266,6 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c ) {
     }
       
     fillScan( scan, active, src, c);
-    count = 0;
 
     for( tedge = ll_pop( active ); tedge != NULL; tedge = ll_pop( active ) ) {
       // printf("  edge from: %d to %d\n", tedge->yStart, tedge->yEnd);
@@ -276,7 +283,6 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c ) {
           a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
           tedge->xIntersect = tedge->x1;
         }
-        count ++;
         ll_insert( tmplist, tedge, compXIntersect );
       }
       else {

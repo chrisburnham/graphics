@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
 
 	matrix_setView3D( &VTM, &view );
 
-	ds.shade = ShadeFrame;
+	// ds.shade = ShadeFrame;
 	ds.shade = ShadeConstant;
 
 	pos = 0;

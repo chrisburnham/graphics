@@ -148,8 +148,9 @@ void ll_delete( LinkedList *ll, void (*freefunc)(const void *) ) {
 	p = ll->root;
 	while( p != NULL ) {
 		q = p->next;
-		if(freefunc && p->data)
+		if(freefunc && p->data){
 			freefunc( p->data );
+		}
 		free(p);
 		p = q;
 	}

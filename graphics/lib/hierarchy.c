@@ -579,181 +579,176 @@ void module_cylinder( Module *mod, int sides ) {
   polygon_clear( &p );
 }
 
-// void module_sphere( Module *md ){
-//   Polygon *p;
-//   Point *pt[6];
-//   Point *tmp[15];
-//   Point *v[3]
-//   Point *new_pt;
-//   double x, y, z;
-//   int i, j;
+void module_sphere( Module *md ){
+  Polygon *p;
+  Point pt[6];
+  Point tmp[15];
+  Point v[3];
+  double x, y, z;
+  int i, j;
 
-//   point_set3D(&pt[0], 0, 1.0, 0);  
-//   point_set3D(&pt[1], 0, 0, 1.0);
-//   point_set3D(&pt[2], 0, -1.0, 0);
-//   point_set3D(&pt[3], 0, 0, -1.0);
-//   point_set3D(&pt[4], 1.0, 0, 0);
-//   point_set3D(&pt[5], -1.0, 0, 0);
+  point_set3D(&pt[0], 0, 1.0, 0);  
+  point_set3D(&pt[1], 0, 0, 1.0);
+  point_set3D(&pt[2], 0, -1.0, 0);
+  point_set3D(&pt[3], 0, 0, -1.0);
+  point_set3D(&pt[4], 1.0, 0, 0);
+  point_set3D(&pt[5], -1.0, 0, 0);
 
 
-//   for (i=0; i<8; i++){
-//     if (i == 0){
-//       tmp[0] = pt[0];
-//       tmp[4] = pt[4];
-//       tmp[8] = pt[1];
-//     }
-//     else if ( i==1 || i==5 ){
-//       tmp[0] = pt[1];
-//       tmp[8] = pt[2];
-//     }
-//     else if( i==2 || i==6 ){
-//       tmp[0] = pt[2];
-//       tmp[8] = pt[3];
-//     }
-//     else if (i==3 || i==7){
-//       tmp[0] = pt[3];
-//       tmp[8] = pt[0];
-//     }
-//     else { // i==4
-//       tmp[0] = pt[0];
-//       tmp[4] = pt[5];
-//       tmp[8] = pt[1];
-//     }
+  for (i=0; i<8; i++){
+    if (i == 0){
+      tmp[0] = pt[0];
+      tmp[4] = pt[4];
+      tmp[8] = pt[1];
+    }
+    else if ( i==1 || i==5 ){
+      tmp[0] = pt[1];
+      tmp[8] = pt[2];
+    }
+    else if( i==2 || i==6 ){
+      tmp[0] = pt[2];
+      tmp[8] = pt[3];
+    }
+    else if (i==3 || i==7){
+      tmp[0] = pt[3];
+      tmp[8] = pt[0];
+    }
+    else { // i==4
+      tmp[0] = pt[0];
+      tmp[4] = pt[5];
+      tmp[8] = pt[1];
+    }
     
-//     point_set3D(&tmp[2], 
-//                 Average(tmp[0].val[0], tmp[4].val[0]), 
-//                 Average(tmp[0].val[1], tmp[4].val[1]),
-//                 Average(tmp[0].val[3], tmp[4].val[3]));
-//     point_set3D(&tmp[6], 
-//                 Average(tmp[4].val[0], tmp[8].val[0]), 
-//                 Average(tmp[4].val[1], tmp[8].val[1]), 
-//                 Average(tmp[4].val[3], tmp[8].val[3]));
-//     point_set3D(&tmp[10], 
-//                 Average(tmp[0].val[0], tmp[4].val[0]), 
-//                 Average(tmp[0].val[1], tmp[4].val[1]),
-//                 Average(tmp[0].val[3], tmp[4].val[3]));
+    point_set3D(&tmp[2], 
+                Average(tmp[0].val[0], tmp[4].val[0]), 
+                Average(tmp[0].val[1], tmp[4].val[1]),
+                Average(tmp[0].val[3], tmp[4].val[3]));
+    point_set3D(&tmp[6], 
+                Average(tmp[4].val[0], tmp[8].val[0]), 
+                Average(tmp[4].val[1], tmp[8].val[1]), 
+                Average(tmp[4].val[3], tmp[8].val[3]));
+    point_set3D(&tmp[10], 
+                Average(tmp[0].val[0], tmp[4].val[0]), 
+                Average(tmp[0].val[1], tmp[4].val[1]),
+                Average(tmp[0].val[3], tmp[4].val[3]));
 
-//     point_set3D(&tmp[1], 
-//                 Average(tmp[0].val[0], tmp[2].val[0]), 
-//                 Average(tmp[0].val[1], tmp[2].val[1]),
-//                 Average(tmp[0].val[3], tmp[2].val[3]));
-//     point_set3D(&tmp[3], 
-//                 Average(tmp[4].val[0], tmp[2].val[0]), 
-//                 Average(tmp[4].val[1], tmp[2].val[1]),
-//                 Average(tmp[4].val[3], tmp[2].val[3]));
+    point_set3D(&tmp[1], 
+                Average(tmp[0].val[0], tmp[2].val[0]), 
+                Average(tmp[0].val[1], tmp[2].val[1]),
+                Average(tmp[0].val[3], tmp[2].val[3]));
+    point_set3D(&tmp[3], 
+                Average(tmp[4].val[0], tmp[2].val[0]), 
+                Average(tmp[4].val[1], tmp[2].val[1]),
+                Average(tmp[4].val[3], tmp[2].val[3]));
 
-//     point_set3D(&tmp[5], 
-//                 Average(tmp[4].val[0], tmp[6].val[0]), 
-//                 Average(tmp[4].val[1], tmp[6].val[1]),
-//                 Average(tmp[4].val[3], tmp[6].val[3]));
-//     point_set3D(&tmp[7], 
-//                 Average(tmp[8].val[0], tmp[6].val[0]), 
-//                 Average(tmp[8].val[1], tmp[6].val[1]),
-//                 Average(tmp[8].val[3], tmp[6].val[3]));
+    point_set3D(&tmp[5], 
+                Average(tmp[4].val[0], tmp[6].val[0]), 
+                Average(tmp[4].val[1], tmp[6].val[1]),
+                Average(tmp[4].val[3], tmp[6].val[3]));
+    point_set3D(&tmp[7], 
+                Average(tmp[8].val[0], tmp[6].val[0]), 
+                Average(tmp[8].val[1], tmp[6].val[1]),
+                Average(tmp[8].val[3], tmp[6].val[3]));
 
-//      point_set3D(&tmp[9], 
-//                 Average(tmp[8].val[0], tmp[10].val[0]), 
-//                 Average(tmp[8].val[1], tmp[10].val[1]),
-//                 Average(tmp[8].val[3], tmp[10].val[3]));
-//     point_set3D(&tmp[11], 
-//                 Average(tmp[0].val[0], tmp[10].val[0]), 
-//                 Average(tmp[0].val[1], tmp[10].val[1]),
-//                 Average(tmp[0].val[3], tmp[10].val[3]));
+     point_set3D(&tmp[9], 
+                Average(tmp[8].val[0], tmp[10].val[0]), 
+                Average(tmp[8].val[1], tmp[10].val[1]),
+                Average(tmp[8].val[3], tmp[10].val[3]));
+    point_set3D(&tmp[11], 
+                Average(tmp[0].val[0], tmp[10].val[0]), 
+                Average(tmp[0].val[1], tmp[10].val[1]),
+                Average(tmp[0].val[3], tmp[10].val[3]));
 
-//     point_set3D(&tmp[12], 
-//                 Average(tmp[2].val[0], tmp[10].val[0]), 
-//                 Average(tmp[2].val[1], tmp[10].val[1]),
-//                 Average(tmp[2].val[3], tmp[10].val[3]));
-//     point_set3D(&tmp[13], 
-//                 Average(tmp[2].val[0], tmp[6].val[0]), 
-//                 Average(tmp[2].val[1], tmp[6].val[1]),
-//                 Average(tmp[2].val[3], tmp[6].val[3]));
-//     point_set3D(&tmp[14], 
-//                 Average(tmp[6].val[0], tmp[10].val[0]), 
-//                 Average(tmp[6].val[1], tmp[10].val[1]),
-//                 Average(tmp[6].val[3], tmp[10].val[3]));
-//     for (j=0; j<15, j++){
-//       x = sin(PI*tmp[i].val[0])*cos(2*PI*tmp[i].val[1]);
-//       y = sin(PI*tmp[i].val[0])*sin(2*PI*tmp[i].val[1]);
-//       z = cos(PI*tmp[i].val[0]);
-//       point_set3D(tmp[i], x, y, z);
-//     }
+    point_set3D(&tmp[12], 
+                Average(tmp[2].val[0], tmp[10].val[0]), 
+                Average(tmp[2].val[1], tmp[10].val[1]),
+                Average(tmp[2].val[3], tmp[10].val[3]));
+    point_set3D(&tmp[13], 
+                Average(tmp[2].val[0], tmp[6].val[0]), 
+                Average(tmp[2].val[1], tmp[6].val[1]),
+                Average(tmp[2].val[3], tmp[6].val[3]));
+    point_set3D(&tmp[14], 
+                Average(tmp[6].val[0], tmp[10].val[0]), 
+                Average(tmp[6].val[1], tmp[10].val[1]),
+                Average(tmp[6].val[3], tmp[10].val[3]));
+    
+    for (j=0; j<15; j++){
+      x = sin(PI*tmp[i].val[0])*cos(2*PI*tmp[i].val[1]);
+      y = sin(PI*tmp[i].val[0])*sin(2*PI*tmp[i].val[1]);
+      z = cos(PI*tmp[i].val[0]);
+      point_set3D(&tmp[i], x, y, z);
+    }
 
-//     for (j=0; j<16; j++){
-//       switch (j){
-//         case 0:
-//           v[0] = tmp[0];
-//           v[1] = tmp[1];
-//           v[2] = tmp[11];
-//         case 1:
-//           v[0] = tmp[11];
-//           v[2] = tmp[12];
-//         case 2:
-//           v[1] = tmp[12];
-//           v[2] = tmp[10];
-//         case 3:
-//           v[0] = tmp[10];
-//           v[2] = tmp[14];
-//         case 4:
-//           v[1] = tmp[14];
-//           v[2] = tmp[9];
-//         case 5:
-//           v[0] = tmp[9];
-//           v[2] = tmp[7];
-//         case 6:
-//           v[1] = tmp[7];
-//           v[2] = tmp[8];
-//         case 7:
-//           v[0] = tmp[1];
-//           v[1] = tmp[2];
-//           v[2] = tmp[12];
-//         case 8:
-//           v[0] = tmp[12];
-//           v[2] = tmp[13];
-//         case 9:
-//           v[1] = tmp[13];
-//           v[2] = tmp[14];
-//         case 10:
-//           v[0] = tmp[14];
-//           v[2] = tmp[6];
-//         case 11:
-//           v[1] = tmp[6];
-//           v[2] = tmp[7];
-//         case 12:
-//           v[0] = tmp[2];
-//           v[1] = tmp[3];
-//           v[2] = tmp[13];
-//         case 13:
-//           v[0] = tmp[13];
-//           v[2] = tmp[5];
-//         case 14:
-//           v[1] = tmp[5];
-//           v[2] = tmp[6];
-//         case 15:
-//           v[0] = tmp[3];
-//           v[1] = tmp[4];
-//           v[2] = tmp[5];
-//       }
-//       polygon_set(p, 3, &v);
-//       module_polygon(md, p);
-//     }
-//   }
+    for (j=0; j<16; j++){
+      switch (j){
+        case 0:
+          v[0] = tmp[0];
+          v[1] = tmp[1];
+          v[2] = tmp[11];
+        case 1:
+          v[0] = tmp[11];
+          v[2] = tmp[12];
+        case 2:
+          v[1] = tmp[12];
+          v[2] = tmp[10];
+        case 3:
+          v[0] = tmp[10];
+          v[2] = tmp[14];
+        case 4:
+          v[1] = tmp[14];
+          v[2] = tmp[9];
+        case 5:
+          v[0] = tmp[9];
+          v[2] = tmp[7];
+        case 6:
+          v[1] = tmp[7];
+          v[2] = tmp[8];
+        case 7:
+          v[0] = tmp[1];
+          v[1] = tmp[2];
+          v[2] = tmp[12];
+        case 8:
+          v[0] = tmp[12];
+          v[2] = tmp[13];
+        case 9:
+          v[1] = tmp[13];
+          v[2] = tmp[14];
+        case 10:
+          v[0] = tmp[14];
+          v[2] = tmp[6];
+        case 11:
+          v[1] = tmp[6];
+          v[2] = tmp[7];
+        case 12:
+          v[0] = tmp[2];
+          v[1] = tmp[3];
+          v[2] = tmp[13];
+        case 13:
+          v[0] = tmp[13];
+          v[2] = tmp[5];
+        case 14:
+          v[1] = tmp[5];
+          v[2] = tmp[6];
+        case 15:
+          v[0] = tmp[3];
+          v[1] = tmp[4];
+          v[2] = tmp[5];
+      }
+      polygon_set(p, 3, v);
+      module_polygon(md, p);
+    }
+  }
 
-  // pick two points from list 
-  // the first two then the first and third etc.
-
-  // then average the x, y and z values to create new point
-
-//   point_set3D(&pt[0], 0, 1.0, 0);  
-//   point_set3D(&pt[1], 0, 0, 1.0);
-//   point_set3D(&pt[2], 0, -1.0, 0);
-//   point_set3D(&pt[3], 0, 0, -1.0);
-//   point_set3D(&pt[4], 1.0, 0, 0);
-//   point_set3D(&pt[5], -1.0, 0, 0);
+  point_set3D(&pt[0], 0, 1.0, 0);  
+  point_set3D(&pt[1], 0, 0, 1.0);
+  point_set3D(&pt[2], 0, -1.0, 0);
+  point_set3D(&pt[3], 0, 0, -1.0);
+  point_set3D(&pt[4], 1.0, 0, 0);
+  point_set3D(&pt[5], -1.0, 0, 0);
 
 
 
-// }
+}
 
 /* Shading/Color Module Functions */
 
