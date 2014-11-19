@@ -100,11 +100,12 @@ void line_copy(Line *to, Line *from){
 	*to = *from;
 }
 
-//draw the line into src using color c
+//draw the line into src using color c using zBuffer if non-zero
 void line_draw(Line *l, Image *src, Color c){
 	int i, x, y, dx, dy, e;
-	double a[2];
-	double b[2];
+	double z, dz;
+	double a[3];
+	double b[3];
 
 	if( (int)(l->a.val[0]) == (int)(l->b.val[0]) ){
 		if( (int)(l->a.val[1]) != (int)(l->b.val[1]) ){
@@ -112,13 +113,32 @@ void line_draw(Line *l, Image *src, Color c){
 			if(l->a.val[1] < l->b.val[1]){
 				y = (int)l->a.val[1];
 				dy = (int)(l->b.val[1] - l->a.val[1]);
+				if( l->zBuffer != 0 ){
+					z = 1 / l->a.val[2];
+					dz = ( l->b.val[2] - l->a.val[2] ) / dy;
+				}
 			}
 			else{
 				y = (int)l->b.val[1];
 				dy = (int)(l->a.val[1] - l->b.val[1]);
+				if( l->zBuffer != 0 ){
+					z = 1 / l->b.val[2];
+					dz = ( l->a.val[2] - l->b.val[2] ) / dy;
+				}
 			}
-			for(i = 0; i < dy; i++){
-				image_setColor(src, y + i, x, c);
+			if( l->zBuffer != 0 ){
+				for(i = 0; i < dy; i++){
+					if( z > image_getz(src, y + i, x) ){
+						image_setColor(src, y + i, x, c);
+						image_setz(src, y + i, x, z);
+					}
+					z = z + dz;
+				}
+			}
+			else{
+				for(i = 0; i < dy; i++){
+					image_setColor(src, y + i, x, c);
+				}
 			}
 		}
 		return;
@@ -129,13 +149,32 @@ void line_draw(Line *l, Image *src, Color c){
 			if(l->a.val[0] < l->b.val[0]){
 				x = (int)l->a.val[0];
 				dx = (int)(l->b.val[0] - l->a.val[0]);
+				if( l->zBuffer != 0 ){
+					z = 1 / l->a.val[2];
+					dz = ( (1 / l->b.val[2]) - (1 / l->a.val[2]) ) / dx;
+				}
 			}
 			else{
 				x = (int)l->b.val[0];
 				dx = (int)(l->a.val[0] - l->b.val[0]);
+				if( l->zBuffer != 0 ){
+					z = 1 / l->b.val[2];
+					dz = ( (1 / l->a.val[2]) - (1 / l->b.val[2]) ) / dx;
+				}
 			}
-			for(i = 0; i < dx; i++){
-				image_setColor(src, y, x + i, c);
+			if( l->zBuffer != 0 ){
+				for(i = 0; i < dy; i++){
+					if( z > image_getz(src, y, x + i) ){
+						image_setColor(src, y, x + i, c);
+						image_setz(src, y, x + i, z);
+					}
+					z = z + dz;
+				}
+			}
+			else{
+				for(i = 0; i < dx; i++){
+					image_setColor(src, y, x + i, c);
+				}
 			}
 		}
 		return;
@@ -143,16 +182,24 @@ void line_draw(Line *l, Image *src, Color c){
 	else if(l->a.val[1] < l->b.val[1]){
 		a[0] = l->a.val[0];
 		a[1] = l->a.val[1];
+
 		b[0] = l->b.val[0];
 		b[1] = l->b.val[1];
+		if( l->zBuffer != 0 ){
+			a[2] = 1 / l->a.val[2];
+			b[2] = 1 / l->b.val[2];
+		}
 	}
 	else{
 		b[0] = l->a.val[0];
 		b[1] = l->a.val[1];
 		a[0] = l->b.val[0];
 		a[1] = l->b.val[1];
+		if( l->zBuffer != 0 ){
+			a[2] = 1 / l->b.val[2];
+			b[2] = 1 / l->a.val[2];
+		}
 	}
-	
 	if(a[0] < b[0]){
 		if((b[1] - a[1]) < (b[0] - a[0])){
 			x = (int)a[0];
@@ -161,14 +208,34 @@ void line_draw(Line *l, Image *src, Color c){
 			dy = (int)(b[1] - a[1]);
 			e = 3*dy - 2*dx;
 
-			for(i=0; i<dx; i++){
-				image_setColor(src, y, x, c);
-				while(e > 0){
-					y = y + 1;
-					e = e - 2*dx;
-				}			
-				x = x + 1;
-				e = e + 2*dy;
+			if( l->zBuffer != 0 ){
+				z = a[2];
+				dz = (b[2] - a[2]) / dx;
+
+				for(i=0; i<dx; i++){
+					if( z > image_getz(src, y, x) ){
+						image_setColor(src, y, x, c);
+						image_setz(src, y, x, z);
+					}
+					z = z + dz;
+					while(e > 0){
+						y = y + 1;
+						e = e - 2*dx;
+					}			
+					x = x + 1;
+					e = e + 2*dy;
+				} 
+			}
+			else{
+				for(i=0; i<dx; i++){
+					image_setColor(src, y, x, c);
+					while(e > 0){
+						y = y + 1;
+						e = e - 2*dx;
+					}			
+					x = x + 1;
+					e = e + 2*dy;
+				}
 			}
 		}
 		else{
@@ -178,14 +245,34 @@ void line_draw(Line *l, Image *src, Color c){
 			dy = (int)(b[1] - a[1]);
 			e = 2*dx - dy;
 
-			for(i=0; i<dy; i++){
-				image_setColor(src, y, x, c);
-				while(e > 0){
-					x = x + 1;
-					e = e - 2*dy;
-				}			
-				y = y + 1;
-				e = e + 2*dx;
+			if( l->zBuffer != 0 ){
+				z = a[2];
+				dz = (b[2] - a[2]) / dy;
+
+				for(i=0; i<dy; i++){
+					if( z > image_getz(src, y, x) ){
+						image_setColor(src, y, x, c);
+						image_setz(src, y, x, z);
+					}
+					z = z + dz;
+					while(e > 0){
+						x = x + 1;
+						e = e - 2*dy;
+					}			
+					y = y + 1;
+					e = e + 2*dx;
+				}
+			}
+			else{
+				for(i=0; i<dy; i++){
+					image_setColor(src, y, x, c);
+					while(e > 0){
+						x = x + 1;
+						e = e - 2*dy;
+					}			
+					y = y + 1;
+					e = e + 2*dx;
+				}
 			}
 		}
 	}
@@ -197,14 +284,34 @@ void line_draw(Line *l, Image *src, Color c){
 			dy = (int)(b[1] - a[1]);
 			e = 2*dy - dx;
 
-			for(i=0; i<dx; i++){
-				image_setColor(src, y, x, c);
-				while(e > 0){
-					y = y + 1;
-					e = e - 2*dx;
-				}			
-				x = x - 1;
-				e = e + 2*dy;
+			if( l->zBuffer != 0 ){
+				z = a[2];
+				dz = (b[2] - a[2]) / dx;
+
+				for(i=0; i<dx; i++){
+					if( z > image_getz(src, y, x) ){
+						image_setColor(src, y, x, c);
+						image_setz(src, y, x, z);
+					}
+					z = z + dz;
+					while(e > 0){
+						y = y + 1;
+						e = e - 2*dx;
+					}			
+					x = x - 1;
+					e = e + 2*dy;
+				}
+			}
+			else{
+				for(i=0; i<dx; i++){
+					image_setColor(src, y, x, c);
+					while(e > 0){
+						y = y + 1;
+						e = e - 2*dx;
+					}			
+					x = x - 1;
+					e = e + 2*dy;
+				}
 			}
 		}
 		else{
@@ -214,14 +321,34 @@ void line_draw(Line *l, Image *src, Color c){
 			dy = (int)(b[1] - a[1]);
 			e = 2*dx - dy;
 
-			for(i=0; i<dy; i++){
-				image_setColor(src, y, x, c);
-				while(e > 0){
-					x = x - 1;
-					e = e - 2*dy;
-				}			
-				y = y + 1;
-				e = e + 2*dx;
+			if( l->zBuffer != 0 ){
+				z = a[2];
+				dz = (b[2] - a[2]) / dy;
+
+				for(i=0; i<dy; i++){
+					if( z > image_getz(src, y, x) ){
+						image_setColor(src, y, x, c);
+						image_setz(src, y, x, z);
+					}
+					z = z + dz;
+					while(e > 0){
+						x = x - 1;
+						e = e - 2*dy;
+					}			
+					y = y + 1;
+					e = e + 2*dx;
+				}
+			}
+			else{
+				for(i=0; i<dy; i++){
+					image_setColor(src, y, x, c);
+					while(e > 0){
+						x = x - 1;
+						e = e - 2*dy;
+					}			
+					y = y + 1;
+					e = e + 2*dx;
+				}
 			}
 		}
 	}
