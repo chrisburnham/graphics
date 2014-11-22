@@ -580,7 +580,7 @@ void module_cylinder( Module *mod, int sides ) {
 }
 
 void module_sphere( Module *md ){
-  Polygon *p;
+  Polygon *p = polygon_create();
   Point pt[6];
   Point tmp[15];
   Point v[3];
@@ -671,7 +671,7 @@ void module_sphere( Module *md ){
                 Average(tmp[6].val[0], tmp[10].val[0]), 
                 Average(tmp[6].val[1], tmp[10].val[1]),
                 Average(tmp[6].val[3], tmp[10].val[3]));
-    
+     
     for (j=0; j<15; j++){
       x = sin(PI*tmp[i].val[0])*cos(2*PI*tmp[i].val[1]);
       y = sin(PI*tmp[i].val[0])*sin(2*PI*tmp[i].val[1]);
@@ -682,72 +682,69 @@ void module_sphere( Module *md ){
     for (j=0; j<16; j++){
       switch (j){
         case 0:
-          v[0] = tmp[0];
-          v[1] = tmp[1];
-          v[2] = tmp[11];
+          point_copy(&v[0], &tmp[0]);
+          point_copy(&v[1], &tmp[1]);
+          point_copy(&v[2], &tmp[11]);
         case 1:
-          v[0] = tmp[11];
-          v[2] = tmp[12];
+          point_copy(&v[0], &tmp[11]);
+          point_copy(&v[2], &tmp[12]);
         case 2:
-          v[1] = tmp[12];
-          v[2] = tmp[10];
+          point_copy(&v[1], &tmp[12]);
+          point_copy(&v[2], &tmp[10]);
         case 3:
-          v[0] = tmp[10];
-          v[2] = tmp[14];
+          point_copy(&v[0], &tmp[10]);
+          point_copy(&v[2], &tmp[14]);
         case 4:
-          v[1] = tmp[14];
-          v[2] = tmp[9];
+          point_copy(&v[1], &tmp[14]);
+          point_copy(&v[2], &tmp[9]);
         case 5:
-          v[0] = tmp[9];
-          v[2] = tmp[7];
+          point_copy(&v[0], &tmp[9]);
+          point_copy(&v[2], &tmp[7]);
         case 6:
-          v[1] = tmp[7];
-          v[2] = tmp[8];
+          point_copy(&v[1], &tmp[7]);
+          point_copy(&v[2], &tmp[8]);
         case 7:
-          v[0] = tmp[1];
-          v[1] = tmp[2];
-          v[2] = tmp[12];
+          point_copy(&v[0], &tmp[1]);
+          point_copy(&v[1], &tmp[2]);
+          point_copy(&v[2], &tmp[12]);
         case 8:
-          v[0] = tmp[12];
-          v[2] = tmp[13];
+          point_copy(&v[0], &tmp[12]);
+          point_copy(&v[2], &tmp[13]);
         case 9:
-          v[1] = tmp[13];
-          v[2] = tmp[14];
+          point_copy(&v[1], &tmp[13]);
+          point_copy(&v[2], &tmp[14]);
         case 10:
-          v[0] = tmp[14];
-          v[2] = tmp[6];
+          point_copy(&v[0], &tmp[14]);
+          point_copy(&v[2], &tmp[6]);
         case 11:
-          v[1] = tmp[6];
-          v[2] = tmp[7];
+          point_copy(&v[1], &tmp[6]);
+          point_copy(&v[2], &tmp[7]);
         case 12:
-          v[0] = tmp[2];
-          v[1] = tmp[3];
-          v[2] = tmp[13];
+          point_copy(&v[0], &tmp[2]);
+          point_copy(&v[1], &tmp[3]);
+          point_copy(&v[2], &tmp[13]);
         case 13:
-          v[0] = tmp[13];
-          v[2] = tmp[5];
+          point_copy(&v[0], &tmp[13]);
+          point_copy(&v[2], &tmp[5]);
         case 14:
-          v[1] = tmp[5];
-          v[2] = tmp[6];
+          point_copy(&v[1], &tmp[5]);
+          point_copy(&v[2], &tmp[6]);
         case 15:
-          v[0] = tmp[3];
-          v[1] = tmp[4];
-          v[2] = tmp[5];
+          point_copy(&v[0], &tmp[3]);
+          point_copy(&v[1], &tmp[4]);
+          point_copy(&v[2], &tmp[5]);
       }
       polygon_set(p, 3, v);
       module_polygon(md, p);
+      polygon_clear(p);
     }
+    point_set3D(&pt[0], 0, 1.0, 0);  
+    point_set3D(&pt[1], 0, 0, 1.0);
+    point_set3D(&pt[2], 0, -1.0, 0);
+    point_set3D(&pt[3], 0, 0, -1.0);
+    point_set3D(&pt[4], 1.0, 0, 0);
+    point_set3D(&pt[5], -1.0, 0, 0);
   }
-
-  point_set3D(&pt[0], 0, 1.0, 0);  
-  point_set3D(&pt[1], 0, 0, 1.0);
-  point_set3D(&pt[2], 0, -1.0, 0);
-  point_set3D(&pt[3], 0, 0, -1.0);
-  point_set3D(&pt[4], 1.0, 0, 0);
-  point_set3D(&pt[5], -1.0, 0, 0);
-
-
-
 }
 
 /* Shading/Color Module Functions */

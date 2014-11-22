@@ -224,6 +224,11 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
         if (i<0 || i>src->cols){
           continue;
         }
+// *** zbuffer things *** //
+//       disgard pixel if...
+//         - its depth calue is greater than teh existing depth value
+//         - its depth value is less than the front clip plane
+//         - does this flip if the zbuffer values are 1/z ??
         else {
           image_setColor(src, scan, i, c);
         }
