@@ -169,7 +169,12 @@ float image_geta(Image *src, int r, int c){
 }
 
 float image_getz(Image *src, int r, int c){
-	return( src->data[r][c].z );
+	if( (r<0 || c<0)||(src->rows <= r || src->cols <= c)) {
+		return( 1.0 );
+	}
+	else{
+		return( src->data[r][c].z );
+	}
 }
 
 void image_setf(Image *src, int r, int c, FPixel val){
@@ -185,7 +190,12 @@ void image_seta(Image *src, int r, int c, float val){
 }
 
 void image_setz(Image *src, int r, int c, float val){
-	src->data[r][c].z = val;
+	if( (r<0 || c<0)||(src->rows <= r || src->cols <= c)) {
+		return;
+	}
+	else{
+		src->data[r][c].z = val;
+	}
 }
 
 void image_reset(Image *src){

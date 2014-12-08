@@ -126,15 +126,15 @@ int main(int argc, char *argv[]) {
 
 	matrix_setView3D( &VTM, &view );
 
-	// ds.shade = ShadeFrame;
-	ds.shade = ShadeConstant;
+	 ds.shade = ShadeFrame;
+	//ds.shade = ShadeConstant;
 
 	pos = 0;
 	speed = 0;
 
 	for(frame=0;frame<150;frame++) {
 	// for(frame=41;frame<43;frame++) {
-		printf("frame: %d\n", frame);
+		//printf("frame: %d\n", frame);
 		char buffer[256];
 
 		matrix_identity( &GTM );
@@ -156,13 +156,13 @@ int main(int argc, char *argv[]) {
 			speed = speed - gravity;
 		}
 
-		// sprintf(buffer, "jetman-frame%03d.ppm", frame);
-		// image_write(src, buffer);
+		 sprintf(buffer, "jetman-frame%03d.ppm", frame);
+		 image_write(src, buffer);
 		image_reset(src);
 	}
 
-	// system("convert jetman-frame*.ppm jetman.gif");
-	// system("rm jetman-frame*.ppm");
+	 system("convert jetman-frame*.ppm jetman.gif");
+	 system("rm jetman-frame*.ppm");
 
 	image_free( src );
 

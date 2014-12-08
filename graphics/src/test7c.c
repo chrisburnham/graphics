@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 	View3D view;
 	Matrix VTM, GTM;
 	int divisions = 4;
-	int rows = 300, cols = 400;
+	int rows = 900, cols = 1200;
 	Image *src = image_create(rows, cols);
 
 	// grab the command line argument, if one exists
@@ -94,10 +94,11 @@ int main(int argc, char *argv[]) {
 	ds.shade = ShadeConstant;
 
 	// set up the view
-	point_set3D(&(view.vrp), 0.0, 1.2, -3.0 );
+	//point_set3D(&(view.vrp), 0.0, 1.2, -3.0 );
+	point_set3D(&(view.vrp), 0.0, 2.0, -5.5 );
 	vector_set( &(view.vpn), 0.0, -0.8, 2.5 );
 	vector_set( &(view.vup), 0.0, 1.0, 0.0 );
-	view.d = 1.5;
+	view.d = 10.5;
 	view.du = 1.0;
 	view.dv = 1.0*rows/cols;
 	view.screeny = rows;
@@ -120,7 +121,7 @@ int main(int argc, char *argv[]) {
 		image_reset(src);
 	}
 
-	system("convert bezSurf-frame*.ppm bezSurf3.gif");
+	system("convert -delay 10 bezSurf-frame*.ppm test.gif");
 	system("rm bezSurf-frame*.ppm");
 
 	// clean up

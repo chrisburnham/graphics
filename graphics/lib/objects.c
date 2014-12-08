@@ -107,6 +107,10 @@ void line_draw(Line *l, Image *src, Color c){
 	double a[3];
 	double b[3];
 
+	//printf("line aZ: %f  line bZ: %f\n", l->a.val[2], l->b.val[2]);
+
+	line_zBuffer(l, 0); // need to remove this and fix
+
 	if( (int)(l->a.val[0]) == (int)(l->b.val[0]) ){
 		if( (int)(l->a.val[1]) != (int)(l->b.val[1]) ){
 			x = (int)(l->a.val[0]);
@@ -128,7 +132,7 @@ void line_draw(Line *l, Image *src, Color c){
 			}
 			if( l->zBuffer != 0 ){
 				for(i = 0; i < dy; i++){
-					if( z > image_getz(src, y + i, x) ){
+					if( z >= image_getz(src, y + i, x) ){
 						image_setColor(src, y + i, x, c);
 						image_setz(src, y + i, x, z);
 					}
@@ -164,7 +168,7 @@ void line_draw(Line *l, Image *src, Color c){
 			}
 			if( l->zBuffer != 0 ){
 				for(i = 0; i < dy; i++){
-					if( z > image_getz(src, y, x + i) ){
+					if( z >= image_getz(src, y, x + i) ){
 						image_setColor(src, y, x + i, c);
 						image_setz(src, y, x + i, z);
 					}
@@ -213,7 +217,7 @@ void line_draw(Line *l, Image *src, Color c){
 				dz = (b[2] - a[2]) / dx;
 
 				for(i=0; i<dx; i++){
-					if( z > image_getz(src, y, x) ){
+					if( z >= image_getz(src, y, x) ){
 						image_setColor(src, y, x, c);
 						image_setz(src, y, x, z);
 					}
@@ -250,7 +254,7 @@ void line_draw(Line *l, Image *src, Color c){
 				dz = (b[2] - a[2]) / dy;
 
 				for(i=0; i<dy; i++){
-					if( z > image_getz(src, y, x) ){
+					if( z >= image_getz(src, y, x) ){
 						image_setColor(src, y, x, c);
 						image_setz(src, y, x, z);
 					}
@@ -289,7 +293,7 @@ void line_draw(Line *l, Image *src, Color c){
 				dz = (b[2] - a[2]) / dx;
 
 				for(i=0; i<dx; i++){
-					if( z > image_getz(src, y, x) ){
+					if( z >= image_getz(src, y, x) ){
 						image_setColor(src, y, x, c);
 						image_setz(src, y, x, z);
 					}
@@ -326,7 +330,7 @@ void line_draw(Line *l, Image *src, Color c){
 				dz = (b[2] - a[2]) / dy;
 
 				for(i=0; i<dy; i++){
-					if( z > image_getz(src, y, x) ){
+					if( z >= image_getz(src, y, x) ){
 						image_setColor(src, y, x, c);
 						image_setz(src, y, x, z);
 					}
