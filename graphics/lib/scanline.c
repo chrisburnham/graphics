@@ -21,7 +21,7 @@ typedef struct tEdge {
   float x1, y1;                   /* end point for the edge */
   int yStart, yEnd;               /* start row and end row */
   float xIntersect, dxPerScan;    /* where the edge intersects the current scanline and how it changes */
-  // float zBuffer, dzPerScan;       /* adding z-buffer things */
+  float zStart, zEnd, dzPerCol;       /* adding z-buffer things */
   /* we'll add more here later */
   struct tEdge *next;
 } Edge;
@@ -61,18 +61,6 @@ static int compXIntersect( const void *a, const void *b ) {
     return(0);
 }
 
-// static int compZBuffer (const void *a, float z_buffer) {
-   /*
-//       Discard a pixel if its 1/z value is less than the current value in the depth 
-//       buffer.
-//       Discard a pixel if its 1/z value is greater than 1/F'.
-   */
-//   Edge *ea = (Edge *)a;
-//   if (a->zBuffer < z_buffer || a->zBuffer > //1/F') {
-//     // disgard pixel
-//   }
-// }
-
 /*
     Allocates, creates, fills out, and returns an Edge structure given
     the inputs.
@@ -98,6 +86,8 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src)
 
   edge->yStart = (int)(edge->y0+0.5);
   edge->yEnd = (int)((edge->y1+0.5));
+
+  edge 
 
   if (edge->yEnd >= src->rows){
     edge->yEnd = src->rows-1;
@@ -195,6 +185,7 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src) {
 static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
   Edge *p1, *p2;
   int i, start, finish;
+  float zBuffer;
 
   p1 = ll_head( active );
   // f = 1; // what is this?
@@ -226,7 +217,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
         }
 // *** zbuffer things *** //
 //       disgard pixel if...
-//         - its depth calue is greater than teh existing depth value
+//         - its depth value is greater than the existing depth value
 //         - its depth value is less than the front clip plane
 //         - does this flip if the zbuffer values are 1/z ??
         else {

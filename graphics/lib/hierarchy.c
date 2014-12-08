@@ -736,7 +736,7 @@ void module_sphere( Module *md ){
       }
       polygon_set(p, 3, v);
       module_polygon(md, p);
-      polygon_clear(p);
+      // polygon_clear(p);
     }
     point_set3D(&pt[0], 0, 1.0, 0);  
     point_set3D(&pt[1], 0, 0, 1.0);
