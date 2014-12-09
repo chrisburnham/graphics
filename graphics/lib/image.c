@@ -22,6 +22,7 @@ Image *image_create(int rows, int cols){
 				image->data[i] = &( image->data[0][i*cols] );
 		}	
 	}
+    image_reset(image);
 	return( image );
 }
 

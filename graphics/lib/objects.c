@@ -107,10 +107,6 @@ void line_draw(Line *l, Image *src, Color c){
 	double a[3];
 	double b[3];
 
-	//printf("line aZ: %f  line bZ: %f\n", l->a.val[2], l->b.val[2]);
-
-	line_zBuffer(l, 0); // need to remove this and fix
-
 	if( (int)(l->a.val[0]) == (int)(l->b.val[0]) ){
 		if( (int)(l->a.val[1]) != (int)(l->b.val[1]) ){
 			x = (int)(l->a.val[0]);
