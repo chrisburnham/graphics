@@ -10,7 +10,7 @@ typedef struct{
 typedef struct{
 	float rgb[3];
 	float a;
-	float z;
+	float z; // 1/z
 } FPixel;
 
 typedef struct{

@@ -86,8 +86,8 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
   edge->y0 = start.val[1];
   edge->y1 = end.val[1];
 
-  edge->yStart = (int)(edge->y0+0.5);
-  edge->yEnd = (int)(edge->y1+0.5);
+  edge->yStart = floor(edge->y0+0.5);
+  edge->yEnd = floor(edge->y1+0.5);
 
   if (zFlag != 0){
     edge->zIntersect = 1/start.val[2];
@@ -101,11 +101,11 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
   edge->dxPerScan = ( edge->x1 - edge->x0 )/(dscan);
 
   if (edge->y0 - floor(edge->y0) <= 0.5){
-    edge->xIntersect = edge->x0 + ((0.5-(floor(edge->y0)-edge->y0))*edge->dxPerScan);
+    edge->xIntersect += ((0.5-(floor(edge->y0)-edge->y0))*edge->dxPerScan);
   }
 
   else {
-    edge->xIntersect = edge->x0 + (((1.0-(floor(edge->y0)-edge->y0))+0.5)*edge->dxPerScan);
+    edge->xIntersect += (((1.0-(floor(edge->y0)-edge->y0))+0.5)*edge->dxPerScan);
   }
 
   if (edge->y0 < 0){
@@ -202,14 +202,14 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
     }
 
     else {
-      start = (int) p1->xIntersect;
-      finish = (int) p2->xIntersect;
+      start = floor(p1->xIntersect + 0.5);
+      finish = floor(p2->xIntersect +0.5);
+      start = start<0 ? 0 : start;
+      finish = finish>=src->cols ? src->cols : finish;
       if (zFlag != 0){
         zBuffer = p1->zIntersect;
         dzPerCol = (p2->zIntersect - zBuffer)/(finish-start);
       }
-      start = start<0 ? 0 : start;
-      finish = finish>=src->cols ? src->cols : finish;
       for (i=start; i<finish; i++){
         if (i<0 || i>src->cols){
           continue;
@@ -235,7 +235,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
 }
 
 /* 
-     Process the edge list, assumes the edges list has at least one entry
+   Process the edge list, assumes the edges list has at least one entry
 */
 static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) {
   LinkedList *active = NULL;
@@ -244,37 +244,42 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) 
   Edge *current;
   Edge *tedge;
   int scan = 0;
-  // int count = 0;
 
   active = ll_new( );
   tmplist = ll_new( );
 
+  // get a pointer to the first item on the list and reset the current pointer
   current = ll_head( edges );
 
-  for( scan = current->yStart; scan < src->rows; scan++ ) {
-    // printf("scan: %d\n", scan);
+  // start at the first scanline and go until the active list is empty
+  for(scan = current->yStart;scan < src->rows;scan++ ) {
+
+    // grab all edges starting on this row
     while( current != NULL && current->yStart == scan ) {
       ll_insert( active, current, compXIntersect );
-      // count++;
       current = ll_next( edges );
     }
-    // printf("edges in active %d.\n", count);
+    // current is either null, or the first edge to be handled on some future scanline
 
     if( ll_empty(active) ) {
       break;
     }
-      
+
+    // if there are active edges
+    // fill out the scanline
     fillScan( scan, active, src, c, zFlag);
 
+    // remove any ending edges and update the rest
     for( tedge = ll_pop( active ); tedge != NULL; tedge = ll_pop( active ) ) {
-      // printf("  edge from: %d to %d\n", tedge->yStart, tedge->yEnd);
-      // printf ("if %d > %d keep it.\n", tedge->yEnd, scan);
-      if( tedge->yEnd > scan+1 ) {
-        float a = 1.0; // what does this a do it seems it is never used
 
+      // keep anything that's not ending
+      if( tedge->yEnd > scan ) {
+        float a = 1.0;
+
+        // update the edge information with the dPerScan values
         tedge->xIntersect += tedge->dxPerScan;
-        tedge->zIntersect += tedge->dzPerScan;
 
+        // adjust in the case of partial overlap
         if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
           a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
           tedge->xIntersect = tedge->x1;
@@ -283,18 +288,18 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) 
           a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
           tedge->xIntersect = tedge->x1;
         }
+
         ll_insert( tmplist, tedge, compXIntersect );
       }
-      else {
-        continue;
-        // printf("  getting rid of edge\n");
-      }
     }
+
     transfer = active;
     active = tmplist;
     tmplist = transfer;
+
   }
 
+  // get rid of the lists, but not the edge records
   ll_delete(active, NULL);
   ll_delete(tmplist, NULL);
 
