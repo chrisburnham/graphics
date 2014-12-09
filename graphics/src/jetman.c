@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
 	view.screeny = rows;
 	view.screenx = cols;
 	view.f = 0.0;
-	view.b = 3.0;
+	view.b = 50.0;
 
 	matrix_setView3D( &VTM, &view );
 
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 
 	pos = 0;
 	speed = 0;
-
+    
 	for(frame=0;frame<150;frame++) {
 	// for(frame=41;frame<43;frame++) {
 		//printf("frame: %d\n", frame);
