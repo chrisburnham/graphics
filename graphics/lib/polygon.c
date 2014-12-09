@@ -150,9 +150,11 @@ void polygon_draw(Polygon *p, Image *src, Color c){
 		if(p->vertex){
 			for(i = 1; i < p->nVertex; i++){
 				line_set(&edge, p->vertex[i-1],  p->vertex[i]);
+                line_zBuffer(&edge, p->zBuffer);
 				line_draw(&edge, src, c);
 			}
             line_set(&edge, p->vertex[0],  p->vertex[p->nVertex - 1]);
+            line_zBuffer(&edge, p->zBuffer);
             line_draw(&edge, src, c);
 		}
 	}

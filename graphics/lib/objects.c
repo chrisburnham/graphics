@@ -698,6 +698,7 @@ void polyline_draw(Polyline *p, Image *src, Color c){
 			edge = malloc(sizeof(Line));
 			for(i = 1; i < p->numVertex; i++){
 				line_set(edge, p->vertex[i-1],  p->vertex[i]);
+                line_zBuffer(edge,p->zBuffer);
 				line_draw(edge, src, c);
 			}
 			free(edge);
