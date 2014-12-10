@@ -86,8 +86,8 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
   edge->y0 = start.val[1];
   edge->y1 = end.val[1];
 
-  edge->yStart = floor(edge->y0+0.5);
-  edge->yEnd = floor(edge->y1+0.5);
+  edge->yStart = (int)(edge->y0+0.5);
+  edge->yEnd = (int)(edge->y1+0.5)-1;
 
   if (zFlag != 0){
     edge->zIntersect = 1/start.val[2];
@@ -99,6 +99,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
   }
 
   edge->dxPerScan = ( edge->x1 - edge->x0 )/(dscan);
+  edge->xIntersect = start.val[0];
 
   if (edge->y0 - floor(edge->y0) <= 0.5){
     edge->xIntersect += ((0.5-(floor(edge->y0)-edge->y0))*edge->dxPerScan);
@@ -200,31 +201,32 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
       p1 = ll_next( active );
       continue;
     }
-
-    else {
-      start = floor(p1->xIntersect + 0.5);
-      finish = floor(p2->xIntersect +0.5);
-      start = start<0 ? 0 : start;
-      finish = finish>=src->cols ? src->cols : finish;
+    if (zFlag != 0){
+      zBuffer = p1->zIntersect;
+      dzPerCol = (p2->zIntersect - p1->zIntersect)/(finish-start);
+    }
+    
+    start = floor(p1->xIntersect + 0.5);
+    finish = floor(p2->xIntersect +0.5);
+    if (start < 0){
+      start = 0;
+    }
+    finish = finish>=src->cols ? src->cols : finish;
+    
+    for (i=start; i<finish; i++){
+      // printf("scanning...\n");
+      if ( zFlag != 0 && zBuffer < src->data[scan][i].z){
+        printf("in zBuffer if statement: %f\n", zBuffer);
+        continue;
+      }
+      else {
+        src->data[scan][i].z = zBuffer;
+        printf("drawing color\n");
+        image_setColor(src, scan, i, c);
+      }
       if (zFlag != 0){
-        zBuffer = p1->zIntersect;
-        dzPerCol = (p2->zIntersect - zBuffer)/(finish-start);
-      }
-      for (i=start; i<finish; i++){
-        if (i<0 || i>src->cols){
-          continue;
-        }
-        else if ( zFlag != 0 && (zBuffer < src->data[scan][i].z || zBuffer < 1.0)){
-          continue;
-        }
-        else {
-          src->data[scan][i].z = zBuffer;
-          image_setColor(src, scan, i, c);
-        }
-        if (zFlag != 0){
-          zBuffer += dzPerCol;
-        } 
-      }
+        zBuffer += dzPerCol;
+      } 
     }
 
     p1 = ll_next( active );
