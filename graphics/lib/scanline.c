@@ -90,7 +90,6 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, int dsF
   edge->yEnd = (int)(edge->y1+0.5)-1;
 
   if (zFlag != 0){
-    printf("  start.val[2]: %f\n", start.val[2]);
     edge->zIntersect = 1/start.val[2];
     edge->dzPerScan = ((1/end.val[2])-(1/start.val[2]))/dscan;
   }
@@ -188,8 +187,9 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
 static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFlag, int dsFlag ) {
   Edge *p1, *p2;
   int i, start, finish;
-  float zBuffer = 1.0, dzPerCol;
+  float zBuffer = 1.0, dzPerCol = 0.0;
   Color tc;
+  color_copy(&tc, &c);
 
   p1 = ll_head( active );
 
@@ -212,11 +212,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
       zBuffer = p1->zIntersect;
       dzPerCol = (p2->zIntersect - p1->zIntersect)/(finish-start);
     }
-    if (dsFlag == 1){
-      tc.c[0] = c.c[0]*(1-(1/zBuffer));
-      tc.c[1] = c.c[1]*(1-(1/zBuffer));
-      tc.c[2] = c.c[2]*(1-(1/zBuffer));
-    }
+
     start = floor(p1->xIntersect + 0.5);
     finish = floor(p2->xIntersect +0.5);
     if (start < 0){
@@ -225,6 +221,11 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
     finish = finish>=src->cols ? src->cols : finish;
     
     for (i=start; i<finish; i++){
+      if (dsFlag == 1){
+        tc.c[0] = c.c[0]*(1-(1/zBuffer));
+        tc.c[1] = c.c[1]*(1-(1/zBuffer));
+        tc.c[2] = c.c[2]*(1-(1/zBuffer));
+      }
       // printf("scanning...\n");
       if ( zFlag != 0 && zBuffer < src->data[scan][i].z){
         continue;
