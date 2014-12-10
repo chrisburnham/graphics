@@ -90,6 +90,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
   edge->yEnd = (int)(edge->y1+0.5)-1;
 
   if (zFlag != 0){
+    printf("  start.val[2]: %f\n", start.val[2]);
     edge->zIntersect = 1/start.val[2];
     edge->dzPerScan = ((1/end.val[2])-(1/start.val[2]))/dscan;
   }
@@ -117,6 +118,19 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
     edge->xIntersect = edge->x0;
   }
 
+  // dx per scan greater than 0
+    // and x intersect great than x1
+    // set xintersect to x1
+  //if negative and less than x1 
+    // set to x1
+
+  if (edge->dxPerScan > 0 && edge->xIntersect > edge->x1){
+    edge->xIntersect = edge->x1;
+  }
+  if (edge->dxPerScan < 0 && edge->xIntersect < edge->x1){
+    edge->xIntersect = edge->x1;
+  }
+
   // printf("edge->\n");
   // printf("  x0: %f\n", edge->x0);
   // printf("  y0: %f\n", edge->y0);
@@ -127,7 +141,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
   // printf("  xIntersect: %f\n", edge->xIntersect);
   // printf("  dxPerScan: %f\n", edge->dxPerScan);
   // printf("  dzPerScan: %f\n", edge->dzPerScan);
-  // printf("  zIntersect: %f\n", edge->zIntersect);
+  printf("  zIntersect: %f\n", edge->zIntersect);
 
   return( edge );
 }
