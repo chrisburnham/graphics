@@ -127,7 +127,8 @@ int main(int argc, char *argv[]) {
 	matrix_setView3D( &VTM, &view );
 
 	 // ds.shade = ShadeFrame;
-	ds.shade = ShadeConstant;
+	// ds.shade = ShadeConstant;
+	ds.shade = ShadeDepth;
 
 	pos = 0;
 	speed = 0;
@@ -139,7 +140,7 @@ int main(int argc, char *argv[]) {
 
 		matrix_identity( &GTM );
 		
-		//module_draw( scene, &VTM, &GTM, &ds, NULL, src );
+		// module_draw( scene, &VTM, &GTM, &ds, NULL, src );
 
 		matrix_translate(&GTM, 0, pos / 200.0, 0);
 		matrix_rotateY(&GTM, sin((M_PI*frame)/75.0), cos((M_PI*frame)/75.0));

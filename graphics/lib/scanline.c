@@ -118,7 +118,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, int dsF
   if (edge->dxPerScan > 0 && edge->xIntersect > edge->x1){
     edge->xIntersect = edge->x1;
   }
-  if (edge->dxPerScan < 0 && edge->xIntersect < edge->x1){
+  else if (edge->dxPerScan < 0 && edge->xIntersect < edge->x1){
     edge->xIntersect = edge->x1;
   }
 
@@ -201,43 +201,44 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
         break;
     }
 
-    // printf("  Scan from %f to %f.\n", p1->xIntersect, p2->xIntersect );
-    // printf("  (x0, y0): (%f, %f)\n", p2->x0, p2->y0);
-
     if( p2->xIntersect == p1->xIntersect ) {
       p1 = ll_next( active );
       continue;
     }
+
+    start = (int)(p1->xIntersect + 0.5);
+    finish = (int)(p2->xIntersect + 0.5);
+
     if (zFlag != 0){
       zBuffer = p1->zIntersect;
       dzPerCol = (p2->zIntersect - p1->zIntersect)/(finish-start);
     }
 
-    start = floor(p1->xIntersect + 0.5);
-    finish = floor(p2->xIntersect +0.5);
     if (start < 0){
+      if (zFlag != 0){
+        zBuffer += (-start)*dzPerCol;
+      }
       start = 0;
     }
     finish = finish>=src->cols ? src->cols : finish;
     
     for (i=start; i<finish; i++){
+      if ( zFlag != 0 && zBuffer < src->data[scan][i].z){
+        // printf("pixel behind\n");
+        zBuffer += dzPerCol;
+        continue;
+      }
       if (dsFlag == 1){
         tc.c[0] = c.c[0]*(1-(1/zBuffer));
         tc.c[1] = c.c[1]*(1-(1/zBuffer));
         tc.c[2] = c.c[2]*(1-(1/zBuffer));
       }
-      // printf("scanning...\n");
-      if ( zFlag != 0 && zBuffer < src->data[scan][i].z){
-        continue;
-      }
-      else {
-        src->data[scan][i].z = zBuffer;
-        image_setColor(src, scan, i, tc);
-      }
+      printf("drawing pixel... (%f, %f, %f)\n", tc.c[0], tc.c[1], tc.c[2]);
+      src->data[scan][i].z = zBuffer;
+      image_setColor(src, scan, i, tc);
       if (zFlag != 0){
         zBuffer += dzPerCol;
       }
-
     }
 
     p1 = ll_next( active );
@@ -291,6 +292,9 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
 
         // update the edge information with the dPerScan values
         tedge->xIntersect += tedge->dxPerScan;
+        if (zFlag != 0){
+          tedge->zIntersect += tedge->dzPerScan;
+        }
 
         // adjust in the case of partial overlap
         if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
