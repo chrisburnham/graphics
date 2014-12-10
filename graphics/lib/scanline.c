@@ -112,17 +112,9 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
 
   if (edge->y0 < 0){
     printf("*** yStart less than zero ***\n");
-    edge->y0 = 0.0; 
     edge->yStart = 0;
-    edge->x0 += fabs(edge->y0)*edge->dxPerScan;
-    edge->xIntersect = edge->x0;
+    edge->xIntersect += fabs(edge->y0)*edge->dxPerScan;
   }
-
-  // dx per scan greater than 0
-    // and x intersect great than x1
-    // set xintersect to x1
-  //if negative and less than x1 
-    // set to x1
 
   if (edge->dxPerScan > 0 && edge->xIntersect > edge->x1){
     edge->xIntersect = edge->x1;
@@ -141,7 +133,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
   // printf("  xIntersect: %f\n", edge->xIntersect);
   // printf("  dxPerScan: %f\n", edge->dxPerScan);
   // printf("  dzPerScan: %f\n", edge->dzPerScan);
-  printf("  zIntersect: %f\n", edge->zIntersect);
+  // printf("  zIntersect: %f\n", edge->zIntersect);
 
   return( edge );
 }
@@ -219,7 +211,11 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
       zBuffer = p1->zIntersect;
       dzPerCol = (p2->zIntersect - p1->zIntersect)/(finish-start);
     }
-    
+    if (){
+      c.c[0] = c.c[0]*(1-(1/zBuffer));
+      c.c[1] = c.c[1]*(1-(1/zBuffer));
+      c.c[2] = c.c[2]*(1-(1/zBuffer));
+    }
     start = floor(p1->xIntersect + 0.5);
     finish = floor(p2->xIntersect +0.5);
     if (start < 0){
@@ -230,12 +226,10 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
     for (i=start; i<finish; i++){
       // printf("scanning...\n");
       if ( zFlag != 0 && zBuffer < src->data[scan][i].z){
-        printf("in zBuffer if statement: %f\n", zBuffer);
         continue;
       }
       else {
         src->data[scan][i].z = zBuffer;
-        printf("drawing color\n");
         image_setColor(src, scan, i, c);
       }
       if (zFlag != 0){
@@ -300,6 +294,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) 
           a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
           tedge->xIntersect = tedge->x1;
         }
+
         else if( tedge->dxPerScan > 0.0 && tedge->xIntersect > tedge->x1 ) {
           a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
           tedge->xIntersect = tedge->x1;
@@ -308,11 +303,9 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) 
         ll_insert( tmplist, tedge, compXIntersect );
       }
     }
-
     transfer = active;
     active = tmplist;
     tmplist = transfer;
-
   }
 
   // get rid of the lists, but not the edge records
@@ -322,7 +315,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) 
   return(0);
 }
 
-void scanline_drawFill(Polygon *p, Image *src, Color c){
+void scanline_drawFill(Polygon *p, Image *src, Color c, ){
     LinkedList *edges = NULL;
 
     edges = setupEdgeList( p, src );
@@ -337,152 +330,190 @@ void scanline_drawFill(Polygon *p, Image *src, Color c){
 
     return;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // _____________________________ pattern _______________________________________
 
 
-/*
-    Draw one scanline of a polygon given the scanline, the active edges,
-    a DrawState, the image, and some Lights (for Phong shading only).
- */
-static void fillScan2( int scan, LinkedList *active, Image *src, Color *c, double x, double y ) {
-  Edge *p1, *p2;
-  int i, f;
+// /*
+//     Draw one scanline of a polygon given the scanline, the active edges,
+//     a DrawState, the image, and some Lights (for Phong shading only).
+//  */
+// static void fillScan2( int scan, LinkedList *active, Image *src, Color *c, double x, double y ) {
+//   Edge *p1, *p2;
+//   int i, f;
 
-    // loop over the list
-  p1 = ll_head( active );
-  f = 1;
+//     // loop over the list
+//   p1 = ll_head( active );
+//   f = 1;
 
-  while(p1) {
-    // the edges have to come in pairs, draw from one to the next
-    p2 = ll_next( active );
+//   while(p1) {
+//     // the edges have to come in pairs, draw from one to the next
+//     p2 = ll_next( active );
     
-    if( !p2 ) {
-        printf("bad bad bad (your edges are not coming in pairs)\n");
-        //printf("found %d edges.\n", f);
-        break;
-    }
+//     if( !p2 ) {
+//         printf("bad bad bad (your edges are not coming in pairs)\n");
+//         //printf("found %d edges.\n", f);
+//         break;
+//     }
 
-    //printf("Scan from %f to %f.\n", p1->xIntersect, p2->xIntersect );
-    //printf("(x0, y0): (%f, %f)\n", p2->x0, p2->y0);
-        // if the xIntersect values are the same, don't draw anything.
-        // Just go to the next pair.
-    if( p2->xIntersect == p1->xIntersect ) {
-      p1 = ll_next( active );
-      continue;
-    }
-    else {
-      for (i=p1->xIntersect; i<p2->xIntersect; i++){
-        image_setBitmap(src, scan, i, x, y, c);
-      }
-    }
+//     //printf("Scan from %f to %f.\n", p1->xIntersect, p2->xIntersect );
+//     //printf("(x0, y0): (%f, %f)\n", p2->x0, p2->y0);
+//         // if the xIntersect values are the same, don't draw anything.
+//         // Just go to the next pair.
+//     if( p2->xIntersect == p1->xIntersect ) {
+//       p1 = ll_next( active );
+//       continue;
+//     }
+//     else {
+//       for (i=p1->xIntersect; i<p2->xIntersect; i++){
+//         image_setBitmap(src, scan, i, x, y, c);
+//       }
+//     }
 
-        // move ahead to the next pair of edges
-    p1 = ll_next( active );
-  }
+//         // move ahead to the next pair of edges
+//     p1 = ll_next( active );
+//   }
 
-  return;
-}
+//   return;
+// }
 
-/* 
-     Process the edge list, assumes the edges list has at least one entry
-*/
-static int processEdgeList2( LinkedList *edges, Image *src, Color *c, double x, double y ) {
-  LinkedList *active = NULL;
-  LinkedList *tmplist = NULL;
-  LinkedList *transfer = NULL;
-  Edge *current;
-  Edge *tedge;
-  int scan = 0;
-  int count = 0;
+// // /* 
+//      Process the edge list, assumes the edges list has at least one entry
+// */
+// static int processEdgeList2( LinkedList *edges, Image *src, Color *c, double x, double y ) {
+//   LinkedList *active = NULL;
+//   LinkedList *tmplist = NULL;
+//   LinkedList *transfer = NULL;
+//   Edge *current;
+//   Edge *tedge;
+//   int scan = 0;
+//   int count = 0;
 
-  active = ll_new( );
-  tmplist = ll_new( );
+//   active = ll_new( );
+//   tmplist = ll_new( );
 
-  // get a pointer to the first item on the list and reset the current pointer
-  current = ll_head( edges );
+//   // get a pointer to the first item on the list and reset the current pointer
+//   current = ll_head( edges );
 
-  // start at the first scanline and go until the active list is empty
-  for(scan = current->yStart;scan < src->rows;scan++ ) {
-    // count = 0;
-    // grab all edges starting on this row
-    // printf("scan: %d\n", scan);
-    while( current != NULL && current->yStart == scan ) {
-      // printf("adding edge at scanline %d\n", scan);
-      count ++;
-      ll_insert( active, current, compXIntersect );
-      current = ll_next( edges );
-    }
-    //printf("edges in active %d.\n", count);
-    // current is either null, or the first edge to be handled on some future scanline
+//   // start at the first scanline and go until the active list is empty
+//   for(scan = current->yStart;scan < src->rows;scan++ ) {
+//     // count = 0;
+//     // grab all edges starting on this row
+//     // printf("scan: %d\n", scan);
+//     while( current != NULL && current->yStart == scan ) {
+//       // printf("adding edge at scanline %d\n", scan);
+//       count ++;
+//       ll_insert( active, current, compXIntersect );
+//       current = ll_next( edges );
+//     }
+//     //printf("edges in active %d.\n", count);
+//     // current is either null, or the first edge to be handled on some future scanline
 
-    if( ll_empty(active) ) {
-      break;
-    }
+//     if( ll_empty(active) ) {
+//       break;
+//     }
       
-    // if there are active edges
-    // fill out the scanline
-    // printf("  There are %d edges in the active list.\n", count);
-    fillScan2( scan, active, src, c, x, y);
-    count = 0;
+//     // if there are active edges
+//     // fill out the scanline
+//     // printf("  There are %d edges in the active list.\n", count);
+//     fillScan2( scan, active, src, c, x, y);
+//     count = 0;
 
-    // remove any ending edges and update the rest
-    for( tedge = ll_pop( active ); tedge != NULL; tedge = ll_pop( active ) ) {
-      // printf("  edge from: %d to %d\n", tedge->yStart, tedge->yEnd);
-      // printf ("if %d > %d keep it.\n", tedge->yEnd, scan);
-      // keep anything that's not ending
-      if( tedge->yEnd > scan+1 ) {
-        float a = 1.0;
+//     // remove any ending edges and update the rest
+//     for( tedge = ll_pop( active ); tedge != NULL; tedge = ll_pop( active ) ) {
+//       // printf("  edge from: %d to %d\n", tedge->yStart, tedge->yEnd);
+//       // printf ("if %d > %d keep it.\n", tedge->yEnd, scan);
+//       // keep anything that's not ending
+//       if( tedge->yEnd > scan+1 ) {
+//         float a = 1.0;
 
-        // update the edge information with the dxPerScan values
-        tedge->xIntersect += tedge->dxPerScan;
-        tedge->zIntersect += tedge->dzPerScan;
+//         // update the edge information with the dxPerScan values
+//         tedge->xIntersect += tedge->dxPerScan;
+//         tedge->zIntersect += tedge->dzPerScan;
 
-        // adjust in the case of partial overlap
-        if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
-          a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
-          tedge->xIntersect = tedge->x1;
-        }
-        else if( tedge->dxPerScan > 0.0 && tedge->xIntersect > tedge->x1 ) {
-          a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
-          tedge->xIntersect = tedge->x1;
-        }
-        count ++;
-        ll_insert( tmplist, tedge, compXIntersect );
-      }
-      else {
-        // printf("  getting rid of edge\n");
-      }
-    }
-    transfer = active;
-    active = tmplist;
-    tmplist = transfer;
-  }
+//         // adjust in the case of partial overlap
+//         if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
+//           a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
+//           tedge->xIntersect = tedge->x1;
+//         }
+//         else if( tedge->dxPerScan > 0.0 && tedge->xIntersect > tedge->x1 ) {
+//           a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
+//           tedge->xIntersect = tedge->x1;
+//         }
+//         count ++;
+//         ll_insert( tmplist, tedge, compXIntersect );
+//       }
+//       else {
+//         // printf("  getting rid of edge\n");
+//       }
+//     }
+//     transfer = active;
+//     active = tmplist;
+//     tmplist = transfer;
+//   }
 
-  // get rid of the lists, but not the edge records
-  ll_delete(active, NULL);
-  ll_delete(tmplist, NULL);
+//   // get rid of the lists, but not the edge records
+//   ll_delete(active, NULL);
+//   ll_delete(tmplist, NULL);
 
-  return(0);
-}
+//   return(0);
+// }
 
-// draw the filled polygon using color c with the scanline rendering algorithm.
-void scanline_drawFill2(Polygon *p, Image *src, Color *c){
-    LinkedList *edges = NULL;
+// // draw the filled polygon using color c with the scanline rendering algorithm.
+// void scanline_drawFill2(Polygon *p, Image *src, Color *c){
+//     LinkedList *edges = NULL;
 
-    // set up the edge list
-    edges = setupEdgeList( p, src );
-    if( !edges )
-        return;
+//     // set up the edge list
+//     edges = setupEdgeList( p, src );
+//     if( !edges )
+//         return;
     
-    // process the edge list (should be able to take an arbitrary edge list)
+//     // process the edge list (should be able to take an arbitrary edge list)
 
-    processEdgeList2( edges, src, c, p->vertex[0].val[0], p->vertex[0].val[1]);
+//     processEdgeList2( edges, src, c, p->vertex[0].val[0], p->vertex[0].val[1]);
 
-    // clean up
-    ll_delete( edges, (void (*)(const void *))free );
+//     // clean up
+//     ll_delete( edges, (void (*)(const void *))free );
 
-    return;
-}
+//     return;
+// }
 
 
 // end sccanline
