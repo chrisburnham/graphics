@@ -321,19 +321,19 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;
 					
 					case ShadeConstant:
-						polygon_drawFill(&polygon, src, ds->color);
+						polygon_drawFill(&polygon, src, ds->color, 0);
 						break;
 					
 					case ShadeDepth: //will be changed
-						polygon_drawFill(&polygon, src, ds->body);
+						polygon_drawFill(&polygon, src, ds->body, 1);
 						break;
 					
 					case ShadeFlat: //will be changed
-						polygon_drawFill(&polygon, src, ds->body);
+						polygon_drawFill(&polygon, src, ds->body, 2);
 						break;
 					
 					case ShadeGouraud: //will be changed
-						polygon_drawFill(&polygon, src, ds->color);
+						polygon_drawFill(&polygon, src, ds->color, 3);
 						break;
 					
 					// where optional ShadePhong would go

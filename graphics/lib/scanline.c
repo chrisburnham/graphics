@@ -211,11 +211,11 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
       zBuffer = p1->zIntersect;
       dzPerCol = (p2->zIntersect - p1->zIntersect)/(finish-start);
     }
-    if (){
-      c.c[0] = c.c[0]*(1-(1/zBuffer));
-      c.c[1] = c.c[1]*(1-(1/zBuffer));
-      c.c[2] = c.c[2]*(1-(1/zBuffer));
-    }
+    // if (){
+    //   c.c[0] = c.c[0]*(1-(1/zBuffer));
+    //   c.c[1] = c.c[1]*(1-(1/zBuffer));
+    //   c.c[2] = c.c[2]*(1-(1/zBuffer));
+    // }
     start = floor(p1->xIntersect + 0.5);
     finish = floor(p2->xIntersect +0.5);
     if (start < 0){
@@ -315,7 +315,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) 
   return(0);
 }
 
-void scanline_drawFill(Polygon *p, Image *src, Color c, ){
+void scanline_drawFill(Polygon *p, Image *src, Color c, int dsFlag){
     LinkedList *edges = NULL;
 
     edges = setupEdgeList( p, src );
