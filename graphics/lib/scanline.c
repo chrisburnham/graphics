@@ -70,7 +70,7 @@ static int compXIntersect( const void *a, const void *b ) {
     Eventually, the points will be 3D and we'll add color and texture
     coordinates.
  */
-static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
+static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, int dsFlag)
 {
   Edge *edge;
   float dscan = end.val[1] - start.val[1];
@@ -143,7 +143,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag)
     Returns a list of all the edges in the polygon in sorted order by
     smallest row.
 */
-static LinkedList *setupEdgeList( Polygon *p, Image *src) {
+static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
   LinkedList *edges = NULL;
   Point v1, v2;
   int i;
@@ -160,10 +160,10 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src) {
       Edge *edge;
 
       if( v1.val[1] < v2.val[1] ){
-        edge = makeEdgeRec( v1, v2, src, p->zBuffer );
+        edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag );
       }
       else {
-        edge = makeEdgeRec( v2, v1, src, p->zBuffer );
+        edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag );
       }
 
       if( edge ){
@@ -185,10 +185,11 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src) {
     Draw one scanline of a polygon given the scanline, the active edges,
     a DrawState, the image, and some Lights (for Phong shading only).
  */
-static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFlag ) {
+static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFlag, int dsFlag ) {
   Edge *p1, *p2;
   int i, start, finish;
   float zBuffer = 1.0, dzPerCol;
+  Color tc;
 
   p1 = ll_head( active );
 
@@ -211,11 +212,11 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
       zBuffer = p1->zIntersect;
       dzPerCol = (p2->zIntersect - p1->zIntersect)/(finish-start);
     }
-    // if (){
-    //   c.c[0] = c.c[0]*(1-(1/zBuffer));
-    //   c.c[1] = c.c[1]*(1-(1/zBuffer));
-    //   c.c[2] = c.c[2]*(1-(1/zBuffer));
-    // }
+    if (dsFlag == 1){
+      tc.c[0] = c.c[0]*(1-(1/zBuffer));
+      tc.c[1] = c.c[1]*(1-(1/zBuffer));
+      tc.c[2] = c.c[2]*(1-(1/zBuffer));
+    }
     start = floor(p1->xIntersect + 0.5);
     finish = floor(p2->xIntersect +0.5);
     if (start < 0){
@@ -230,11 +231,12 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
       }
       else {
         src->data[scan][i].z = zBuffer;
-        image_setColor(src, scan, i, c);
+        image_setColor(src, scan, i, tc);
       }
       if (zFlag != 0){
         zBuffer += dzPerCol;
-      } 
+      }
+
     }
 
     p1 = ll_next( active );
@@ -247,7 +249,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
 /* 
    Process the edge list, assumes the edges list has at least one entry
 */
-static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) {
+static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, int dsFlag ) {
   LinkedList *active = NULL;
   LinkedList *tmplist = NULL;
   LinkedList *transfer = NULL;
@@ -277,7 +279,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) 
 
     // if there are active edges
     // fill out the scanline
-    fillScan( scan, active, src, c, zFlag);
+    fillScan( scan, active, src, c, zFlag, dsFlag);
 
     // remove any ending edges and update the rest
     for( tedge = ll_pop( active ); tedge != NULL; tedge = ll_pop( active ) ) {
@@ -318,13 +320,13 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag ) 
 void scanline_drawFill(Polygon *p, Image *src, Color c, int dsFlag){
     LinkedList *edges = NULL;
 
-    edges = setupEdgeList( p, src );
+    edges = setupEdgeList( p, src, dsFlag );
 
     if( !edges ) {
       return;
     } 
 
-    processEdgeList( edges, src, c, p->zBuffer);
+    processEdgeList( edges, src, c, p->zBuffer, dsFlag);
 
     ll_delete( edges, (void (*)(const void *))free );
 
