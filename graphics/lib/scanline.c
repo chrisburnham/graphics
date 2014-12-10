@@ -233,7 +233,6 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
         tc.c[1] = c.c[1]*(1-(1/zBuffer));
         tc.c[2] = c.c[2]*(1-(1/zBuffer));
       }
-      printf("drawing pixel... (%f, %f, %f)\n", tc.c[0], tc.c[1], tc.c[2]);
       src->data[scan][i].z = zBuffer;
       image_setColor(src, scan, i, tc);
       if (zFlag != 0){
