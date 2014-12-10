@@ -325,7 +325,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;
 					
 					case ShadeDepth: //will be changed
-						polygon_drawFill(&polygon, src, ds->body, 1);
+						polygon_drawFill(&polygon, src, ds->color, 1);
 						break;
 					
 					case ShadeFlat: //will be changed
