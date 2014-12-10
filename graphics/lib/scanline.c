@@ -435,6 +435,7 @@ static int processEdgeList2( LinkedList *edges, Image *src, Color *c, double x, 
 
         // update the edge information with the dxPerScan values
         tedge->xIntersect += tedge->dxPerScan;
+        tedge->zIntersect += tedge->dzPerScan;
 
         // adjust in the case of partial overlap
         if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
