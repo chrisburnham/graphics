@@ -34,6 +34,7 @@ Element *element_init(ObjectType type, void *obj){
 	Polygon polygon;
 	Matrix matrix;
 	Color color;
+    Light light;
 	float *coeff;
 			
 
@@ -97,8 +98,8 @@ Element *element_init(ObjectType type, void *obj){
       break;
     
     case ObjLight:
-      // do other stuff
-			//e->obj = NULL;
+          light_copy(&light, (Light*)obj);
+          e->obj.light = light;
       break;
     
     case ObjModule:
@@ -269,6 +270,9 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 	Polygon polygon;
 	Matrix newGTM;
 	DrawState newds;
+    int i, j;
+    Color c;
+    Vector N, V;
 
 	polygon_init(&polygon);
 	polyline_init(&polyline);
@@ -329,8 +333,21 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;
 					
 					case ShadeFlat: //will be changed
-            // call 
-						polygon_drawFill(&polygon, src, ds->body, 0);
+                        point_set3D(&point1, 0, 0, 0);
+                        vector_set(&N, 0, 0, 0);
+                        for(j=0; j<3; j++){
+                            for(i=0; i<polygon.nVertex; i++){
+                                point1.val[j] += polygon.vertex[i].val[j];
+                                N.val[j] += polygon.normal[i].val[j];
+                            }
+                            point1.val[j] = point1.val[j] / polygon.nVertex;
+                            N.val[j] = N.val[j] / polygon.nVertex;
+                        }
+                        
+                        vector_set(&V, ds->viewer.val[0] - point1.val[0], ds->viewer.val[1] - point1.val[1], ds->viewer.val[2] - point1.val[2] );
+                        
+                        lighting_shading(lighting, &N, &V, &point1, ds->body, ds->surface, ds->surfaceCoeff, polygon.oneSided, &c );
+						polygon_drawFill(&polygon, src, c, 0);
 						break;
 					
 					case ShadeGouraud: //will be changed
@@ -367,7 +384,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
         break;
       
       case ObjLight:
-        // do other stuff
+        // lighting should be delt with already
         break;
       
       case ObjModule:
@@ -379,6 +396,72 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
     }
     e = e->next;
   }
+	polyline_clear(&polyline);
+	polygon_clear(&polygon);
+}
+
+// does the lighting pass. should be called before module draw if there are lights in the scene
+void module_lighting(Module *md, Matrix *VTM, Matrix *GTM, Lighting *lighting ){
+    Element *e;
+    Matrix LTM;
+	Matrix newGTM;
+    
+    matrix_identity(&LTM);
+    e = md->head;
+    
+    while(e != NULL){
+        switch(e->type) {
+            case ObjNone:
+                // do stuff??
+				break;
+                
+            case ObjLine:
+				break;
+                
+            case ObjPoint:
+                break;
+                
+            case ObjPolyline:
+                break;
+                
+            case ObjPolygon:
+                break;
+                
+            case ObjIdentity:
+				matrix_identity(&LTM);
+                break;
+                
+            case ObjMatrix:
+				matrix_multiply(&(e->obj.matrix), &LTM, &LTM);
+                break;
+                
+            case ObjColor:
+                break;
+                
+            case ObjBodyColor:
+                break;
+                
+            case ObjSurfaceColor:
+                break;
+                
+            case ObjSurfaceCoeff:
+                break;
+                
+            case ObjLight:
+                if( lighting->nLights < 64 ){
+                    light_copy( &(lighting->light[lighting->nLights]), &(e->obj.light) );
+                    lighting->nLights += 1;
+                }
+                break;
+                
+            case ObjModule:
+				matrix_multiply(GTM, &LTM, &newGTM);
+				module_lighting(e->obj.module, VTM, &newGTM, lighting);
+                break;
+                
+        }
+        e = e->next;
+    }
 	polyline_clear(&polyline);
 	polygon_clear(&polygon);
 }

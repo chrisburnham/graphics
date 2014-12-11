@@ -23,6 +23,7 @@ Polygon *polygon_create(){
     p = malloc(sizeof(Polygon));
     
     p->zBuffer = 1;
+    p->oneSided = 0;
     p->nVertex = 0;
     p->vertex = NULL;
     
@@ -38,6 +39,7 @@ Polygon *polygon_createp(int numV, Point *vlist){
 	p = malloc(sizeof(Polygon));
     
 	p->zBuffer = 1;
+    p->oneSided = 0;
 	p->nVertex = numV;
 	p->vertex = malloc(sizeof(Point) * numV);
 	for(i=0; i<numV; i++){
@@ -77,6 +79,7 @@ void polygon_init(Polygon *p){
   if(p){
 		p->zBuffer = 1;
 		p->nVertex = 0;
+        p->oneSided = 0;
 		p->vertex = NULL;
 	}
 }
@@ -93,6 +96,7 @@ void polygon_set(Polygon *p, int numV, Point *vlist){
             free(p->normal);
         }
 		p->zBuffer = 1;
+        p->oneSided = 0;
 		p->nVertex = numV;
 		p->vertex = malloc(sizeof(Point) * numV);
         for(i=0; i<numV; i++){
@@ -112,6 +116,7 @@ void polygon_clear(Polygon *p){
         }
 		p->zBuffer = 1;
 		p->nVertex = 0;
+        p->oneSided = 0;
 		p->vertex = NULL;
 	}
 }

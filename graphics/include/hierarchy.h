@@ -28,6 +28,7 @@ typedef union {
   Polygon polygon;
   Matrix matrix;
   Color color;
+    Light light;
   float coeff;
   void *module; //don't know if we can make this not a void pointer
 } Object;
@@ -148,6 +149,10 @@ void module_shear2D(Module *md, double shx, double shy);
 // Lighting can be an empty structure.)
 void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, 
     Lighting *lighting, Image *src);
+
+// does the lighting pass. should be called before module draw
+void module_lighting(Module *md, Matrix *VTM, Matrix *GTM, Lighting *lighting );
+
 
 /* 3D Module Functions */
 
