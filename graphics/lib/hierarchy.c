@@ -324,12 +324,13 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						polygon_drawFill(&polygon, src, ds->color, 0);
 						break;
 					
-					case ShadeDepth: //will be changed
+					case ShadeDepth: //will be changed- probably not
 						polygon_drawFill(&polygon, src, ds->color, 1);
 						break;
 					
 					case ShadeFlat: //will be changed
-						polygon_drawFill(&polygon, src, ds->body, 2);
+                        
+						polygon_drawFill(&polygon, src, , 0);
 						break;
 					
 					case ShadeGouraud: //will be changed
@@ -811,10 +812,6 @@ void drawstate_copy(DrawState *to, DrawState *from){
 void light_init( Light *light ){
     light->type = LightNone;
     color_set( &(light->color), 1.0, 1.0, 1.0 );
-    light->direction = NULL;
-    light->position = NULL;
-    light->cutoff = NULL;
-    light->sharpness = NULL;
 }
 
 // copy the light information
@@ -831,10 +828,11 @@ void light_copy( Light *to, Light *from ){
 
 // allocate and return a new lighting structure set to default values
 Lighting *lighting_create( void ){
-    Lighting l;
+    Lighting *l;
     
-    l.nLights = 0;
-    return(&l);
+    l = malloc(sizeof(Lighting));
+    l->nLights = 0;
+    return(l);
 }
 
 // initialize the lighting structure to default values
@@ -849,35 +847,35 @@ void lighting_add( Lighting *l, LightType type, Color *c, Vector *dir, Point *po
     if( l->nLights < 64 ){
         light_init(&light);
         
-        light->type = type;
+        light.type = type;
         switch (type) {
             case LightNone:
-                l->light[nLights] = light;
-                nLights += 1;
+                l->light[l->nLights] = light;
+                l->nLights += 1;
                 break;
                 
             case LightAmbient:
                 if(c){
-                    color_copy( &(light->color), c );
+                    color_copy( &(light.color), c );
                 }
                 else{
-                    color_set( &(light->color), 1.0, 1.0, 1.0 );
+                    color_set( &(light.color), 1.0, 1.0, 1.0 );
                 }
-                l->light[nLights] = light;
-                nLights += 1;
+                l->light[l->nLights] = light;
+                l->nLights += 1;
                 break;
             
             case LightDirect:
                 if(c){
-                    color_copy( &(light->color), c );
+                    color_copy( &(light.color), c );
                 }
                 else{
-                    color_set( &(light->color), 1.0, 1.0, 1.0 );
+                    color_set( &(light.color), 1.0, 1.0, 1.0 );
                 }
                 if( dir ){
-                    vector_copy( &(light->direction), dir );
-                    l->light[nLights] = light;
-                    nLights += 1;
+                    vector_copy( &(light.direction), dir );
+                    l->light[l->nLights] = light;
+                    l->nLights += 1;
                 }
                 else{
                     printf("directional lighting requires a direction\n");
@@ -886,15 +884,15 @@ void lighting_add( Lighting *l, LightType type, Color *c, Vector *dir, Point *po
                 
             case LightPoint:
                 if(c){
-                    color_copy( &(light->color), c );
+                    color_copy( &(light.color), c );
                 }
                 else{
-                    color_set( &(light->color), 1.0, 1.0, 1.0 );
+                    color_set( &(light.color), 1.0, 1.0, 1.0 );
                 }
                 if( pos ){
-                    point_copy( &(light->position), pos );
-                    l->light[nLights] = light;
-                    nLights += 1;
+                    point_copy( &(light.position), pos );
+                    l->light[l->nLights] = light;
+                    l->nLights += 1;
                 }
                 else{
                     printf("point lighting requires a point\n");
@@ -903,19 +901,19 @@ void lighting_add( Lighting *l, LightType type, Color *c, Vector *dir, Point *po
                 
             case LightSpot:
                 if(c){
-                    color_copy( &(light->color), c );
+                    color_copy( &(light.color), c );
                 }
                 else{
-                    color_set( &(light->color), 1.0, 1.0, 1.0 );
+                    color_set( &(light.color), 1.0, 1.0, 1.0 );
                 }
                 if( dir && pos ){
-                    vector_copy( &(light->direction), dir );
-                    point_copy( &(light->position), pos );
+                    vector_copy( &(light.direction), dir );
+                    point_copy( &(light.position), pos );
                     if( 0 < cutoff && cutoff <= 1 ){
-                        light->cutoff = cutoff;
-                        light->sharpness = sharpness; // may need a check for this as well
-                        l->light[nLights] = light;
-                        nLights += 1;
+                        light.cutoff = cutoff;
+                        light.sharpness = sharpness; // may need a check for this as well
+                        l->light[l->nLights] = light;
+                        l->nLights += 1;
                     }
                     else{
                         printf("spot light needs a valid cos value for cutoff\n");
@@ -980,7 +978,7 @@ void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Co
                 break;
                 
             case LightPoint:
-                vector_set(&L, ( l->light[i].position.val[0] - p.val[0] ), ( l->light[i].position.val[1] - p.val[1] ), ( l->light[i].position.val[1] - p.val[1] ) )
+                vector_set(&L, ( l->light[i].position.val[0] - p->val[0] ), ( l->light[i].position.val[1] - p->val[1] ), ( l->light[i].position.val[2] - p->val[2] ) );
                 vector_normalize(&L);
                 Ldot = vector_dot( &L, N );
                 if( ( oneSided%2 == 0 ) && Ldot < 0 ){
@@ -1010,7 +1008,6 @@ void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Co
                 break;
         }
     }
-    
 }
 
 

@@ -219,9 +219,10 @@ Lighting *lighting_create( void );
 void lighting_init( Lighting *l );
 
 //add a new light to the Lighting structure given the parameters, some of which may be NULL, depending upon the type. Make sure you don’t add more lights than MAX LIGHTS.
-void lighting_add( Lighting *l, LightType, type, Color *c, Vector *dir, Point *pos, float cutoff, float sharpness );
+void lighting_add( Lighting *l, LightType type, Color *c, Vector *dir, Point *pos, float cutoff, float sharpness );
 
 // calculate the proper color given the normal N, view vector V, 3D point P, body color Cb, surface color Cs, sharpness value s, the lighting, and whether the polygon is one-sided or two-sided. Put the result in the Color c.
 void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Color *Cs, float s, int oneSided, Color *c );
+
 
 #endif

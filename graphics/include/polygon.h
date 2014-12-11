@@ -6,10 +6,13 @@
 
 #include "objects.h"
 #include "image.h"
+#include "matrix.h"
 
 typedef struct{ 
-	int nVertex; //number of vertices
+	int nVertex; // number of vertices
 	Point *vertex; // vertex information
+    Color *color; // color information for each vertex
+    Vector *normal; // surface normal information for each vertex
 	int zBuffer; // whether to use the z-buffer; should default to true (1)
 } Polygon;
 
