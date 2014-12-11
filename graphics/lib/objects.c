@@ -66,6 +66,53 @@ void point_print(Point *p, FILE *fp){
 	fprintf(fp, "(%f, %f, %f, %f)\n", p->val[0], p->val[1], p->val[2], p->val[3]);
 }
 
+/*Vector Functions*/
+
+//set the Vector to (x,y,z,0.0)
+void vector_set(Vector *v, double x, double y, double z){
+    v->val[0] = x;
+    v->val[1] = y;
+    v->val[2] = z;
+    v->val[3] = 0.0;
+}
+
+//print out the Vector to stream fp in a pretty form
+void vector_print(Vector *v, FILE *fp){
+    fprintf(fp, "(%f,%f,%f,%f)\n", v->val[0], v->val[1], v->val[2], v->val[3]);
+}
+
+//copy the src vector into the dest vector
+void vector_copy(Vector *dest, Vector *src){
+	*dest = *src;
+}
+
+//returns the Euclidean length of the vector, assuming the homogeneous coordinate is 1.0
+double vector_length(Vector *v){
+    return sqrt( v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] );
+}
+
+//normalize the Vector to unit length. Do not modify the homogeneous coordinate
+void vector_normalize(Vector *v){
+    double length;
+    length = sqrt(  v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] );
+    v->val[0] = v->val[0] / length;
+    v->val[1] = v->val[1] / length;
+    v->val[2] = v->val[2] / length;
+}
+
+//returns the scalar product of a and b
+double vector_dot(Vector *a, Vector *b){
+    return a->val[0]*b->val[0] + a->val[1]*b->val[1] + a->val[2]*b->val[2];
+}
+
+//calculates the cross product of a and b and puts the result in c
+void vector_cross(Vector *a, Vector *b, Vector *c){
+    c->val[0] = a->val[1]*b->val[2] - a->val[2]*b->val[1];
+    c->val[1] = a->val[2]*b->val[0] - a->val[0]*b->val[2];
+    c->val[2] = a->val[0]*b->val[1] - a->val[1]*b->val[0];
+}
+
+
 /* Line functions */
 //initialize a 2D line
 void line_set2D(Line *l, double x0, double y0, double x1, double y1){

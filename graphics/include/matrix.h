@@ -12,33 +12,6 @@ typedef struct{
     double m[4][4];
 } Matrix;
 
-typedef Point Vector;
-
-
-/*Vector Functions*/
-
-//set the Vector to (x,y,z,0.0)
-void vector_set(Vector *v, double x, double y, double z);
-
-//print out the Vector to stream fp in a pretty form
-void vector_print(Vector *v, FILE *fp);
-
-//copy the src vector into the dest vector
-void vector_copy(Vector *dest, Vector *src);
-
-//returns the Euclidean length of the vector, assuming the homogeneous coordinate is 1.0
-double vector_length(Vector *v);
-
-//normalize the Vector to unit length. Do not modify the homogeneous coordinate
-void vector_normalize(Vector *v);
-
-//returns the scalar product of a and b
-double vector_dot(Vector *a, Vector *b);
-
-//calculates the cross product of a and b and puts the result in c
-void vector_cross(Vector *a, Vector *b, Vector *c);
-
-
 /*2D and Generic Matrix Functions*/
 
 //print out the matrix in a nice 4X4 arrangement with a blank line below

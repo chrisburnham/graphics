@@ -12,6 +12,8 @@ typedef struct{
 	double val[4];	//four element vector of doubles
 } Point;
 
+typedef Point Vector;
+
 typedef struct{
 	int zBuffer;	//whether to use the z-buffer, default to true (1)
 	Point a;			//end point
@@ -64,7 +66,33 @@ void point_drawf(Point *p, Image *src, FPixel c);
 //print out the point
 void point_print(Point *p, FILE *fp);
 
+
+/*Vector Functions*/
+
+//set the Vector to (x,y,z,0.0)
+void vector_set(Vector *v, double x, double y, double z);
+
+//print out the Vector to stream fp in a pretty form
+void vector_print(Vector *v, FILE *fp);
+
+//copy the src vector into the dest vector
+void vector_copy(Vector *dest, Vector *src);
+
+//returns the Euclidean length of the vector, assuming the homogeneous coordinate is 1.0
+double vector_length(Vector *v);
+
+//normalize the Vector to unit length. Do not modify the homogeneous coordinate
+void vector_normalize(Vector *v);
+
+//returns the scalar product of a and b
+double vector_dot(Vector *a, Vector *b);
+
+//calculates the cross product of a and b and puts the result in c
+void vector_cross(Vector *a, Vector *b, Vector *c);
+
+
 /* Line functions */
+
 //initialize a 2D line
 void line_set2D(Line *l, double x0, double y0, double x1, double y1);
 
@@ -96,7 +124,9 @@ void circle_draw(Circle *c, Image *src, Color p);
 //draw a filled circle into src using color p
 void circle_drawFill(Circle *c, Image *src, Color p);
 
+
 /* Ellipse functions */
+
 //initialize an ellipse to location tc and radii ta and tb
 void ellipse_set(Ellipse *e, Point tc, double ta, double tb);
 
@@ -106,7 +136,9 @@ void ellipse_draw(Ellipse *e, Image *src, Color p);
 //draw a filled ellipse into src using color p
 void ellipse_drawFill(Ellipse *e, Image *src, Color p);
 
+
 /* Polyline functions */
+
 //returns an allocated Polyline pointer initialized so that numVertex is 0 and vertex is NULL
 Polyline *polyline_create(void);
 
