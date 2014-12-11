@@ -67,4 +67,12 @@ void polygon_drawFillBwithTexture(Polygon *p, Image *src, Color *c);
 
 void polygon_normalize(Polygon *p);
 
+// sets the oneSided field to the value
+void polygon_setSided(Polygon *p, int oneSided);
+
+// initializes the normal array to the vectors in nlist
+void polygon_setNormals(Polygon *p, int numV, Vector *nlist);
+
+
+
 #endif

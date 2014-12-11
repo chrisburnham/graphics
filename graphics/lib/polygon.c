@@ -53,6 +53,9 @@ void polygon_free(Polygon *p){
 			if(p->vertex){
 				free(p->vertex);
 			}
+        if(p->normal){
+            free(p->normal);
+        }
 		free(p);
 	}
 }
@@ -63,6 +66,9 @@ void polygon_dealloc(Polygon *p){
 			if(p->vertex){
 				free(p->vertex);
 			}
+        if(p->normal){
+            free(p->normal);
+        }
 	}
 }
 
@@ -83,6 +89,9 @@ void polygon_set(Polygon *p, int numV, Point *vlist){
 		if(p->vertex){
 			free(p->vertex);
 		}
+        if(p->normal){
+            free(p->normal);
+        }
 		p->zBuffer = 1;
 		p->nVertex = numV;
 		p->vertex = malloc(sizeof(Point) * numV);
@@ -98,6 +107,9 @@ void polygon_clear(Polygon *p){
 		if(p->vertex){
 			free(p->vertex);
 		}
+        if(p->normal){
+            free(p->normal);
+        }
 		p->zBuffer = 1;
 		p->nVertex = 0;
 		p->vertex = NULL;
@@ -116,6 +128,8 @@ void polygon_zBuffer(Polygon *p, int flag){
 void polygon_copy(Polygon *to, Polygon *from){
   if(from){
 		polygon_set(to, from->nVertex, from->vertex);
+      polygon_setNormals(to, from->nVertex, from->normal);
+      polygon_setSided(to, from->oneSided);
 		polygon_zBuffer(to, from->zBuffer);
 	}
 }
@@ -372,5 +386,24 @@ void polygon_normalize(Polygon *p){
     int i;
     for (i=0; i<p->nVertex; i++){
         point_normalize(&p->vertex[i]);
+    }
+}
+
+
+// sets the oneSided field to the value
+void polygon_setSided(Polygon *p, int oneSided){
+    p->oneSided = oneSided;
+}
+
+// initializes the normal array to the vectors in nlist
+void polygon_setNormals(Polygon *p, int numV, Vector *nlist){
+    if(p->nVertex == numV){
+        if(p->normal){
+            free(p->normal);
+        }
+		p->normal = malloc(sizeof(Vector) * numV);
+        for(i=0; i<numV; i++){
+            p->normal[i] = nlist[i];
+        }
     }
 }
