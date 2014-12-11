@@ -6,9 +6,9 @@
 
 #include "objects.h"
 #include "image.h"
-#include "matrix.h"
 
-typedef struct{ 
+typedef struct{
+    int oneSided;
 	int nVertex; // number of vertices
 	Point *vertex; // vertex information
     Color *color; // color information for each vertex
