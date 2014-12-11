@@ -30,22 +30,21 @@ void vector_copy(Vector *dest, Vector *src){
 
 //returns the Euclidean length of the vector, assuming the homogeneous coordinate is 1.0
 double vector_length(Vector *v){
-    return sqrt( v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] + v->val[3]*v->val[3] );
+    return sqrt( v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] );
 }
 
 //normalize the Vector to unit length. Do not modify the homogeneous coordinate
 void vector_normalize(Vector *v){
     double length;
-    length = sqrt(  v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] + v->val[3]*v->val[3] );
+    length = sqrt(  v->val[0]*v->val[0] + v->val[1]*v->val[1] + v->val[2]*v->val[2] );
     v->val[0] = v->val[0] / length;
     v->val[1] = v->val[1] / length;
     v->val[2] = v->val[2] / length;
-    v->val[3] = v->val[3] / length;
 }
 
 //returns the scalar product of a and b
 double vector_dot(Vector *a, Vector *b){
-    return a->val[0]*b->val[0] + a->val[1]*b->val[1] + a->val[2]*b->val[2] + a->val[3]*b->val[3];
+    return a->val[0]*b->val[0] + a->val[1]*b->val[1] + a->val[2]*b->val[2];
 }
 
 //calculates the cross product of a and b and puts the result in c

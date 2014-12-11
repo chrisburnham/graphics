@@ -804,3 +804,221 @@ void drawstate_copy(DrawState *to, DrawState *from){
 	to->zBufferFlag = from->zBufferFlag;
 	point_copy(&(to->viewer), &(from->viewer));
 }
+
+/* Light Functions */
+
+// initialize the light to default values
+void light_init( Light *light ){
+    light->type = LightNone;
+    color_set( &(light->color), 1.0, 1.0, 1.0 );
+    light->direction = NULL;
+    light->position = NULL;
+    light->cutoff = NULL;
+    light->sharpness = NULL;
+}
+
+// copy the light information
+void light_copy( Light *to, Light *from ){
+    to->type = from->type;
+    color_copy( &(to->color), &(from->color) );
+    vector_copy( &(to->direction), &(from->direction) );
+    point_copy( &(to->position), &(from->position) );
+    to->cutoff = from->cutoff;
+    to->sharpness = from->sharpness;
+}
+
+/* Lighting Functions */
+
+// allocate and return a new lighting structure set to default values
+Lighting *lighting_create( void ){
+    Lighting l;
+    
+    l.nLights = 0;
+    return(&l);
+}
+
+// initialize the lighting structure to default values
+void lighting_init( Lighting *l ){
+    l->nLights = 0;
+}
+
+//add a new light to the Lighting structure given the parameters, some of which may be NULL, depending upon the type. Make sure you don’t add more lights than MAX LIGHTS.
+void lighting_add( Lighting *l, LightType type, Color *c, Vector *dir, Point *pos, float cutoff, float sharpness ){
+    Light light;
+    
+    if( l->nLights < 64 ){
+        light_init(&light);
+        
+        light->type = type;
+        switch (type) {
+            case LightNone:
+                l->light[nLights] = light;
+                nLights += 1;
+                break;
+                
+            case LightAmbient:
+                if(c){
+                    color_copy( &(light->color), c );
+                }
+                else{
+                    color_set( &(light->color), 1.0, 1.0, 1.0 );
+                }
+                l->light[nLights] = light;
+                nLights += 1;
+                break;
+            
+            case LightDirect:
+                if(c){
+                    color_copy( &(light->color), c );
+                }
+                else{
+                    color_set( &(light->color), 1.0, 1.0, 1.0 );
+                }
+                if( dir ){
+                    vector_copy( &(light->direction), dir );
+                    l->light[nLights] = light;
+                    nLights += 1;
+                }
+                else{
+                    printf("directional lighting requires a direction\n");
+                }
+                break;
+                
+            case LightPoint:
+                if(c){
+                    color_copy( &(light->color), c );
+                }
+                else{
+                    color_set( &(light->color), 1.0, 1.0, 1.0 );
+                }
+                if( pos ){
+                    point_copy( &(light->position), pos );
+                    l->light[nLights] = light;
+                    nLights += 1;
+                }
+                else{
+                    printf("point lighting requires a point\n");
+                }
+                break;
+                
+            case LightSpot:
+                if(c){
+                    color_copy( &(light->color), c );
+                }
+                else{
+                    color_set( &(light->color), 1.0, 1.0, 1.0 );
+                }
+                if( dir && pos ){
+                    vector_copy( &(light->direction), dir );
+                    point_copy( &(light->position), pos );
+                    if( 0 < cutoff && cutoff <= 1 ){
+                        light->cutoff = cutoff;
+                        light->sharpness = sharpness; // may need a check for this as well
+                        l->light[nLights] = light;
+                        nLights += 1;
+                    }
+                    else{
+                        printf("spot light needs a valid cos value for cutoff\n");
+                    }
+                }
+                else{
+                    printf("spot light requires a position and a direction\n");
+                }
+                break;
+        }
+        
+    }
+    else{
+        printf("too many lights\n");
+    }
+}
+
+// calculate the proper color given the normal N, view vector V, 3D point P, body color Cb, surface color Cs, sharpness value s, the lighting, and whether the polygon is one-sided or two-sided. Put the result in the Color c.
+void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Color *Cs, float s, int oneSided, Color *c ){
+    int i, j;
+    Vector L, H;
+    double Ldot, Vdot, Hdot;
+    
+    color_set( c, 0.0, 0.0, 0.0 );
+    vector_normalize(N);
+    vector_normalize(V);
+    for( i=0; i<l->nLights; i++ ){
+        switch ( l->light[i].type) {
+            case LightNone:
+                break;
+                    
+            case LightAmbient:
+                for( j=0; j<3; j++ ){
+                    c->c[j] += ( l->light[i].color.c[j] * Cb->c[j] );
+                }
+                break;
+                
+            case LightDirect:
+                vector_copy( &L, &(l->light[i].direction) );
+                vector_normalize(&L);
+                Ldot = vector_dot( &L, N );
+                if( ( oneSided%2 == 0 ) && Ldot < 0 ){
+                    break;
+                }
+                else{
+                    Vdot = vector_dot( V, N );
+                    if( ( Ldot < 0 && Vdot > 0 ) || ( Ldot > 0 && Vdot < 0 ) ){
+                        break;
+                    }
+                    else{
+                        vector_set( &H, ( L.val[0] + V->val[0] ) / 2,( L.val[1] + V->val[1] ) / 2, ( L.val[2] + V->val[2] ) / 2 );
+                        Hdot = vector_dot( &H, N );
+                        if( Ldot < 0 ){
+                            Ldot = -Ldot;
+                            Hdot = -Hdot;
+                        }
+                        for( j=0; j<3; j++ ){
+                             c->c[j] += ( Cb->c[j]*l->light[i].color.c[j]*Ldot + Cs->c[j]*l->light[i].color.c[j]*pow(Hdot, s) );
+                        }
+                    }
+                }
+                break;
+                
+            case LightPoint:
+                vector_set(&L, ( l->light[i].position.val[0] - p.val[0] ), ( l->light[i].position.val[1] - p.val[1] ), ( l->light[i].position.val[1] - p.val[1] ) )
+                vector_normalize(&L);
+                Ldot = vector_dot( &L, N );
+                if( ( oneSided%2 == 0 ) && Ldot < 0 ){
+                    break;
+                }
+                else{
+                    Vdot = vector_dot( V, N );
+                    if( ( Ldot < 0 && Vdot > 0 ) || ( Ldot > 0 && Vdot < 0 ) ){
+                        break;
+                    }
+                    else{
+                        vector_set( &H, ( L.val[0] + V->val[0] ) / 2,( L.val[1] + V->val[1] ) / 2, ( L.val[2] + V->val[2] ) / 2 );
+                        Hdot = vector_dot( &H, N );
+                        if( Ldot < 0 ){
+                            Ldot = -Ldot;
+                            Hdot = -Hdot;
+                        }
+                        for( j=0; j<3; j++ ){
+                            c->c[j] += ( Cb->c[j]*l->light[i].color.c[j]*Ldot + Cs->c[j]*l->light[i].color.c[j]*pow(Hdot, s) );
+                        }
+                    }
+                }
+                break;
+                
+            case LightSpot:
+                printf("spot lighting not supported yet\n");
+                break;
+        }
+    }
+    
+}
+
+
+
+
+
+
+
+
+
+

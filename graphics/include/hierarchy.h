@@ -64,8 +64,26 @@ typedef struct {
 	Point viewer;			// a  Point representing the view location in 3D (identical to the VRP in View3D)	
 } DrawState;
 
+typedef enum {
+    LightNone,
+    LightAmbient,
+    LightDirect,
+    LightPoint,
+    LightSpot,
+} LightType;
+
+typedef struct {
+    LightType type;
+    Color color;
+    Vector direction;
+    Point position;
+    float cutoff; // stores the cosine of the cutoff angle of a spotlight
+    float sharpness; // coefficient of the falloff function (power for cosine)
+} Light;
+
 typedef struct{
   int nLights;
+    Light light[64];
 } Lighting;
 
 /* 2D and Generic Module Functions */
@@ -183,5 +201,27 @@ void drawstate_setSurfaceCoeff( DrawState *s, float f);
 
 // copy the DrawState data
 void drawstate_copy(DrawState *to, DrawState *from);
+
+/* Light Functions */
+
+// initialize the light to default values
+void light_init( Light *light );
+
+// copy the light information
+void light_copy( Light *to, Light *from );
+
+/* Lighting Functions */
+
+// allocate and return a new lighting structure set to default values
+Lighting *lighting_create( void );
+
+// initialize the lighting structure to default values
+void lighting_init( Lighting *l );
+
+//add a new light to the Lighting structure given the parameters, some of which may be NULL, depending upon the type. Make sure you don’t add more lights than MAX LIGHTS.
+void lighting_add( Lighting *l, LightType, type, Color *c, Vector *dir, Point *pos, float cutoff, float sharpness );
+
+// calculate the proper color given the normal N, view vector V, 3D point P, body color Cb, surface color Cs, sharpness value s, the lighting, and whether the polygon is one-sided or two-sided. Put the result in the Color c.
+void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Color *Cs, float s, int oneSided, Color *c );
 
 #endif
