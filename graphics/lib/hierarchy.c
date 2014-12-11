@@ -329,11 +329,12 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;
 					
 					case ShadeFlat: //will be changed
-                        
-						polygon_drawFill(&polygon, src, , 0);
+            // call 
+						polygon_drawFill(&polygon, src, ds->body, 0);
 						break;
 					
 					case ShadeGouraud: //will be changed
+            // call to a polygon function to calulate color array values
 						polygon_drawFill(&polygon, src, ds->color, 3);
 						break;
 					
