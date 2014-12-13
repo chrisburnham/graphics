@@ -133,6 +133,8 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
     edge->cIntersect.c[1] = c1.c[1]/start.val[2];
     edge->cIntersect.c[2] = c1.c[2]/start.val[2];
   }
+  printf("(%f, %f, %f)\n",c1.c[0], c1.c[1], c1.c[2]);
+
   
 
   // printf("edge->\n");
