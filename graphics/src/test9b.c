@@ -389,7 +389,8 @@ int main(int argc, char *argv[]) {
     ds->shade = ShadeFlat;
 
   light = lighting_create();
-	lighting_add(light, LightPoint, &Grey, NULL, &(view.vrp), 0.0, 0.0);
+    lighting_add(light, LightAmbient, &Dark, NULL, NULL, 0.0, 0.0);
+	lighting_add(light, LightPoint, &Dark, NULL, &(view.vrp), 0.0, 0.0);
 
   // draw into the scene
     module_lighting( scene, &vtm, &gtm, light );

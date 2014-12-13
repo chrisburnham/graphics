@@ -223,6 +223,17 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
             vector_set(&cross[0], b->pts[0][3].val[0] - b->pts[0][2].val[0], b->pts[0][3].val[1] - b->pts[0][2].val[1], b->pts[0][3].val[2] - b->pts[0][2].val[2]);
             vector_set(&cross[1], b->pts[0][3].val[0] - b->pts[1][3].val[0], b->pts[0][3].val[1] - b->pts[1][3].val[1], b->pts[0][3].val[2] - b->pts[1][3].val[2]);
             vector_cross(&cross[0], &cross[1], &nm[2]);
+            printf("\n\n");
+            for(i=0; i<4; i++){
+				for(j=0; j<4; j++){
+                    printf("pts[%i][%i]: ", i, j);
+                    point_print(&b->pts[i][j], stdout);
+                }
+            }
+            printf("\nfirst set:\n");
+            vector_print(&nm[0], stdout);
+            vector_print(&nm[1], stdout);
+            vector_print(&nm[2], stdout);
             
             polygon_setNormals(p, 3, nm);
             polygon_setSided(p, 0);
@@ -237,6 +248,10 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
             vector_set(&cross[0], b->pts[3][3].val[0] - b->pts[3][2].val[0], b->pts[3][3].val[1] - b->pts[3][2].val[1], b->pts[3][3].val[2] - b->pts[3][2].val[2]);
             vector_set(&cross[1], b->pts[2][3].val[0] - b->pts[3][3].val[0], b->pts[2][3].val[1] - b->pts[3][3].val[1], b->pts[2][3].val[2] - b->pts[3][3].val[2]);
             vector_cross(&cross[0], &cross[1], &nm[2]);
+             printf("\nSecond set:\n");
+            vector_print(&nm[0], stdout);
+            vector_print(&nm[1], stdout);
+            vector_print(&nm[2], stdout);
             
             polygon_setNormals(p, 3, nm);
             polygon_setSided(p, 0);

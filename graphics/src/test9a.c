@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
 
   Color White;
   Color Grey;
+    Color Yellow;
 
   DrawState *ds;
   View3D view;
@@ -30,6 +31,7 @@ int main(int argc, char *argv[]) {
 
 	color_set( &White, 1.0, 1.0, 1.0 );
 	color_set( &Grey, 0.6, 0.62, 0.64 );
+    color_set( &Yellow, 0.4, 0.3, 0.1 );
 
   // initialize the image
   src = image_create(rows, cols);
@@ -71,7 +73,7 @@ int main(int argc, char *argv[]) {
   // manually add a light source to the Lighting structure
   // put it in the same place as the eye in world space
   light = lighting_create();
-  lighting_add( light, LightPoint, &Grey, NULL, &(view.vrp), 0, 1 );
+  lighting_add( light, LightPoint, &Yellow, NULL, &(view.vrp), 0, 1 );
 
   // set the shading to Gouraud
   ds = drawstate_create();

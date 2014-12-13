@@ -332,7 +332,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						polygon_drawFill(&polygon, src, ds->color, 1);
 						break;
 					
-					case ShadeFlat: //will be changed
+					case ShadeFlat:
                         point_set3D(&point1, 0, 0, 0);
                         vector_set(&N, 0, 0, 0);
                         for(j=0; j<3; j++){
@@ -352,9 +352,19 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						polygon_drawFill(&polygon, src, c, 0);
 						break;
 					
-					case ShadeGouraud: //will be changed
-            // call to a polygon function to calulate color array values
-						polygon_drawFill(&polygon, src, ds->color, 2);
+					case ShadeGouraud:
+                        polygon.color = malloc(sizeof(Color)*polygon.nVertex);
+                        for(i=0; i<polygon.nVertex; i++){
+                            vector_set(&V,  ds->viewer.val[0] - polygon.vertex[i].val[0],
+                                            ds->viewer.val[1] - polygon.vertex[i].val[1],
+                                            ds->viewer.val[2] - polygon.vertex[i].val[2] );
+                            
+                            lighting_shading(lighting, &polygon.normal[i], &V, &polygon.vertex[i], &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
+                            color_copy( &polygon.color[i], &c);
+                        }
+                        polygon_drawFill(&polygon, src, NULL, 2);
+                        free(polygon.color);
+                        polygon.color = NULL;
 						break;
 					
 					// where optional ShadePhong would go
@@ -581,7 +591,7 @@ void module_cube(Module *md, int solid){
 		point_copy(&(square[3]), &(vtex[2]));
 		polygon_set(&side[0], 4, square);
         for(i=0; i<4; i++){
-            vector_set(&nm[i], 1.0, 0.0, 0.0);
+            vector_set(&nm[i], -1.0, 0.0, 0.0);
         }
         polygon_setNormals( &side[0], 4, nm );
 
@@ -591,7 +601,7 @@ void module_cube(Module *md, int solid){
 		point_copy(&(square[3]), &(vtex[4]));
 		polygon_set(&side[1], 4, square);
         for(i=0; i<4; i++){
-            vector_set(&nm[i], 0.0, 1.0, 0.0);
+            vector_set(&nm[i], 0.0, -1.0, 0.0);
         }
         polygon_setNormals( &side[1], 4, nm );
 
@@ -621,7 +631,7 @@ void module_cube(Module *md, int solid){
 		point_copy(&(square[3]), &(vtex[6]));
 		polygon_set(&side[4], 4, square);
         for(i=0; i<4; i++){
-            vector_set(&nm[i], 0.0, -1.0, 0.0);
+            vector_set(&nm[i], 0.0, 1.0, 0.0);
         }
         polygon_setNormals( &side[4], 4, nm );
 
@@ -631,7 +641,7 @@ void module_cube(Module *md, int solid){
 		point_copy(&(square[3]), &(vtex[6]));
 		polygon_set(&side[5], 4, square);
         for(i=0; i<4; i++){
-            vector_set(&nm[i], -1.0, 0.0, 0.0);
+            vector_set(&nm[i], 1.0, 0.0, 0.0);
         }
         polygon_setNormals( &side[5], 4, nm );
 
@@ -1111,7 +1121,7 @@ void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Co
                 vector_copy( &L, &(l->light[i].direction) );
                 vector_normalize(&L);
                 Ldot = vector_dot( &L, N );
-                if( ( oneSided%2 == 0 ) && Ldot < 0 ){
+                if( ( oneSided%2 == 1 ) && Ldot < 0 ){
                     break;
                 }
                 else{
@@ -1139,7 +1149,7 @@ void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Co
                                ( l->light[i].position.val[2] - p->val[2] ) );
                 vector_normalize(&L);
                 Ldot = vector_dot( &L, N );
-                if( ( oneSided%2 == 0 ) && Ldot < 0 ){
+                if( ( oneSided%2 == 1 ) && Ldot < 0 ){
                     break;
                 }
                 else{
