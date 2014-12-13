@@ -125,6 +125,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
   }
 
   if (dsFlag == 2){ 
+    printf("(%f, %f, %f)\n",c1.c[0], c1.c[1], c1.c[2]);
     edge->dcPerScan.c[0] = (c2.c[0]/end.val[2])-(c1.c[0]/start.val[2]);
     edge->dcPerScan.c[1] = (c2.c[1]/end.val[2])-(c1.c[1]/start.val[2]);
     edge->dcPerScan.c[2] = (c2.c[2]/end.val[2])-(c1.c[2]/start.val[2]);
@@ -164,14 +165,14 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
 
   v1 = p->vertex[p->nVertex-1];
   if (dsFlag == 2){
-    c1 = p->color[p->nVertex-1];
+    color_copy(&c1, &p->color[p->nVertex-1]);
   }
 
   for(i=0;i<p->nVertex;i++) {
         
     v2 = p->vertex[i];
     if (dsFlag == 2){
-      c2 = p->color[i];
+      color_copy(&c2, &p->color[i]);
     }
     
     if( (int)(v1.val[1]+0.5) != (int)(v2.val[1]+0.5) ) {
@@ -200,7 +201,7 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
     }
     v1 = v2;
     if (dsFlag == 2){
-      c1 = c2;
+      color_copy(&c2, &c1);
     }
   }
 
@@ -267,10 +268,9 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
         zBuffer += (-start)*dzPerCol;
       }
       if (dsFlag == 2){
-        for (i=0; i<3; i++){
-          tc.c[i] += (-start)*dcPerCol.c[i]; 
-        }
-
+        tc.c[0] += (-start)*dcPerCol.c[0];
+        tc.c[1] += (-start)*dcPerCol.c[1];
+        tc.c[2] += (-start)*dcPerCol.c[2]; 
       }
       start = 0;
     }
