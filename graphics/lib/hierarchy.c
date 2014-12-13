@@ -333,13 +333,16 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;
 					
 					case ShadeFlat:
+
                         point_set3D(&point1, 0, 0, 0);
+
                         vector_set(&N, 0, 0, 0);
                         for(j=0; j<3; j++){
                             for(i=0; i<polygon.nVertex; i++){
                                 point1.val[j] += polygon.vertex[i].val[j];
                                 N.val[j] += polygon.normal[i].val[j];
                             }
+
                             point1.val[j] = point1.val[j] / (float)polygon.nVertex;
                             N.val[j] = N.val[j] / (float)polygon.nVertex;
                         }
@@ -349,7 +352,8 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
                                        ds->viewer.val[2] - point1.val[2] );
                         
                         lighting_shading(lighting, &N, &V, &point1, &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
-						polygon_drawFill(&polygon, src, c, 0);
+						
+            polygon_drawFill(&polygon, src, c, 0);
 						break;
 					
 					case ShadeGouraud:

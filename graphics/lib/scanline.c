@@ -163,7 +163,9 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
   edges = ll_new();
 
   v1 = p->vertex[p->nVertex-1];
-  c1 = p->color[p->nVertex-1];
+  if (dsFlag == 2){
+    c1 = p->color[p->nVertex-1];
+  }
 
   for(i=0;i<p->nVertex;i++) {
         
@@ -177,7 +179,7 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
 
       if( v1.val[1] < v2.val[1] ){
         // if (dsFlag == 2){
-        edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2 );
+          edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2 );
         // }
         // else {
         //   edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, (Color)NULL, (Color)NULL );
@@ -185,10 +187,10 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
       }
       else {
         // if (dsFlag == 2){
-        edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1 );
+          edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1 );
         // }
         // else {
-        //   edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, (Color)NULL, (Color)NULL );
+        //   edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, , (Color)NULL );
         // }
       }
 
@@ -250,7 +252,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
       // c2 = p2->cIntersect;
       for (i=0; i<3; i++){
         if (zFlag !=0 ){
-          dcPerCol.c[i] = (p2->cIntersect.c[i]/p2->zIntersect)-(p1->cIntersect.c[i]/p1->zIntersect);
+          dcPerCol.c[i] = p2->cIntersect.c[i]-p1->cIntersect.c[i];
           color_copy(&tc, &p1->cIntersect);
         }
         else{
@@ -291,6 +293,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
         tc.c[2] += dcPerCol.c[2];
       }
       src->data[scan][i].z = zBuffer;
+
       image_setColor(src, scan, i, tc);
       if (zFlag != 0){
         zBuffer += dzPerCol;
