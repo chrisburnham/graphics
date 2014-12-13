@@ -30,7 +30,7 @@ Mipmap *mipmap_create(){
   return( mipmap );
 }
 
-void mipmap_free(mipmap *src){
+void mipmap_free(Mipmap *src){
   if(src){
     image_dealloc(src);
     free(src);

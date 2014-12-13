@@ -372,7 +372,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;
                         
                     case ShadeMipmap:
-                        polygon_drawTexture(&polygon, src, ds->mipmap);
+                        polygon_drawTexture(&polygon, src, &ds->mipmap);
                         break;
 					
 					// where optional ShadePhong would go

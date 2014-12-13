@@ -10,6 +10,7 @@
 #include "image.h"
 #include "polygon.h"
 #include "objects.h"
+#include "mipmap.h"
 
-void scanline_drawFill(Polygon *p, Image *src, Color c, int dsFlag) ;
+void scanline_drawFill(Polygon *p, Image *src, Color c, int dsFlag, Mipmap *mipmap) ;
 void scanline_drawFill2(Polygon *p, Image *src, Color *c) ;

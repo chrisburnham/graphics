@@ -186,11 +186,14 @@ void polygon_draw(Polygon *p, Image *src, Color c){
 
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFill(Polygon *p, Image *src, Color c, int dsFlag){
-    if (dsFlag == 2){
-        //need to calculate the polygon color value
-    }
-    scanline_drawFill(p, src, c, dsFlag);
+    scanline_drawFill(p, src, c, dsFlag, NULL);
 }
+
+void polygon_drawTexture(Polygon *p, Image *src, Mipmap *mipmap){
+    Color c;
+    scanline_drawFill(p, src, c, 3, mipmap);
+}
+    
 
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFillwithTexture(Polygon *p, Image *src, Color *c){

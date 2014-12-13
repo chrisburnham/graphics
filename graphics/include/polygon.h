@@ -6,6 +6,7 @@
 
 #include "objects.h"
 #include "image.h"
+#include "mipmap.h"
 
 typedef struct{
   int oneSided;
@@ -60,6 +61,8 @@ void polygon_drawFillwithTexture(Polygon *p, Image *src, Color *c);
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm.
 void polygon_drawFillB(Polygon *p, Image *src, Color c);
+
+void polygon_drawTexture(Polygon *p, Image *src, Mipmap *mipmap);
 
 // draw the filled polygon using color c with the Barycentric coordinates
 // algorithm. Will draw for the zero case. uses a texture from a 8by8 color array
