@@ -22,6 +22,7 @@ typedef struct tEdge {
   int yStart, yEnd;               /* start row and end row */
   float xIntersect, dxPerScan;    /* where the edge intersects the current scanline and how it changes */
   float zIntersect, dzPerScan;      /* z-buffer things */
+  Color cIntersect, dcPerScan;    /* gouraud shading */
   // need to add s and t stuff
   /* we'll add more here later */
   struct tEdge *next;
@@ -70,7 +71,8 @@ static int compXIntersect( const void *a, const void *b ) {
     Eventually, the points will be 3D and we'll add color and texture
     coordinates.
  */
-static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, int dsFlag)
+static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, 
+    int dsFlag, Color c1, Color c2)
 {
   Edge *edge;
   float dscan = end.val[1] - start.val[1];
@@ -122,6 +124,16 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, int dsF
     edge->xIntersect = edge->x1;
   }
 
+  if (dsFlag == 2){ 
+    edge->dcPerScan.c[0] = (c2.c[0]/end.val[2])-(c1.c[0]/start.val[2]);
+    edge->dcPerScan.c[1] = (c2.c[1]/end.val[2])-(c1.c[1]/start.val[2]);
+    edge->dcPerScan.c[2] = (c2.c[2]/end.val[2])-(c1.c[2]/start.val[2]);
+    edge->cIntersect.c[0] = c1.c[0]/start.val[2];
+    edge->cIntersect.c[1] = c1.c[1]/start.val[2];
+    edge->cIntersect.c[2] = c1.c[2]/start.val[2];
+  }
+  
+
   // printf("edge->\n");
   // printf("  x0: %f\n", edge->x0);
   // printf("  y0: %f\n", edge->y0);
@@ -145,24 +157,39 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, int dsF
 static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
   LinkedList *edges = NULL;
   Point v1, v2;
+  Color c1, c2;
   int i;
 
   edges = ll_new();
 
   v1 = p->vertex[p->nVertex-1];
+  c1 = p->color[p->nVertex-1];
 
   for(i=0;i<p->nVertex;i++) {
         
     v2 = p->vertex[i];
-
+    if (dsFlag == 2){
+      c2 = p->color[i];
+    }
+    
     if( (int)(v1.val[1]+0.5) != (int)(v2.val[1]+0.5) ) {
       Edge *edge;
 
       if( v1.val[1] < v2.val[1] ){
-        edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag );
+        // if (dsFlag == 2){
+        edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2 );
+        // }
+        // else {
+        //   edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, (Color)NULL, (Color)NULL );
+        // }
       }
       else {
-        edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag );
+        // if (dsFlag == 2){
+        edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1 );
+        // }
+        // else {
+        //   edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, (Color)NULL, (Color)NULL );
+        // }
       }
 
       if( edge ){
@@ -170,6 +197,9 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
       }         
     }
     v1 = v2;
+    if (dsFlag == 2){
+      c1 = c2;
+    }
   }
 
   // check for empty edges (like nothing in the viewport)
@@ -190,6 +220,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
   float zBuffer = 1.0, dzPerCol = 0.0;
   Color tc;
   color_copy(&tc, &c);
+  Color cIntersect, dcPerCol; // c2, 
 
   p1 = ll_head( active );
 
@@ -214,14 +245,35 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
       dzPerCol = (p2->zIntersect - p1->zIntersect)/(finish-start);
     }
 
+    if (dsFlag == 2){
+      cIntersect = p1->cIntersect;
+      // c2 = p2->cIntersect;
+      for (i=0; i<3; i++){
+        if (zFlag !=0 ){
+          dcPerCol.c[i] = (p2->cIntersect.c[i]/p2->zIntersect)-(p1->cIntersect.c[i]/p1->zIntersect);
+          color_copy(&tc, &p1->cIntersect);
+        }
+        else{
+          dcPerCol.c[i] = p2->cIntersect.c[i]-p1->cIntersect.c[i];
+          color_copy(&tc, &p1->cIntersect);
+        }
+      }
+    }
+
     if (start < 0){
       if (zFlag != 0){
         zBuffer += (-start)*dzPerCol;
       }
+      if (dsFlag == 2){
+        for (i=0; i<3; i++){
+          tc.c[i] += (-start)*dcPerCol.c[i]; 
+        }
+
+      }
       start = 0;
     }
     finish = finish>=src->cols ? src->cols : finish;
-    
+
     for (i=start; i<finish; i++){
       if ( zFlag != 0 && zBuffer < src->data[scan][i].z){
         // printf("pixel behind\n");
@@ -232,6 +284,11 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
         tc.c[0] = c.c[0]*(1-(1/zBuffer));
         tc.c[1] = c.c[1]*(1-(1/zBuffer));
         tc.c[2] = c.c[2]*(1-(1/zBuffer));
+      }
+      else if (dsFlag == 2){
+        tc.c[0] += dcPerCol.c[0];
+        tc.c[1] += dcPerCol.c[1];
+        tc.c[2] += dcPerCol.c[2];
       }
       src->data[scan][i].z = zBuffer;
       image_setColor(src, scan, i, tc);

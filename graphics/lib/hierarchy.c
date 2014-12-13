@@ -362,7 +362,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
                             lighting_shading(lighting, &polygon.normal[i], &V, &polygon.vertex[i], &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
                             color_copy( &polygon.color[i], &c);
                         }
-                        polygon_drawFill(&polygon, src, NULL, 2);
+                        polygon_drawFill(&polygon, src, ds->color, 2);
                         free(polygon.color);
                         polygon.color = NULL;
 						break;
