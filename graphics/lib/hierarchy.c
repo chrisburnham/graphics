@@ -354,7 +354,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 					
 					case ShadeGouraud: //will be changed
             // call to a polygon function to calulate color array values
-						polygon_drawFill(&polygon, src, ds->color, 3);
+						polygon_drawFill(&polygon, src, ds->color, 2);
 						break;
 					
 					// where optional ShadePhong would go
@@ -403,7 +403,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 }
 
 // does the lighting pass. should be called before module draw if there are lights in the scene
-void module_lighting(Module *md, Matrix *VTM, Matrix *GTM, Lighting *lighting {
+void module_lighting(Module *md, Matrix *VTM, Matrix *GTM, Lighting *lighting ){
   Element *e;
   Matrix LTM;
 	Matrix newGTM;
