@@ -14,5 +14,5 @@ typedef struct{
 } Mipmap;
 
 Mipmap *mipmap_create();
-void mipmap_free(mipmap *src);
+void mipmap_free(Mipmap *src);
 int mipmap_fill(Image *src, Mipmap *dst);
