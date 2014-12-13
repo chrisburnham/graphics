@@ -336,31 +336,3 @@ void color_set(Color *to, float r, float g, float b){
 	to->c[1] = g;
 	to->c[2] = b;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
