@@ -381,7 +381,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
   return(0);
 }
 
-void scanline_drawFill(Polygon *p, Image *src, Color c, int dsFlag){
+void scanline_drawFill(Polygon *p, Image *src, Color c, int dsFlag, Mipmap *mipmap){
     LinkedList *edges = NULL;
 
     edges = setupEdgeList( p, src, dsFlag );
