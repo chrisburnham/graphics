@@ -16,7 +16,7 @@ typedef struct{
   float level; // log(d)
 } Mipmap;
 
-Mipmap *mipmap_create();
+Mipmap *mipmap_create(void);
 void mipmap_free(Mipmap *src);
 int mipmap_fill(Image *src, Mipmap *dst);
 

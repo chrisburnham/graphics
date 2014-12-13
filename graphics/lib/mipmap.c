@@ -14,7 +14,7 @@ Mipmap *mipmap_create(){
   Mipmap *mipmap;
   int i;
   
-  mipmap = malloc(sizeof(Image));
+  mipmap = malloc(sizeof(Mipmap));
   mipmap->dim = 512;
   
   if( size < 1 ){
