@@ -11,8 +11,9 @@ Jetman animation
 
 int main(int argc, char *argv[]) {
 	int frame, i;
-	Color green, red, blue, white;
+	Color green, red, blue, white, grey;
 	DrawState ds;
+    Lighting light;
 	Module *jetman, *dome, *jetmanOn, *scene;
 	View3D view;
 	Matrix VTM, GTM;
@@ -33,6 +34,7 @@ int main(int argc, char *argv[]) {
 	color_set(&red, 0.7, 0.1, 0.1 );
 	color_set(&blue, 0.2, 0.2, 0.7 );
 	color_set(&white, 1, 1, 1);
+    color_set(&grey, .1, .1, .1);
 
 	i = -1;
 	point_set3D( &(vlist[i=i+1]), -2, 0, -2);
@@ -63,6 +65,8 @@ int main(int argc, char *argv[]) {
 
 	jetman = module_create();
 	module_color(jetman, &blue);
+    module_bodyColor(jetman, &blue);
+    module_surfaceColor(jetman, &white);
 	module_scale2D(jetman, 1, 5);
 	module_cylinder(jetman, sides);
 	module_translate(jetman, 2, 0, 0);
@@ -86,6 +90,8 @@ int main(int argc, char *argv[]) {
 	module_translate(jetman, 4, 0, 0);
 	module_cylinder(jetman, sides);
 	module_color(jetman, &green);
+    module_bodyColor(jetman, &green);
+    module_surfaceColor(jetman, &white);
 	module_identity(jetman);
 	module_scale(jetman, .7, 2.5, .7);
 	module_translate(jetman, 0, 6, -1);
@@ -96,6 +102,8 @@ int main(int argc, char *argv[]) {
 	jetmanOn = module_create();
 	module_module(jetmanOn, jetman);
 	module_color(jetmanOn, &red);
+    module_bodyColor(jetman, &red);
+    module_surfaceColor(jetman, &white);
 	module_scale(jetmanOn, .7, .5, .7);
 	module_translate(jetmanOn, 0, 5.5, -1);
 	module_cylinder(jetmanOn, sides);
@@ -103,7 +111,7 @@ int main(int argc, char *argv[]) {
 	module_cylinder(jetmanOn, sides);
 	
 	scene = module_create();
-	module_color(scene, &white);
+	module_color(scene, &white); // would probs add background to this
 	for(i=-5; i<20; i++){
 		point_set3D(&p1, -10, i, 3);
 		point_set3D(&p2, 10, i, 3);
@@ -127,8 +135,12 @@ int main(int argc, char *argv[]) {
 	matrix_setView3D( &VTM, &view );
 
 	 // ds.shade = ShadeFrame;
-	// ds.shade = ShadeConstant;
-	ds.shade = ShadeDepth;
+	 //ds.shade = ShadeConstant;
+	ds.shade = ShadeFlat;
+    
+    lighting_init(&light);
+    lighting_add(&light, LightAmbient, &grey, NULL, NULL, 0, 0);
+    lighting_add(&light, LightPoint, &white, NULL, &(view.vrp), 0, 2);
 
 	pos = 0;
 	speed = 0;
@@ -149,11 +161,13 @@ int main(int argc, char *argv[]) {
 		pos = pos + speed;
 
 		if( (frame<45) || (frame>98) ){
-			module_draw(jetmanOn, &VTM, &GTM, &ds, NULL, src );
+            module_lighting(jetmanOn, &VTM, &GTM, &light);
+			module_draw(jetmanOn, &VTM, &GTM, &ds, &light, src );
 			speed = speed + upForce;
 		}
 		else{
-			module_draw(jetman, &VTM, &GTM, &ds, NULL, src );
+            module_lighting(jetmanOn, &VTM, &GTM, &light);
+			module_draw(jetman, &VTM, &GTM, &ds, &light, src );
 			speed = speed - gravity;
 		}
 

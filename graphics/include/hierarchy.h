@@ -5,6 +5,28 @@
 #ifndef HIERARCHY_H
 #define HIERARCHY_H
 
+typedef enum {
+    LightNone,
+    LightAmbient,
+    LightDirect,
+    LightPoint,
+    LightSpot,
+} LightType;
+
+typedef struct {
+    LightType type;
+    Color color;
+    Vector direction;
+    Point position;
+    float cutoff; // stores the cosine of the cutoff angle of a spotlight
+    float sharpness; // coefficient of the falloff function (power for cosine)
+} Light;
+
+typedef struct{
+    int nLights;
+    Light light[64];
+} Lighting;
+
 typedef enum { // example of an enumerated type
   ObjNone,
   ObjLine,
@@ -65,27 +87,6 @@ typedef struct {
 	Point viewer;			// a  Point representing the view location in 3D (identical to the VRP in View3D)	
 } DrawState;
 
-typedef enum {
-    LightNone,
-    LightAmbient,
-    LightDirect,
-    LightPoint,
-    LightSpot,
-} LightType;
-
-typedef struct {
-    LightType type;
-    Color color;
-    Vector direction;
-    Point position;
-    float cutoff; // stores the cosine of the cutoff angle of a spotlight
-    float sharpness; // coefficient of the falloff function (power for cosine)
-} Light;
-
-typedef struct{
-  int nLights;
-    Light light[64];
-} Lighting;
 
 /* 2D and Generic Module Functions */
 
@@ -186,6 +187,15 @@ void module_sphere(Module *mod);
 
 // Adds the foreground color value to the tail of the module's list
 void module_color(Module *md, Color *c);
+
+// Adds the body color value to the tail of the module's list
+void module_bodyColor(Module *md, Color *c);
+
+// Adds the surface color value to the tail of the module's list
+void module_surfaceColor(Module *md, Color *c);
+
+//Adds the specular coefficeient to the tail of the module's list
+void module_surfaceCoeff(Module *md, float coeff);
 
 /* DrawState Functions */
 

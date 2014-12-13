@@ -105,6 +105,8 @@ void matrix_xformVector(Matrix *m, Vector *p, Vector *q){
 void matrix_xformPolygon(Matrix *m, Polygon *p){
     int n;
     double tmp0, tmp1, tmp2;
+    Vector tmp;
+    
     for(n=0; n<p->nVertex; n++){
         tmp0 = m->m[0][0]*p->vertex[n].val[0] + m->m[0][1]*p->vertex[n].val[1] + m->m[0][2]*p->vertex[n].val[2] + m->m[0][3]*p->vertex[n].val[3];
         tmp1 = m->m[1][0]*p->vertex[n].val[0] + m->m[1][1]*p->vertex[n].val[1] + m->m[1][2]*p->vertex[n].val[2] + m->m[1][3]*p->vertex[n].val[3];
@@ -113,6 +115,12 @@ void matrix_xformPolygon(Matrix *m, Polygon *p){
         p->vertex[n].val[0] = tmp0;
         p->vertex[n].val[1] = tmp1;
         p->vertex[n].val[2] = tmp2;
+    }
+    if(p->normal){
+         for(n=0; n<p->nVertex; n++){
+             matrix_xformVector(m, &(p->normal[n]), &tmp);
+             vector_copy(&(p->normal[n]), &tmp);
+         }
     }
 }
 

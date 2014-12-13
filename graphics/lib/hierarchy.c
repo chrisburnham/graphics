@@ -340,13 +340,13 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
                                 point1.val[j] += polygon.vertex[i].val[j];
                                 N.val[j] += polygon.normal[i].val[j];
                             }
-                            point1.val[j] = point1.val[j] / polygon.nVertex;
-                            N.val[j] = N.val[j] / polygon.nVertex;
+                            point1.val[j] = point1.val[j] / (float)polygon.nVertex;
+                            N.val[j] = N.val[j] / (float)polygon.nVertex;
                         }
-                        
+
                         vector_set(&V, ds->viewer.val[0] - point1.val[0], ds->viewer.val[1] - point1.val[1], ds->viewer.val[2] - point1.val[2] );
                         
-                        lighting_shading(lighting, &N, &V, &point1, ds->body, ds->surface, ds->surfaceCoeff, polygon.oneSided, &c );
+                        lighting_shading(lighting, &N, &V, &point1, &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
 						polygon_drawFill(&polygon, src, c, 0);
 						break;
 					
@@ -396,7 +396,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
     }
     e = e->next;
   }
-	polyline_clear(&polyline);
+    polyline_clear(&polyline);
 	polygon_clear(&polygon);
 }
 
@@ -462,8 +462,6 @@ void module_lighting(Module *md, Matrix *VTM, Matrix *GTM, Lighting *lighting ){
         }
         e = e->next;
     }
-	polyline_clear(&polyline);
-	polygon_clear(&polygon);
 }
 
 /* 3D Module Functions */
@@ -539,6 +537,7 @@ void module_cube(Module *md, int solid){
 	Line edge[12];
 	Polygon side[6];
 	Point square[4];
+    Vector nm[4];
 	Element *e;
 	int i;
 
@@ -579,38 +578,63 @@ void module_cube(Module *md, int solid){
 		point_copy(&(square[2]), &(vtex[3]));
 		point_copy(&(square[3]), &(vtex[2]));
 		polygon_set(&side[0], 4, square);
+        for(i=0; i<4; i++){
+            vector_set(&nm[i], 1.0, 0.0, 0.0);
+        }
+        polygon_setNormals( &side[0], 4, nm );
 
 		point_copy(&(square[0]), &(vtex[0]));
 		point_copy(&(square[1]), &(vtex[1]));
 		point_copy(&(square[2]), &(vtex[5]));
 		point_copy(&(square[3]), &(vtex[4]));
 		polygon_set(&side[1], 4, square);
+        for(i=0; i<4; i++){
+            vector_set(&nm[i], 0.0, 1.0, 0.0);
+        }
+        polygon_setNormals( &side[1], 4, nm );
 
 		point_copy(&(square[0]), &(vtex[0]));
 		point_copy(&(square[1]), &(vtex[2]));
 		point_copy(&(square[2]), &(vtex[6]));
 		point_copy(&(square[3]), &(vtex[4]));
 		polygon_set(&side[2], 4, square);
+        for(i=0; i<4; i++){
+            vector_set(&nm[i], 0.0, 0.0, 1.0);
+        }
+        polygon_setNormals( &side[2], 4, nm );
 
 		point_copy(&(square[0]), &(vtex[1]));
 		point_copy(&(square[1]), &(vtex[3]));
 		point_copy(&(square[2]), &(vtex[7]));
 		point_copy(&(square[3]), &(vtex[5]));
 		polygon_set(&side[3], 4, square);
+        for(i=0; i<4; i++){
+            vector_set(&nm[i], 0.0, 0.0, -1.0);
+        }
+        polygon_setNormals( &side[3], 4, nm );
 
 		point_copy(&(square[0]), &(vtex[2]));
 		point_copy(&(square[1]), &(vtex[3]));
 		point_copy(&(square[2]), &(vtex[7]));
 		point_copy(&(square[3]), &(vtex[6]));
 		polygon_set(&side[4], 4, square);
+        for(i=0; i<4; i++){
+            vector_set(&nm[i], 0.0, -1.0, 0.0);
+        }
+        polygon_setNormals( &side[4], 4, nm );
 
 		point_copy(&(square[0]), &(vtex[4]));
 		point_copy(&(square[1]), &(vtex[5]));
 		point_copy(&(square[2]), &(vtex[7]));
 		point_copy(&(square[3]), &(vtex[6]));
 		polygon_set(&side[5], 4, square);
+        for(i=0; i<4; i++){
+            vector_set(&nm[i], -1.0, 0.0, 0.0);
+        }
+        polygon_setNormals( &side[5], 4, nm );
 
 		for(i=0; i<6; i++){
+            polygon_setSided( &side[i], 1 );
 			e = element_init(ObjPolygon, &(side[i]));
 			module_insert(md, e);
 		}
@@ -622,16 +646,21 @@ void module_cylinder( Module *mod, int sides ) {
   Polygon p;
   Point xtop, xbot;
   double x1, x2, z1, z2;
-  int i;
+    Vector up, down;
+  int i, j;
 
   polygon_init( &p );
-  point_set3D( &xtop, 0, 1.0, 0.0 );
-  point_set3D( &xbot, 0, 0.0, 0.0 );
+  point_set3D( &xtop, 0.0, 1.0, 0.0 );
+  point_set3D( &xbot, 0.0, 0.0, 0.0 );
+    vector_set( &up, 0.0, 1.0, 0.0 );
+    vector_set( &down, 0.0, -1.0, 0.0 );
+
 
   // make a fan for the top and bottom sides
   // and quadrilaterals for the sides
   for(i=0;i<sides;i++) {
     Point pt[4];
+      Vector nm[4];
 
     x1 = cos( i * M_PI * 2.0 / sides );
     z1 = sin( i * M_PI * 2.0 / sides );
@@ -643,6 +672,11 @@ void module_cylinder( Module *mod, int sides ) {
     point_set3D( &pt[2], x2, 1.0, z2 );
 
     polygon_set( &p, 3, pt );
+      for(j=0; j<3; j++){
+          vector_copy( &nm[j], &up);
+      }
+      polygon_setNormals( &p, 3, nm );
+      polygon_setSided( &p, 1 );
     module_polygon( mod, &p );
 
     point_copy( &pt[0], &xbot );
@@ -650,21 +684,32 @@ void module_cylinder( Module *mod, int sides ) {
     point_set3D( &pt[2], x2, 0.0, z2 );
 
     polygon_set( &p, 3, pt );
+      for(j=0; j<3; j++){
+          vector_copy( &nm[j], &down);
+      }
+      polygon_setNormals( &p, 3, nm );
+      polygon_setSided( &p, 1 );
     module_polygon( mod, &p );
 
     point_set3D( &pt[0], x1, 0.0, z1 );
+      vector_set( &nm[0], x1, 0.0, z1 );
     point_set3D( &pt[1], x2, 0.0, z2 );
+      vector_set( &nm[1], x2, 0.0, z2 );
     point_set3D( &pt[2], x2, 1.0, z2 );
+      vector_set( &nm[2], x2, 0.0, z2 );
     point_set3D( &pt[3], x1, 1.0, z1 );
+      vector_set( &nm[3], x1, 0.0, z1 );
     
     polygon_set( &p, 4, pt );
+      polygon_setNormals( &p, 4, nm );
+      polygon_setSided( &p, 1 );
     module_polygon( mod, &p );
   }
 
   polygon_clear( &p );
 }
 
-void module_sphere( Module *md ){
+void module_sphere( Module *md ){ // still needs normals
   Polygon *p = polygon_create();
   Point pt[6];
   Point tmp[15];
@@ -838,6 +883,27 @@ void module_sphere( Module *md ){
 void module_color(Module *md, Color *c){
 	Element *e;
 	e = element_init(ObjColor, c);
+	module_insert(md, e);
+}
+
+// Adds the body color value to the tail of the module's list
+void module_bodyColor(Module *md, Color *c){
+    Element *e;
+	e = element_init(ObjBodyColor, c);
+	module_insert(md, e);
+}
+
+// Adds the surface color value to the tail of the module's list
+void module_surfaceColor(Module *md, Color *c){
+    Element *e;
+	e = element_init(ObjSurfaceColor, c);
+	module_insert(md, e);
+}
+
+//Adds the specular coefficeient to the tail of the module's list
+void module_surfaceCoeff(Module *md, float coeff){
+    Element *e;
+	e = element_init(ObjSurfaceCoeff, &coeff);
 	module_insert(md, e);
 }
 

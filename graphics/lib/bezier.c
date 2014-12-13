@@ -178,13 +178,15 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
 	Line *l;
 	Polygon *p;
 	Point vlist[3];
+    Vector cross[2];
+    Vector nm[3];
 	Point grid[7][7];
 	Point tmp;
 	Point input[16];
 	BezierSurface newB;
 
 	if( divisions == 0 ){
-		if( solid == 0 ){
+		if( solid == 0 ){ // makes a 9 squares
 			l = malloc(sizeof(Line));
 			for(i=0; i<3; i++){
 				for(j=0; j<3; j++){
@@ -204,24 +206,46 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
 		}
 		else{
 			p = polygon_create();
-			for(i=0; i<3; i++){
-				for(j=0; j<3; j++){
-					vlist[0] = b->pts[i][j];
-					vlist[1] = b->pts[i+1][j];
-					vlist[2] = b->pts[i][j+1];
-					polygon_set(p, 3, vlist);
-					module_polygon(m, p);
-
-					vlist[0] = b->pts[i][j+1];
-					vlist[2] = b->pts[i+1][j+1];
-					polygon_set(p, 3, vlist);
-					module_polygon(m, p);
-				}
-			}
+            
+            vlist[0] = b->pts[0][0];
+            vlist[1] = b->pts[3][0];
+            vlist[2] = b->pts[0][3];
+            polygon_set(p, 3, vlist);
+            
+            vector_set(&cross[0], b->pts[0][0].val[0] - b->pts[0][1].val[0], b->pts[0][0].val[1] - b->pts[0][1].val[1], b->pts[0][0].val[2] - b->pts[0][1].val[2]);
+            vector_set(&cross[1], b->pts[0][0].val[0] - b->pts[1][0].val[0], b->pts[0][0].val[1] - b->pts[1][0].val[1], b->pts[0][0].val[2] - b->pts[1][0].val[2]);
+            vector_cross(&cross[0], &cross[1], &nm[0]);
+            
+            vector_set(&cross[0], b->pts[3][0].val[0] - b->pts[3][1].val[0], b->pts[3][0].val[1] - b->pts[3][1].val[1], b->pts[3][0].val[2] - b->pts[3][1].val[2]);
+            vector_set(&cross[1], b->pts[3][0].val[0] - b->pts[2][0].val[0], b->pts[3][0].val[1] - b->pts[2][0].val[1], b->pts[3][0].val[2] - b->pts[2][0].val[2]);
+            vector_cross(&cross[0], &cross[1], &nm[1]);
+            
+            vector_set(&cross[0], b->pts[0][3].val[0] - b->pts[0][2].val[0], b->pts[0][3].val[1] - b->pts[0][2].val[1], b->pts[0][3].val[2] - b->pts[0][2].val[2]);
+            vector_set(&cross[1], b->pts[0][3].val[0] - b->pts[1][3].val[0], b->pts[0][3].val[1] - b->pts[1][3].val[1], b->pts[0][3].val[2] - b->pts[1][3].val[2]);
+            vector_cross(&cross[0], &cross[1], &nm[2]);
+            
+            polygon_setNormals(p, 3, nm);
+            polygon_setSided(p, 0);
+            module_polygon(m, p);
+            
+            vlist[0] = b->pts[0][3];
+            vlist[2] = b->pts[3][3];
+            polygon_set(p, 3, vlist);
+            
+            vector_copy(&nm[0], &nm[2]);
+            
+            vector_set(&cross[0], b->pts[3][3].val[0] - b->pts[3][2].val[0], b->pts[3][3].val[1] - b->pts[3][2].val[1], b->pts[3][3].val[2] - b->pts[3][2].val[2]);
+            vector_set(&cross[1], b->pts[2][3].val[0] - b->pts[3][3].val[0], b->pts[2][3].val[1] - b->pts[3][3].val[1], b->pts[2][3].val[2] - b->pts[3][3].val[2]);
+            vector_cross(&cross[0], &cross[1], &nm[2]);
+            
+            polygon_setNormals(p, 3, nm);
+            polygon_setSided(p, 0);
+            module_polygon(m, p);
+            
 			polygon_free(p);
 		}
 	}
-	else{
+	else{ // makes 2 triangles
 		for(i=0; i<4; i++){
 			grid[2*i][0] = b->pts[i][0];
 			point_set3D( &(grid[2*i][1]), (b->pts[i][0].val[0]+b->pts[i][1].val[0]) / 2.0, (b->pts[i][0].val[1]+b->pts[i][1].val[1]) / 2.0, (b->pts[i][0].val[2]+b->pts[i][1].val[2]) / 2.0 );

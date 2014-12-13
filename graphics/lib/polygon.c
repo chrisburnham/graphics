@@ -26,6 +26,7 @@ Polygon *polygon_create(){
     p->oneSided = 0;
     p->nVertex = 0;
     p->vertex = NULL;
+    p->normal = NULL;
     
     return p;
 }
@@ -45,6 +46,7 @@ Polygon *polygon_createp(int numV, Point *vlist){
 	for(i=0; i<numV; i++){
         p->vertex[i] = vlist[i];
     }
+    p->normal = NULL;
     
     return p;
 }
@@ -81,6 +83,7 @@ void polygon_init(Polygon *p){
 		p->nVertex = 0;
         p->oneSided = 0;
 		p->vertex = NULL;
+       p->normal = NULL;
 	}
 }
 
@@ -102,6 +105,7 @@ void polygon_set(Polygon *p, int numV, Point *vlist){
         for(i=0; i<numV; i++){
             p->vertex[i] = vlist[i];
         }
+        p->normal = NULL;
 	}
 }
 
@@ -118,6 +122,7 @@ void polygon_clear(Polygon *p){
 		p->nVertex = 0;
         p->oneSided = 0;
 		p->vertex = NULL;
+        p->normal = NULL;
 	}
 }
 
@@ -402,6 +407,8 @@ void polygon_setSided(Polygon *p, int oneSided){
 
 // initializes the normal array to the vectors in nlist
 void polygon_setNormals(Polygon *p, int numV, Vector *nlist){
+    int i;
+    
     if(p->nVertex == numV){
         if(p->normal){
             free(p->normal);
