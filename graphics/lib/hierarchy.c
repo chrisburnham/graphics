@@ -364,10 +364,8 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
                                             ds->viewer.val[2] - polygon.vertex[i].val[2] );
                             
                             lighting_shading(lighting, &polygon.normal[i], &V, &polygon.vertex[i], &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
-                            printf("point %i -->  r: %f, g: %f, b: %f\n", i, c.c[0], c.c[1], c.c[2]);
                             color_copy( &polygon.color[i], &c);
                         }
-                        printf("\n");
                         polygon_drawFill(&polygon, src, ds->color, 2);
                         free(polygon.color);
                         polygon.color = NULL;
@@ -1108,31 +1106,22 @@ void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Co
     int i, j;
     Vector L, H;
     double Ldot, Vdot, Hdot;
-    printf("input to lighting_shading:\n");
-    vector_print(N, stdout);
-    vector_print(V, stdout);
-    point_print(p, stdout);
-    printf("Cb  r: %f, g: %f, b: %f\n", Cb->c[0], Cb->c[1], Cb->c[2]);
-    printf("Cs  r: %f, g: %f, b: %f\n", Cs->c[0], Cs->c[1], Cs->c[2]);
 
     color_set( c, 0.0, 0.0, 0.0 );
     vector_normalize(N);
     vector_normalize(V);
     for( i=0; i<l->nLights; i++ ){
-        printf("what type of light? ");
         switch ( l->light[i].type) {
             case LightNone:
                 break;
                     
             case LightAmbient:
-                printf(" ambient\n");
                 for( j=0; j<3; j++ ){
                     c->c[j] += ( l->light[i].color.c[j] * Cb->c[j] );
                 }
                 break;
                 
             case LightDirect:
-                printf(" direct\n");
                 vector_copy( &L, &(l->light[i].direction) );
                 vector_normalize(&L);
                 Ldot = vector_dot( &L, N );
@@ -1159,21 +1148,20 @@ void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Co
                 break;
                 
             case LightPoint:
-                printf(" point\n");
                 vector_set(&L, ( l->light[i].position.val[0] - p->val[0] ), 
                                ( l->light[i].position.val[1] - p->val[1] ), 
                                ( l->light[i].position.val[2] - p->val[2] ) );
                 vector_normalize(&L);
                 Ldot = vector_dot( &L, N );
                 if( ( oneSided%2 == 1 ) && Ldot < 0 ){
-                    printf("we bail early one sided\n");
+// need to delete this
                     color_set( c, 0.0, 1.0, 0.0 );
                     break;
                 }
                 else{
                     Vdot = vector_dot( V, N );
                     if( ( Ldot < 0 && Vdot > 0 ) || ( Ldot > 0 && Vdot < 0 ) ){
-                        printf("we bail early not one sided\n");
+// need to delete this
                         color_set( c, 1.0, 0.0, 0.0 );
                         break;
                     }
@@ -1196,7 +1184,6 @@ void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Co
                 break;
         }
     }
-    printf("and it outputs:\n");
 }
 
 
