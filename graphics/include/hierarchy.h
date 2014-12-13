@@ -73,6 +73,7 @@ typedef enum {
 	ShadeDepth,			// draw objects using the current foreground color, fill polygons
 	ShadeFlat,			// draw objects using shading calculations, but each polygon is a constant value
 	ShadeGouraud		// draw objects using Gouraud shading
+    ShadeMipmap         // draws using the mipmap
 	// optional ShadePhong would go here
 } ShadeMethod;
 
@@ -84,7 +85,8 @@ typedef struct {
 	float surfaceCoeff;//a float that represents the shininess of the surface
 	ShadeMethod shade;// an enumerated type ShadeMethod
 	int zBufferFlag;	// whether to use z-buffer hidden surface removal
-	Point viewer;			// a  Point representing the view location in 3D (identical to the VRP in View3D)	
+	Point viewer;			// a  Point representing the view location in 3D (identical to the VRP in View3D)
+	Mipmap mipmap;       // mipmap holding the texture
 } DrawState;
 
 

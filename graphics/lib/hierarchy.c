@@ -370,6 +370,10 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
                         free(polygon.color);
                         polygon.color = NULL;
 						break;
+                        
+                    case ShadeMipmap:
+                        polygon_drawTexture(&polygon, src, ds->mipmap);
+                        break;
 					
 					// where optional ShadePhong would go
 				}

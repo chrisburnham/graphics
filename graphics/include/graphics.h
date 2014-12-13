@@ -3,6 +3,7 @@
 
 #include "ppmIO.h"
 #include "image.h"
+#include "mipmap.h"
 #include "objects.h"
 #include "list.h"
 #include "fractals.h"
