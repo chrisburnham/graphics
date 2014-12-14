@@ -63,56 +63,7 @@ int mipmap_fill(Image *src, Mipmap *dst){
         sum0 = sum1;
         sum1 = sum2;
     }
-    
-  /*
-  // first 3 blocks of color
-  for (i=255; i>=0; i++){
-    for (j=255; j>=0; j++){
-      dst->data[i][j].c = src->data[i][j].rgb[0]; // red values
-      dst->data[i][j+256].c = src->data[i][j].rgb[1]; // green values
-      dst->data[i+256][j+256].c = src->data[i][j].rgb[2]; // blue values
-      // need to code in averages
-      // if (i < 128 && j < 128){
-      //   dst->data[i+256][j] = src->data.rgb[0]
-      //   dst->data[i+256][j+128] = src->data.rgb[1];
-      //   dst->data[i+384][j+128] = src->data.rgb[2];
-      // }
-      // if (i<64 && j<64){
-      //   dst->data[i+384][j] = src->data.rgb[0]
-      //   dst->data[i+384][j+64] = src->data.rgb[1];
-      //   dst->data[i+448][j+64] = src->data.rgb[2];
-      // }
-      // if (i<32 && j<32){
-      //   dst->data[i+448][j] = src->data.rgb[0]
-      //   dst->data[i+448][j+32] = src->data.rgb[1];
-      //   dst->data[i+480][j+32] = src->data.rgb[2];
-      // }
-      // if (i<16 && j<16){
-      //   dst->data[i+480][j] = src->data.rgb[0]
-      //   dst->data[i+480][j+16] = src->data.rgb[1];
-      //   dst->data[i+496][j+16] = src->data.rgb[2];
-      // }
-      // if (i<8 && j<8){
-      //   dst->data[i+496][j] = src->data.rgb[0]
-      //   dst->data[i+496][j+8] = src->data.rgb[1];
-      //   dst->data[i+504][j+8] = src->data.rgb[2];
-      // }
-      // if (i<4 && j<4){
-      //   dst->data[i+504][j] = src->data.rgb[0]
-      //   dst->data[i+504][j+4] = src->data.rgb[1];
-      //   dst->data[i+508][j+4] = src->data.rgb[2];
-      // }
-      // if (i<2 && j<2){
-      //   dst->data[i+508][j] = src->data.rgb[0]
-      //   dst->data[i+508][j+2] = src->data.rgb[1];
-      //   dst->data[i+510][j+2] = src->data.rgb[2];
-      // }
-      // if (i<1 && j<1){
-      //   dst->data[511][511] = src->data.rgb
-      // }
-    }
-  }*/
-  return (0);
+    return (0);
 }
 
 void mipmap_print(Mipmap *src, FILE *fp){
