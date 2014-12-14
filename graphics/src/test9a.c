@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
 	color_set( &White, 1.0, 1.0, 1.0 );
 	color_set( &Grey, 0.6, 0.62, 0.64 );
-  color_set( &Yellow, 0.4, 0.3, 0.1 );
+  color_set( &Yellow, 0.2, 0.2, 0.1 );
 
   // initialize the image
   src = image_create(rows, cols);

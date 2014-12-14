@@ -1159,14 +1159,14 @@ void lighting_shading(Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Co
                 Ldot = vector_dot( &L, N );
                 if( ( oneSided%2 == 1 ) && Ldot < 0 ){
 // need to delete this
-                    color_set( c, 0.0, 1.0, 0.0 );
+                    color_set( c, 0.0, 0.0, 0.0 );
                     break;
                 }
                 else{
                     Vdot = vector_dot( V, N );
                     if( ( Ldot < 0 && Vdot > 0 ) || ( Ldot > 0 && Vdot < 0 ) ){
 // need to delete this
-                        color_set( c, 1.0, 0.0, 0.0 );
+                        color_set( c, 0.0, 0.0, 0.0 );
                         break;
                     }
                     else{

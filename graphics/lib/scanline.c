@@ -13,6 +13,7 @@
 #include <math.h>
 #include "scanline.h"
 #include "list.h"
+// #include "matrix.h"
 
 
 // define the struct here, because it is local to only this file
@@ -23,6 +24,8 @@ typedef struct tEdge {
   float xIntersect, dxPerScan;    /* where the edge intersects the current scanline and how it changes */
   float zIntersect, dzPerScan;      /* z-buffer things */
   Color cIntersect, dcPerScan;    /* gouraud shading */
+  float tIntersect, dtPerScan;
+  float sIntersect, dsPerScan;
   // need to add s and t stuff
   /* we'll add more here later */
   struct tEdge *next;
@@ -72,7 +75,7 @@ static int compXIntersect( const void *a, const void *b ) {
     coordinates.
  */
 static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, 
-    int dsFlag, Color c1, Color c2)
+    int dsFlag, Color c1, Color c2 )
 {
   Edge *edge;
   float dscan = end.val[1] - start.val[1];
@@ -125,29 +128,26 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
   }
 
   if (dsFlag == 2){ 
-    printf("(%f, %f, %f)\n",c1.c[0], c1.c[1], c1.c[2]);
-    edge->dcPerScan.c[0] = (c2.c[0]/end.val[2])-(c1.c[0]/start.val[2]);
-    edge->dcPerScan.c[1] = (c2.c[1]/end.val[2])-(c1.c[1]/start.val[2]);
-    edge->dcPerScan.c[2] = (c2.c[2]/end.val[2])-(c1.c[2]/start.val[2]);
+    printf ("(%f, %f, %f)\n", c1.c[0], c1.c[1], c1.c[2]);
+    edge->dcPerScan.c[0] = ((c2.c[0]/end.val[2])-(c1.c[0]/start.val[2]))/dscan;
+    edge->dcPerScan.c[1] = ((c2.c[1]/end.val[2])-(c1.c[1]/start.val[2]))/dscan;
+    edge->dcPerScan.c[2] = ((c2.c[2]/end.val[2])-(c1.c[2]/start.val[2]))/dscan;
     edge->cIntersect.c[0] = c1.c[0]/start.val[2];
     edge->cIntersect.c[1] = c1.c[1]/start.val[2];
     edge->cIntersect.c[2] = c1.c[2]/start.val[2];
   }
-  printf("(%f, %f, %f)\n",c1.c[0], c1.c[1], c1.c[2]);
 
-  
-
-  // printf("edge->\n");
-  // printf("  x0: %f\n", edge->x0);
-  // printf("  y0: %f\n", edge->y0);
-  // printf("  x1: %f\n", edge->x1);
-  // printf("  y1: %f\n", edge->y1);
-  // printf("  yStart: %d\n", edge->yStart);
-  // printf("  yEnd: %d\n", edge->yEnd);
-  // printf("  xIntersect: %f\n", edge->xIntersect);
-  // printf("  dxPerScan: %f\n", edge->dxPerScan);
-  // printf("  dzPerScan: %f\n", edge->dzPerScan);
-  // printf("  zIntersect: %f\n", edge->zIntersect);
+  // texture mapping
+  //   static void norm_uv( norm, u, v )
+  // VECT norm;
+  // double *u;
+  // double *v;
+  // {
+  //         *u = (FLT_ZERO(norm[0])) ? 0.5 : atan2pi(norm[2], norm[0]);
+  //         *v = (asinpi(norm[1]) + 0.5);
+  // }
+  // longitude = arctan( z/x );
+  // latitude = arccos( y );
 
   return( edge );
 }
@@ -181,20 +181,10 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
       Edge *edge;
 
       if( v1.val[1] < v2.val[1] ){
-        // if (dsFlag == 2){
-          edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2 );
-        // }
-        // else {
-        //   edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, (Color)NULL, (Color)NULL );
-        // }
+        edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2 );
       }
       else {
-        // if (dsFlag == 2){
-          edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1 );
-        // }
-        // else {
-        //   edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, , (Color)NULL );
-        // }
+        edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1 );
       }
 
       if( edge ){
@@ -225,7 +215,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
   float zBuffer = 1.0, dzPerCol = 0.0;
   Color tc;
   color_copy(&tc, &c);
-  Color cIntersect, dcPerCol; // c2, 
+  Color dcPerCol; // c2, 
 
   p1 = ll_head( active );
 
@@ -251,18 +241,14 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
     }
 
     if (dsFlag == 2){
-      cIntersect = p1->cIntersect;
       // c2 = p2->cIntersect;
-      for (i=0; i<3; i++){
-        if (zFlag !=0 ){
-          dcPerCol.c[i] = p2->cIntersect.c[i]-p1->cIntersect.c[i];
-          color_copy(&tc, &p1->cIntersect);
-        }
-        else{
-          dcPerCol.c[i] = p2->cIntersect.c[i]-p1->cIntersect.c[i];
-          color_copy(&tc, &p1->cIntersect);
-        }
-      }
+      dcPerCol.c[0] = (p2->cIntersect.c[0]-p1->cIntersect.c[0])/(finish-start);
+      dcPerCol.c[1] = (p2->cIntersect.c[1]-p1->cIntersect.c[1])/(finish-start);
+      dcPerCol.c[2] = (p2->cIntersect.c[0]-p1->cIntersect.c[2])/(finish-start);
+      tc.c[0] = p1->cIntersect.c[0];
+      tc.c[1] = p1->cIntersect.c[1];
+      tc.c[2] = p1->cIntersect.c[2];
+      // color_copy(&tc, &p1->cIntersect);
     }
 
     if (start < 0){
@@ -280,7 +266,6 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
 
     for (i=start; i<finish; i++){
       if ( zFlag != 0 && zBuffer < src->data[scan][i].z){
-        // printf("pixel behind\n");
         zBuffer += dzPerCol;
         continue;
       }
@@ -289,14 +274,13 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c, int zFl
         tc.c[1] = c.c[1]*(1-(1/zBuffer));
         tc.c[2] = c.c[2]*(1-(1/zBuffer));
       }
-      else if (dsFlag == 2){
+      src->data[scan][i].z = zBuffer;
+      image_setColor(src, scan, i, tc);
+      if (dsFlag == 2){
         tc.c[0] += dcPerCol.c[0];
         tc.c[1] += dcPerCol.c[1];
         tc.c[2] += dcPerCol.c[2];
       }
-      src->data[scan][i].z = zBuffer;
-
-      image_setColor(src, scan, i, tc);
       if (zFlag != 0){
         zBuffer += dzPerCol;
       }
@@ -355,6 +339,12 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
         tedge->xIntersect += tedge->dxPerScan;
         if (zFlag != 0){
           tedge->zIntersect += tedge->dzPerScan;
+        }
+
+        if (dsFlag == 2){
+          tedge->cIntersect.c[0] += tedge->dcPerScan.c[0];
+          tedge->cIntersect.c[1] += tedge->dcPerScan.c[1];
+          tedge->cIntersect.c[2] += tedge->dcPerScan.c[2];
         }
 
         // adjust in the case of partial overlap
