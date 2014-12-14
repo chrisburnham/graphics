@@ -78,8 +78,8 @@ int main(int argc, char *argv[]) {
   // set the shading to Gouraud
   ds = drawstate_create();
   point_copy(&(ds->viewer), &(view.vrp));
-	ds->shade = ShadeGouraud;
-	// ds->shade = ShadeFlat;
+	//ds->shade = ShadeGouraud;
+	 ds->shade = ShadeFlat;
 
   matrix_identity(&GTM);
   module_lighting(cube, &VTM, &GTM, light );

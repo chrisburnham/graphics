@@ -10,22 +10,30 @@ test for the teapot
 
 int main(int argc, char *argv[]) {
 	int frame;
-	Color purple;
+	Color purple, grey, white;
 	DrawState ds;
+    Lighting light;
 	Module *teapot;
 	View3D view;
 	Matrix VTM, GTM;
-	const int divisions = 2;
+	const int divisions = 4;
 	int rows = 600, cols = 800;
 	Image *src = image_create(rows, cols);
 
 	color_set(&purple, 0.6, 0.1, 0.7 );
+    color_set(&grey, .1, .1, .1);
+    color_set(&white, 1, 1, 1);
 
 	teapot = module_create();
-	module_teapot(teapot, divisions, 0);
+	module_teapot(teapot, divisions, 1);
 
 	// set up the drawstate
 	drawstate_setColor(&ds, purple);
+    drawstate_setBody(&ds, purple);
+    drawstate_setSurface(&ds, white);
+    //ds.shade = ShadeDepth;
+    ds.shade = ShadeGouraud;
+    
 
 	// set up the view
 	point_set3D(&(view.vrp), 0.0, 1.0, -5.0 );
@@ -37,7 +45,11 @@ int main(int argc, char *argv[]) {
 	view.screeny = rows;
 	view.screenx = cols;
 	view.f = 0.0;
-	view.b = 3.0;
+	view.b = 10.0;
+    
+    lighting_init(&light);
+    lighting_add(&light, LightAmbient, &grey, NULL, NULL, 0, 0);
+    lighting_add(&light, LightPoint, &grey, NULL, &(view.vrp), 0, 2);
 
 	matrix_setView3D( &VTM, &view );
 	matrix_identity( &GTM );
@@ -47,7 +59,7 @@ int main(int argc, char *argv[]) {
 		char buffer[256];
 		
 		matrix_rotateY(&GTM, cos(M_PI/30.0), sin(M_PI/30.0) );
-		module_draw( teapot, &VTM, &GTM, &ds, NULL, src );
+		module_draw( teapot, &VTM, &GTM, &ds, &light, src );
 
 		sprintf(buffer, "teapot-frame%03d.ppm", frame);
 		image_write(src, buffer);
