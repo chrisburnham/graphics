@@ -10,19 +10,21 @@ Jetman animation
 #include "graphics.h"
 
 int main(int argc, char *argv[]) {
-	int frame, i;
+	int frame, i, nLights;
 	Color green, red, blue, white, grey;
 	DrawState ds;
+    Element *e;
+    Light lgt;
     Lighting light;
 	Module *jetman, *dome, *jetmanOn, *scene;
 	View3D view;
 	Matrix VTM, GTM;
 	Point vlist[16];
 	BezierSurface b;
-	Point p1, p2;
-	Line l;
+	//Point p1, p2;
+	//Line l;
 	const int sides = 20;
-	const int divisions = 2;
+	const int divisions = 3;
 	const double gravity = 10;
 	const double upForce = 6;
 	double speed;
@@ -99,27 +101,61 @@ int main(int argc, char *argv[]) {
 	module_translate(jetman, 2, 0, 0);
 	module_cylinder(jetman, sides);
 	
+    light_init(&lgt);
+    lgt.type = LightPoint;
+    color_set(&lgt.color, 0.02, 0.005, 0.003 );
+    point_set3D(&lgt.position, 0.0, 0.0, 0.0);
+    
 	jetmanOn = module_create();
 	module_module(jetmanOn, jetman);
 	module_color(jetmanOn, &red);
-    module_bodyColor(jetman, &red);
-    module_surfaceColor(jetman, &white);
+    module_bodyColor(jetmanOn, &red);
+    module_surfaceColor(jetmanOn, &white);
 	module_scale(jetmanOn, .7, .5, .7);
 	module_translate(jetmanOn, 0, 5.5, -1);
 	module_cylinder(jetmanOn, sides);
+    
+    e = element_init(ObjLight, &lgt);
+    module_insert(jetmanOn, e);
+    
 	module_translate(jetmanOn, 2, 0, 0);
 	module_cylinder(jetmanOn, sides);
+    
+    e = element_init(ObjLight, &lgt);
+    module_insert(jetmanOn, e);
 	
 	scene = module_create();
 	module_color(scene, &white); // would probs add background to this
-	for(i=-5; i<20; i++){
-		point_set3D(&p1, -10, i, 3);
-		point_set3D(&p2, 10, i, 3);
-		line_set(&l, p1, p2);
-		module_line(scene, &l);
-	}
-	module_rotateY(scene, 0, 1);
-	module_scale(scene, .3, .3, .3);
+	module_bodyColor(scene, &white);
+    module_surfaceColor(scene, &white);
+    
+    
+    i = -1;
+	point_set3D( &(vlist[i=i+1]), -10, -9, 10);
+	point_set3D( &(vlist[i=i+1]), -9, -4, 11);
+	point_set3D( &(vlist[i=i+1]), -11, 3, 10);
+	point_set3D( &(vlist[i=i+1]), -10, 10, 11);
+    
+	point_set3D( &(vlist[i=i+1]), -3, -12, 12);
+	point_set3D( &(vlist[i=i+1]), -2, -2, 10);
+	point_set3D( &(vlist[i=i+1]), -4, 4, 11);
+	point_set3D( &(vlist[i=i+1]), -2, 9, 10);
+    
+	point_set3D( &(vlist[i=i+1]), 3, -10, 10);
+	point_set3D( &(vlist[i=i+1]), 4, -2, 11);
+	point_set3D( &(vlist[i=i+1]), 3, 2, 10);
+	point_set3D( &(vlist[i=i+1]), 2, 12, 10);
+    
+	point_set3D( &(vlist[i=i+1]), 12, -9, 10);
+	point_set3D( &(vlist[i=i+1]), 9, -3, 11);
+	point_set3D( &(vlist[i=i+1]), 10, 3, 12);
+	point_set3D( &(vlist[i=i+1]), 10, 11, 11);
+    
+	bezierSurface_init(&b);
+	bezierSurface_set(&b, vlist);
+
+    module_scale(scene, 3, 3, 1);
+    module_bezierSurface(scene, &b, divisions+3, 1);
 	
 	point_set3D(&(view.vrp), 0.0, 6.0, -5.0 );
 	vector_set( &(view.vpn), 0.0, 0.0, 1.0 );
@@ -136,44 +172,82 @@ int main(int argc, char *argv[]) {
 
 	 // ds.shade = ShadeFrame;
 	 //ds.shade = ShadeConstant;
-	ds.shade = ShadeFlat;
+	//ds.shade = ShadeFlat;
+    ds.shade = ShadeGouraud;
+    //ds.shade = ShadeDepth;
     
     lighting_init(&light);
     lighting_add(&light, LightAmbient, &grey, NULL, NULL, 0, 0);
-    lighting_add(&light, LightPoint, &white, NULL, &(view.vrp), 0, 2);
+    lighting_add(&light, LightPoint, &grey, NULL, &(view.vrp), 0, 2);
 
 	pos = 0;
 	speed = 0;
 
-	for(frame=0;frame<150;frame++) {
+    nLights = light.nLights;
+    
+	for(frame=0;frame<189;frame++) { // 150
 	// for(frame=41;frame<43;frame++) {
 		//printf("frame: %d\n", frame);
 		char buffer[256];
 
 		matrix_identity( &GTM );
 		
-		// module_draw( scene, &VTM, &GTM, &ds, NULL, src );
+		 module_draw( scene, &VTM, &GTM, &ds, &light, src );
 
 		matrix_translate(&GTM, 0, pos / 200.0, 0);
-		matrix_rotateY(&GTM, sin((M_PI*frame)/75.0), cos((M_PI*frame)/75.0));
+		matrix_rotateY(&GTM, sin((M_PI*frame)/72.0), cos((M_PI*frame)/72.0));
 		matrix_scale(&GTM, .2, .2, .2);
 
 		pos = pos + speed;
-
-		if( (frame<45) || (frame>98) ){
+        
+        if( frame<45 ){
+            speed = speed + upForce;
+        }
+        
+		else if( frame>98 ){
+            light.nLights = nLights;
             module_lighting(jetmanOn, &VTM, &GTM, &light);
 			module_draw(jetmanOn, &VTM, &GTM, &ds, &light, src );
+            
+            matrix_translate(&GTM, 3, 0, 0);
+            if(frame>99 && frame<187){
+                module_lighting(jetmanOn, &VTM, &GTM, &light);
+            }
+			module_draw(jetmanOn, &VTM, &GTM, &ds, &light, src );
+            
+            matrix_translate(&GTM, -6, 0, 0);
+            if(frame>100 && frame<188){
+                module_lighting(jetmanOn, &VTM, &GTM, &light);
+            }
+			module_draw(jetmanOn, &VTM, &GTM, &ds, &light, src );
+            
 			speed = speed + upForce;
+            
+            sprintf(buffer, "jetman-frame%03d.ppm", frame);
+            image_write(src, buffer);
+            image_reset(src);
 		}
 		else{
-            module_lighting(jetmanOn, &VTM, &GTM, &light);
+            light.nLights = nLights;
+            module_lighting(jetman, &VTM, &GTM, &light);
 			module_draw(jetman, &VTM, &GTM, &ds, &light, src );
+            
+            matrix_translate(&GTM, 3, 0, 0);
+            module_lighting(jetman, &VTM, &GTM, &light);
+			module_draw(jetman, &VTM, &GTM, &ds, &light, src );
+            
+            matrix_translate(&GTM, -6, 0, 0);
+            module_lighting(jetman, &VTM, &GTM, &light);
+			module_draw(jetman, &VTM, &GTM, &ds, &light, src );
+            
 			speed = speed - gravity;
+            
+            sprintf(buffer, "jetman-frame%03d.ppm", frame);
+            image_write(src, buffer);
+            image_reset(src);
 		}
 
-		 sprintf(buffer, "jetman-frame%03d.ppm", frame);
-		 image_write(src, buffer);
-		image_reset(src);
+		
 	}
 
 	 system("convert jetman-frame*.ppm jetman.gif");
