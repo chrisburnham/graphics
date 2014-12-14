@@ -74,10 +74,13 @@ int main(int argc, char *argv[]) {
   texture = image_read("starfuries.ppm");
   mipmap = mipmap_create();
   mipmap_fill(texture, mipmap);
+    printf("llama\n");
   ds->mipmap = *mipmap;
-
+printf("llama0\n");
   matrix_identity(&GTM);
+    printf("llama1\n");
   module_draw(cube, &VTM, &GTM, ds, light, src);
+    printf("llama2\n");
 
   // write out the image
   image_write(src, "test9a.ppm");

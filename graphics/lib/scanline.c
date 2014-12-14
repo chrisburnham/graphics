@@ -142,15 +142,19 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
 
   // texture mapping
   if (dsFlag == 3){
+      float midt = ( start.val[1] + end.val[1] ) / 2;
+      
     float s0 = (atan2(start.val[0], start.val[2]) / (2.0 * PI) + 0.5);
-    float t0 = (asin(start.val[1]) / PI + .5);
+    float t0 = (asin(start.val[1] / midt) / PI + .5);
     float s1 = (atan2(end.val[0], end.val[2]) / (2.0 * PI) + 0.5);
-    float t1 = (asin(end.val[1]) / PI + .5);
-
+    float t1 = (asin(end.val[1] / midt) / PI + .5);
+      printf("t0 calc %f, %f\n", start.val[1] / midt, (asin(start.val[1] / midt)));
+      printf("t1 calc %f, %f\n", end.val[1] / midt, (asin(end.val[1] / midt)));
     edge->dsPerScan = ((s1-s0)/start.val[2])/dscan;
     edge->dtPerScan = ((t1-t0)/start.val[2])/dscan;
     edge->sIntersect = s0;
     edge->tIntersect = t0;
+      printf("s0: %f,  t0: %f\n", s0, t0);
   }
 
   return( edge );
@@ -283,6 +287,9 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
     else if (dsFlag == 3){
       dsPerCol = (p2->sIntersect-p1->sIntersect)/(finish-start);
       dtPerCol = (p2->tIntersect-p1->tIntersect)/(finish-start);
+        printf("%f, %f, %i, %i\n", p2->sIntersect, p1->sIntersect, finish, start);
+        printf("%f, %f, %i, %i\n", p2->tIntersect, p1->tIntersect, finish, start);
+        printf("dtpercall %f\n", dtPerCol);
       dsdy = p1->dsPerScan - (p1->dxPerScan * dsPerCol);
       dtdy = p1->dtPerScan - (p1->dxPerScan * dtPerCol);
     }
@@ -324,6 +331,13 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
         tmp = lev - (int)(lev);
         lower = pow(2, (int)lev);
         upper = pow(2, (int)lev+1);
+          printf("probs here\n");
+          printf("first: %f + %f, %f + %f\n", dsdy, dsPerCol, dtdy, dtPerCol);
+          printf("%f, %f\n", dsdy+dsPerCol, dtdy+dtPerCol);
+          printf("dim: %f\n", dim);
+          printf("lev: %f\n", lev);
+          printf("(int)lev: %i\n", (int)lev);
+          printf("vals: %i, %i, %i, %i\n", 512-lower, 512-upper, (512-lower)+(int)pow(2, (int)lev-1), 512-upper+lower);
         tc.c[0] = (1.0-tmp)*mipmap->data[512-lower][512-lower] + 
                   (1.0-(1.0-tmp))*mipmap->data[512-upper][512-upper];
         tc.c[1] = (1.0-tmp)*mipmap->data[512-lower][(512-lower)+(int)pow(2, (int)lev-1)] + 
@@ -331,6 +345,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
         tc.c[2] = (1.0-tmp)*mipmap->data[(512-lower)+(int)pow(2, (int)lev-1)][512-lower] +
                   (1.0-(1.0-tmp))*mipmap->data[512-lower][512-upper];
       }
+        printf("probs not\n");
       src->data[scan][i].z = zBuffer;
       image_setColor(src, scan, i, tc);
 
@@ -402,6 +417,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
         if (dsFlag == 3){
           tedge->sIntersect += tedge->dsPerScan;
           tedge->tIntersect += tedge->dtPerScan;
+            printf("s: %f,  t:  %f\n", tedge->sIntersect, tedge->tIntersect);
         }
 
         // adjust in the case of partial overlap

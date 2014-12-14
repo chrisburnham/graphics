@@ -372,7 +372,9 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;
                         
                     case ShadeMipmap:
+                        printf("well of course\n");
                         polygon_drawTexture(&polygon, src, &ds->mipmap);
+                        printf("not here\n");
                         break;
 					
 					// where optional ShadePhong would go
