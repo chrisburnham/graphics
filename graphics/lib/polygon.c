@@ -217,6 +217,9 @@ void polygon_drawFill(Polygon *p, Image *src, Color c, int dsFlag){
 
 void polygon_drawTexture(Polygon *p, Image *src, Mipmap *mipmap){
     Color c;
+    if (p->zBuffer == 0 ){
+        p->zBuffer = 1;
+    }
     printf("in\n");
     scanline_drawFill(p, src, c, 3, mipmap);
     printf("out\n");
