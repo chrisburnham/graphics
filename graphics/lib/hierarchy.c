@@ -371,9 +371,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;       
             
           case ShadeMipmap:
-            // printf("well of course\n");
             polygon_drawTexture(&polygon, src, &ds->mipmap);
-            // printf("not here\n");
             break;
 					
 					// where optional ShadePhong would go
@@ -558,10 +556,10 @@ void module_cube(Module *md, int solid){
 	Line edge[12];
 	Polygon side[6];
 	Point square[4];
-    Vector nm[4];
+  Vector nm[4];
 	Element *e;
 	int i;
-
+  
 	point_set3D(&(vtex[0]),0,0,0);
 	point_set3D(&(vtex[1]),0,0,1);
 	point_set3D(&(vtex[2]),0,1,0);
@@ -570,8 +568,9 @@ void module_cube(Module *md, int solid){
 	point_set3D(&(vtex[5]),1,0,1);
 	point_set3D(&(vtex[6]),1,1,0);
 	point_set3D(&(vtex[7]),1,1,1);
-
+  
 	if(solid == 0){
+
 		line_set(&(edge[0]), vtex[0], vtex[1]);
 		line_set(&(edge[1]), vtex[0], vtex[2]);
 		line_set(&(edge[2]), vtex[0], vtex[4]);
@@ -584,16 +583,17 @@ void module_cube(Module *md, int solid){
 		line_set(&(edge[9]), vtex[4], vtex[6]);
 		line_set(&(edge[10]), vtex[5], vtex[7]);
 		line_set(&(edge[11]), vtex[6], vtex[7]);
-
 		for(i=0; i<12; i++){
 			e = element_init(ObjLine, &(edge[i]));
 			module_insert(md, e);
 		}
+
 	}
 	else{
 		for(i=0; i<6; i++){
 			polygon_init(&(side[i]));
 		}
+    
 		point_copy(&(square[0]), &(vtex[0]));
 		point_copy(&(square[1]), &(vtex[1]));
 		point_copy(&(square[2]), &(vtex[3]));
@@ -604,11 +604,11 @@ void module_cube(Module *md, int solid){
     }
     polygon_setNormals( &side[0], 4, nm );
     // for texture mapping:
-    polygon_setST(&side[0], 0, .333333, .5);
-    polygon_setST(&side[0], 1, .666667, .5);
-    polygon_setST(&side[0], 2, .666667, .75);
-    polygon_setST(&side[0], 3, .333333, .75);
-
+    polygon_setST(&side[0], 0, .25, .5);
+    polygon_setST(&side[0], 1, .5, .5);
+    polygon_setST(&side[0], 2, .5, .75);
+    polygon_setST(&side[0], 3, .25, .75);
+    
 		point_copy(&(square[0]), &(vtex[0]));
 		point_copy(&(square[1]), &(vtex[1]));
 		point_copy(&(square[2]), &(vtex[5]));
@@ -618,10 +618,11 @@ void module_cube(Module *md, int solid){
       vector_set(&nm[i], 0.0, -1.0, 0.0);
     }
     polygon_setNormals( &side[1], 4, nm );
-    polygon_setST(&side[1], 0, .333333, .5);
-    polygon_setST(&side[1], 1, .666667, .5);
-    polygon_setST(&side[1], 2, .666667, .25);
-    polygon_setST(&side[1], 3, .333333, .25);
+    polygon_setST(&side[1], 0, .25, .5);
+    printf("Hello again, is it you I'm looking for?\n");
+    polygon_setST(&side[1], 1, .5, .5);
+    polygon_setST(&side[1], 2, .5, .25);
+    polygon_setST(&side[1], 3, .25, .25);
 
 		point_copy(&(square[0]), &(vtex[0]));
 		point_copy(&(square[1]), &(vtex[2]));
@@ -632,8 +633,8 @@ void module_cube(Module *md, int solid){
       vector_set(&nm[i], 0.0, 0.0, 1.0);
     }
     polygon_setNormals( &side[2], 4, nm );
-    polygon_setST(&side[2], 0, .333333, .5);
-    polygon_setST(&side[2], 1, .333333, .75);
+    polygon_setST(&side[2], 0, .25, .5);
+    polygon_setST(&side[2], 1, .25, .75);
     polygon_setST(&side[2], 2, 0, .75);
     polygon_setST(&side[2], 3, 0, .5);
 
@@ -646,10 +647,10 @@ void module_cube(Module *md, int solid){
       vector_set(&nm[i], 0.0, 0.0, -1.0);
     }
     polygon_setNormals( &side[3], 4, nm );
-    polygon_setST(&side[3], 0, .666667, .5);
-    polygon_setST(&side[3], 1, .666667, .75);
-    polygon_setST(&side[3], 2, 1.0, .75);
-    polygon_setST(&side[3], 3, 1.0, .5);
+    polygon_setST(&side[3], 0, .5, .5);
+    polygon_setST(&side[3], 1, .5, .75);
+    polygon_setST(&side[3], 2, .75, .75);
+    polygon_setST(&side[3], 3, .75, .5);
 
 		point_copy(&(square[0]), &(vtex[2]));
 		point_copy(&(square[1]), &(vtex[3]));
@@ -660,10 +661,10 @@ void module_cube(Module *md, int solid){
       vector_set(&nm[i], 0.0, 1.0, 0.0);
     }
     polygon_setNormals( &side[4], 4, nm );
-    polygon_setST(&side[4], 0, .333333, .75);
-    polygon_setST(&side[4], 1, .666667, .75);
-    polygon_setST(&side[4], 2, .666667, 1.0);
-    polygon_setST(&side[4], 3, .333333, 1.0);
+    polygon_setST(&side[4], 0, .25, .75);
+    polygon_setST(&side[4], 1, .5, .75);
+    polygon_setST(&side[4], 2, .5, 1.0);
+    polygon_setST(&side[4], 3, .25, 1.0);
 
 		point_copy(&(square[0]), &(vtex[4]));
 		point_copy(&(square[1]), &(vtex[5]));
@@ -674,12 +675,12 @@ void module_cube(Module *md, int solid){
       vector_set(&nm[i], 1.0, 0.0, 0.0);
     }
     polygon_setNormals( &side[5], 4, nm );
-    polygon_setST(&side[5], 0, .333333, .25);
-    polygon_setST(&side[5], 1, .666667, .25);
-    polygon_setST(&side[5], 2, .666667, 0);
-    polygon_setST(&side[5], 3, .333333, 0);
+    polygon_setST(&side[5], 0, .25, .25);
+    polygon_setST(&side[5], 1, .5, .25);
+    polygon_setST(&side[5], 2, .5, 0);
+    polygon_setST(&side[5], 3, .25, 0);
 
-		for(i=0; i<6; i++){
+    for(i=0; i<6; i++){
       polygon_setSided( &side[i], 1 );
 			e = element_init(ObjPolygon, &(side[i]));
 			module_insert(md, e);

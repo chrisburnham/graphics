@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
   Image *src;
   Matrix VTM;
   Matrix GTM;
+  Matrix LTM;
   Module *cube;
   int rows = 360;
   int cols = 640;
@@ -32,6 +33,7 @@ int main(int argc, char *argv[]) {
   // initialize matrices
   matrix_identity(&GTM);
   matrix_identity(&VTM);
+  matrix_identity(&LTM);
 
   // set the View parameters
   point_set3D(&(view.vrp), 5, 5, -7.0);
@@ -52,15 +54,14 @@ int main(int argc, char *argv[]) {
 
   // make a simple cube module
   cube = module_create();
-  module_scale( cube, 3, 1, 2 );
+  module_scale( cube, 1, 2, 2);
 
   // this would color the cube in ShadeConstant mode
   module_color( cube, &Grey );
 
   // the example cube is blue (Y/-Y), red (Z/-Z), yellow (X/-X)
   // these colors should be the body colors
-  module_cube( cube, 1);
-
+  module_cube(cube, 1);
   // manually add a light source to the Lighting structure
   // put it in the same place as the eye in world space
   light = lighting_create();
@@ -75,10 +76,11 @@ int main(int argc, char *argv[]) {
   mipmap = mipmap_create();
   mipmap_fill(texture, mipmap);
   ds->mipmap = *mipmap;
-  matrix_identity(&GTM);
+
+  matrix_rotateY(&GTM, 0.99619469809, 0.08715574274);
+  module_lighting(cube, &VTM, &GTM, light );
   module_draw(cube, &VTM, &GTM, ds, light, src);
 
-  // write out the image
   image_write(src, "texture.ppm");
   system ("convert texture.ppm texture.png");
   system ("rm texture.ppm");

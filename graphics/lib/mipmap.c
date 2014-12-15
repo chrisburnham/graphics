@@ -32,7 +32,6 @@ void mipmap_free(Mipmap *src){
 // images must be larger than 256 by 256 (only takes first 256 by 256)
 int mipmap_fill(Image *src, Mipmap *dst){
   int i, j, k, pow2, sum0, sum1, sum2;
-    printf("image size: %i, %i\n", src->rows, src->cols);
   if (src->rows < 256 || src->cols < 256){
     printf("Image too small for mipmap\n");
     return (-1);
@@ -40,7 +39,9 @@ int mipmap_fill(Image *src, Mipmap *dst){
     
   for(i=0; i<256; i++){
     for(j=0; j<256; j++){
-      printf("r: %f, g: %f, b: %f\n", src->data[i][j].rgb[0], src->data[i][j].rgb[1], src->data[i][j].rgb[2]);
+      printf("r: %f, g: %f, b: %f\n", src->data[i][j].rgb[0], 
+                                      src->data[i][j].rgb[1], 
+                                      src->data[i][j].rgb[2]);
       dst->data[i][j] = src->data[i][j].rgb[0];
       dst->data[i][j+256] = src->data[i][j].rgb[1];
       dst->data[i+256][j] = src->data[i][j].rgb[2];
@@ -56,9 +57,18 @@ int mipmap_fill(Image *src, Mipmap *dst){
     
     for(i=0; i<(256/pow2); i++){
       for(j=0; j<(256/pow2); j++){
-        dst->data[i+sum1][j+sum1] = (dst->data[2*i+sum0][2*j+sum0] + dst->data[2*i+sum0+1][2*j+sum0] + dst->data[2*i+sum0][2*j+sum0+1] + dst->data[2*i+sum0+1][2*j+sum0+1]) / 4;
-        dst->data[i+sum1][j+sum2] = (dst->data[2*i+sum0][2*j+sum1] + dst->data[2*i+sum0+1][2*j+sum1] + dst->data[2*i+sum0][2*j+sum1+1] + dst->data[2*i+sum0+1][2*j+sum1+1]) / 4;
-        dst->data[i+sum2][j+sum1] = (dst->data[2*i+sum1][2*j+sum0] + dst->data[2*i+sum1+1][2*j+sum0] + dst->data[2*i+sum1][2*j+sum0+1] + dst->data[2*i+sum1+1][2*j+sum0+1]) / 4;
+        dst->data[i+sum1][j+sum1] = (dst->data[2*i+sum0][2*j+sum0] + 
+                                    dst->data[2*i+sum0+1][2*j+sum0] + 
+                                    dst->data[2*i+sum0][2*j+sum0+1] + 
+                                    dst->data[2*i+sum0+1][2*j+sum0+1]) / 4;
+        dst->data[i+sum1][j+sum2] = (dst->data[2*i+sum0][2*j+sum1] + 
+                                     dst->data[2*i+sum0+1][2*j+sum1] + 
+                                     dst->data[2*i+sum0][2*j+sum1+1] + 
+                                     dst->data[2*i+sum0+1][2*j+sum1+1]) / 4;
+        dst->data[i+sum2][j+sum1] = (dst->data[2*i+sum1][2*j+sum0] + 
+                                     dst->data[2*i+sum1+1][2*j+sum0] + 
+                                     dst->data[2*i+sum1][2*j+sum0+1] + 
+                                     dst->data[2*i+sum1+1][2*j+sum0+1]) / 4;
       }
     }
     sum0 = sum1;
