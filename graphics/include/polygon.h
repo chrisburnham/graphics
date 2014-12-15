@@ -15,6 +15,8 @@ typedef struct{
   Color *color; // color information for each vertex
   Vector *normal; // surface normal information for each vertex
 	int zBuffer; // whether to use the z-buffer; should default to true (1)
+  float *s;
+  float *t;
 } Polygon;
 
 // returns an allocated Polygon pointer initialized so that numVertex is 0 and 
@@ -52,6 +54,8 @@ void polygon_print(Polygon *p, FILE *fp);
 
 // draw the outline of the polygon using color c.
 void polygon_draw(Polygon *p, Image *src, Color c);
+
+void polygon_setST(Polygon *p, int index, float s, float t);
 
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFill(Polygon *p, Image *src, Color c, int dsFlag);

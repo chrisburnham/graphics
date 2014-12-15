@@ -261,7 +261,7 @@ void module_shear2D(Module *md, double shx, double shy){
 // [VTM], Lighting and DrawState by traversing the list of Elements. (For now, 
 // Lighting can be an empty structure.)
 void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, 
-    Lighting *lighting, Image *src){
+  Lighting *lighting, Image *src){
   Element *e;
   Matrix LTM;
 	Line line;
@@ -333,49 +333,48 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds,
 						break;
 					
 					case ShadeFlat:
+            point_set3D(&point1, 0, 0, 0);
 
-                        point_set3D(&point1, 0, 0, 0);
+            vector_set(&N, 0, 0, 0);
+            for(j=0; j<3; j++){
+              for(i=0; i<polygon.nVertex; i++){
+                point1.val[j] += polygon.vertex[i].val[j];
+                N.val[j] += polygon.normal[i].val[j];
+              }
 
-                        vector_set(&N, 0, 0, 0);
-                        for(j=0; j<3; j++){
-                            for(i=0; i<polygon.nVertex; i++){
-                                point1.val[j] += polygon.vertex[i].val[j];
-                                N.val[j] += polygon.normal[i].val[j];
-                            }
+              point1.val[j] = point1.val[j] / (float)polygon.nVertex;
+              N.val[j] = N.val[j] / (float)polygon.nVertex;
+            }
 
-                            point1.val[j] = point1.val[j] / (float)polygon.nVertex;
-                            N.val[j] = N.val[j] / (float)polygon.nVertex;
-                        }
-
-                        vector_set(&V, ds->viewer.val[0] - point1.val[0], 
-                                       ds->viewer.val[1] - point1.val[1], 
-                                       ds->viewer.val[2] - point1.val[2] );
-                        
-                        lighting_shading(lighting, &N, &V, &point1, &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
+            vector_set(&V, ds->viewer.val[0] - point1.val[0], 
+                           ds->viewer.val[1] - point1.val[1], 
+                           ds->viewer.val[2] - point1.val[2] );
+            
+            lighting_shading(lighting, &N, &V, &point1, &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
 						
             polygon_drawFill(&polygon, src, c, 0);
 						break;
 					
 					case ShadeGouraud:
-                        polygon.color = malloc(sizeof(Color)*polygon.nVertex);
-                        for(i=0; i<polygon.nVertex; i++){
-                            vector_set(&V,  ds->viewer.val[0] - polygon.vertex[i].val[0],
-                                            ds->viewer.val[1] - polygon.vertex[i].val[1],
-                                            ds->viewer.val[2] - polygon.vertex[i].val[2] );
-                            
-                            lighting_shading(lighting, &polygon.normal[i], &V, &polygon.vertex[i], &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
-                            color_copy( &polygon.color[i], &c);
-                        }
-                        polygon_drawFill(&polygon, src, ds->color, 2);
-                        free(polygon.color);
-                        polygon.color = NULL;
-						break;
-                        
-                    case ShadeMipmap:
-                        printf("well of course\n");
-                        polygon_drawTexture(&polygon, src, &ds->mipmap);
-                        printf("not here\n");
-                        break;
+            polygon.color = malloc(sizeof(Color)*polygon.nVertex);
+            for(i=0; i<polygon.nVertex; i++){
+              vector_set(&V,  ds->viewer.val[0] - polygon.vertex[i].val[0],
+                              ds->viewer.val[1] - polygon.vertex[i].val[1],
+                              ds->viewer.val[2] - polygon.vertex[i].val[2] );
+              
+              lighting_shading(lighting, &polygon.normal[i], &V, &polygon.vertex[i], &(ds->body), &(ds->surface), ds->surfaceCoeff, polygon.oneSided, &c );
+              color_copy( &polygon.color[i], &c);
+            }
+            polygon_drawFill(&polygon, src, ds->color, 2);
+            free(polygon.color);
+            polygon.color = NULL;
+						break;       
+            
+          case ShadeMipmap:
+            // printf("well of course\n");
+            polygon_drawTexture(&polygon, src, &ds->mipmap);
+            // printf("not here\n");
+            break;
 					
 					// where optional ShadePhong would go
 				}
@@ -600,63 +599,88 @@ void module_cube(Module *md, int solid){
 		point_copy(&(square[2]), &(vtex[3]));
 		point_copy(&(square[3]), &(vtex[2]));
 		polygon_set(&side[0], 4, square);
-        for(i=0; i<4; i++){
-            vector_set(&nm[i], -1.0, 0.0, 0.0);
-        }
-        polygon_setNormals( &side[0], 4, nm );
+    for(i=0; i<4; i++){
+      vector_set(&nm[i], -1.0, 0.0, 0.0);
+    }
+    polygon_setNormals( &side[0], 4, nm );
+    // for texture mapping:
+    polygon_setST(&side[0], 0, .333333, .5);
+    polygon_setST(&side[0], 1, .666667, .5);
+    polygon_setST(&side[0], 2, .666667, .75);
+    polygon_setST(&side[0], 3, .333333, .75);
 
 		point_copy(&(square[0]), &(vtex[0]));
 		point_copy(&(square[1]), &(vtex[1]));
 		point_copy(&(square[2]), &(vtex[5]));
 		point_copy(&(square[3]), &(vtex[4]));
 		polygon_set(&side[1], 4, square);
-        for(i=0; i<4; i++){
-            vector_set(&nm[i], 0.0, -1.0, 0.0);
-        }
-        polygon_setNormals( &side[1], 4, nm );
+    for(i=0; i<4; i++){
+      vector_set(&nm[i], 0.0, -1.0, 0.0);
+    }
+    polygon_setNormals( &side[1], 4, nm );
+    polygon_setST(&side[1], 0, .333333, .5);
+    polygon_setST(&side[1], 1, .666667, .5);
+    polygon_setST(&side[1], 2, .666667, .25);
+    polygon_setST(&side[1], 3, .333333, .25);
 
 		point_copy(&(square[0]), &(vtex[0]));
 		point_copy(&(square[1]), &(vtex[2]));
 		point_copy(&(square[2]), &(vtex[6]));
 		point_copy(&(square[3]), &(vtex[4]));
 		polygon_set(&side[2], 4, square);
-        for(i=0; i<4; i++){
-            vector_set(&nm[i], 0.0, 0.0, 1.0);
-        }
-        polygon_setNormals( &side[2], 4, nm );
+    for(i=0; i<4; i++){
+      vector_set(&nm[i], 0.0, 0.0, 1.0);
+    }
+    polygon_setNormals( &side[2], 4, nm );
+    polygon_setST(&side[2], 0, .333333, .5);
+    polygon_setST(&side[2], 1, .333333, .75);
+    polygon_setST(&side[2], 2, 0, .75);
+    polygon_setST(&side[2], 3, 0, .5);
 
 		point_copy(&(square[0]), &(vtex[1]));
 		point_copy(&(square[1]), &(vtex[3]));
 		point_copy(&(square[2]), &(vtex[7]));
 		point_copy(&(square[3]), &(vtex[5]));
 		polygon_set(&side[3], 4, square);
-        for(i=0; i<4; i++){
-            vector_set(&nm[i], 0.0, 0.0, -1.0);
-        }
-        polygon_setNormals( &side[3], 4, nm );
+    for(i=0; i<4; i++){
+      vector_set(&nm[i], 0.0, 0.0, -1.0);
+    }
+    polygon_setNormals( &side[3], 4, nm );
+    polygon_setST(&side[3], 0, .666667, .5);
+    polygon_setST(&side[3], 1, .666667, .75);
+    polygon_setST(&side[3], 2, 1.0, .75);
+    polygon_setST(&side[3], 3, 1.0, .5);
 
 		point_copy(&(square[0]), &(vtex[2]));
 		point_copy(&(square[1]), &(vtex[3]));
 		point_copy(&(square[2]), &(vtex[7]));
 		point_copy(&(square[3]), &(vtex[6]));
 		polygon_set(&side[4], 4, square);
-        for(i=0; i<4; i++){
-            vector_set(&nm[i], 0.0, 1.0, 0.0);
-        }
-        polygon_setNormals( &side[4], 4, nm );
+    for(i=0; i<4; i++){
+      vector_set(&nm[i], 0.0, 1.0, 0.0);
+    }
+    polygon_setNormals( &side[4], 4, nm );
+    polygon_setST(&side[4], 0, .333333, .75);
+    polygon_setST(&side[4], 1, .666667, .75);
+    polygon_setST(&side[4], 2, .666667, 1.0);
+    polygon_setST(&side[4], 3, .333333, 1.0);
 
 		point_copy(&(square[0]), &(vtex[4]));
 		point_copy(&(square[1]), &(vtex[5]));
 		point_copy(&(square[2]), &(vtex[7]));
 		point_copy(&(square[3]), &(vtex[6]));
 		polygon_set(&side[5], 4, square);
-        for(i=0; i<4; i++){
-            vector_set(&nm[i], 1.0, 0.0, 0.0);
-        }
-        polygon_setNormals( &side[5], 4, nm );
+    for(i=0; i<4; i++){
+      vector_set(&nm[i], 1.0, 0.0, 0.0);
+    }
+    polygon_setNormals( &side[5], 4, nm );
+    polygon_setST(&side[5], 0, .333333, .25);
+    polygon_setST(&side[5], 1, .666667, .25);
+    polygon_setST(&side[5], 2, .666667, 0);
+    polygon_setST(&side[5], 3, .333333, 0);
 
 		for(i=0; i<6; i++){
-            polygon_setSided( &side[i], 1 );
+      polygon_setSided( &side[i], 1 );
 			e = element_init(ObjPolygon, &(side[i]));
 			module_insert(md, e);
 		}
@@ -668,21 +692,21 @@ void module_cylinder( Module *mod, int sides ) {
   Polygon p;
   Point xtop, xbot;
   double x1, x2, z1, z2;
-    Vector up, down;
+  Vector up, down;
   int i, j;
 
   polygon_init( &p );
   point_set3D( &xtop, 0.0, 1.0, 0.0 );
   point_set3D( &xbot, 0.0, 0.0, 0.0 );
-    vector_set( &up, 0.0, 1.0, 0.0 );
-    vector_set( &down, 0.0, -1.0, 0.0 );
+  vector_set( &up, 0.0, 1.0, 0.0 );
+  vector_set( &down, 0.0, -1.0, 0.0 );
 
 
   // make a fan for the top and bottom sides
   // and quadrilaterals for the sides
   for(i=0;i<sides;i++) {
     Point pt[4];
-      Vector nm[4];
+    Vector nm[4];
 
     x1 = cos( i * M_PI * 2.0 / sides );
     z1 = sin( i * M_PI * 2.0 / sides );
@@ -694,11 +718,11 @@ void module_cylinder( Module *mod, int sides ) {
     point_set3D( &pt[2], x2, 1.0, z2 );
 
     polygon_set( &p, 3, pt );
-      for(j=0; j<3; j++){
-          vector_copy( &nm[j], &up);
-      }
-      polygon_setNormals( &p, 3, nm );
-      polygon_setSided( &p, 1 );
+    for(j=0; j<3; j++){
+        vector_copy( &nm[j], &up);
+    }
+    polygon_setNormals( &p, 3, nm );
+    polygon_setSided( &p, 1 );
     module_polygon( mod, &p );
 
     point_copy( &pt[0], &xbot );
@@ -706,25 +730,25 @@ void module_cylinder( Module *mod, int sides ) {
     point_set3D( &pt[2], x2, 0.0, z2 );
 
     polygon_set( &p, 3, pt );
-      for(j=0; j<3; j++){
-          vector_copy( &nm[j], &down);
-      }
-      polygon_setNormals( &p, 3, nm );
-      polygon_setSided( &p, 1 );
+    for(j=0; j<3; j++){
+        vector_copy( &nm[j], &down);
+    }
+    polygon_setNormals( &p, 3, nm );
+    polygon_setSided( &p, 1 );
     module_polygon( mod, &p );
 
     point_set3D( &pt[0], x1, 0.0, z1 );
-      vector_set( &nm[0], x1, 0.0, z1 );
+    vector_set( &nm[0], x1, 0.0, z1 );
     point_set3D( &pt[1], x2, 0.0, z2 );
-      vector_set( &nm[1], x2, 0.0, z2 );
+    vector_set( &nm[1], x2, 0.0, z2 );
     point_set3D( &pt[2], x2, 1.0, z2 );
-      vector_set( &nm[2], x2, 0.0, z2 );
+    vector_set( &nm[2], x2, 0.0, z2 );
     point_set3D( &pt[3], x1, 1.0, z1 );
-      vector_set( &nm[3], x1, 0.0, z1 );
+    vector_set( &nm[3], x1, 0.0, z1 );
     
     polygon_set( &p, 4, pt );
-      polygon_setNormals( &p, 4, nm );
-      polygon_setSided( &p, 1 );
+    polygon_setNormals( &p, 4, nm );
+    polygon_setSided( &p, 1 );
     module_polygon( mod, &p );
   }
 
@@ -732,12 +756,15 @@ void module_cylinder( Module *mod, int sides ) {
 }
 
 void module_sphere( Module *md ){ // still needs normals
-  Polygon *p = polygon_create();
+  Polygon p ;
   Point pt[6];
   Point tmp[15];
+  Point avg[15];
   Point v[3];
   double x, y, z;
   int i, j;
+
+  polygon_init(&p);
 
   point_set3D(&pt[0], 0, 1.0, 0);  
   point_set3D(&pt[1], 0, 0, 1.0);
@@ -749,85 +776,86 @@ void module_sphere( Module *md ){ // still needs normals
 
   for (i=0; i<8; i++){
     if (i == 0){
-      tmp[0] = pt[0];
-      tmp[4] = pt[4];
-      tmp[8] = pt[1];
+      point_copy(&tmp[0], &pt[0]);
+      point_copy(&tmp[4], &pt[4]);
+      point_copy(&tmp[8], &pt[1]);
     }
     else if ( i==1 || i==5 ){
-      tmp[0] = pt[1];
-      tmp[8] = pt[2];
+      point_copy(&tmp[0], &pt[1]);
+      point_copy(&tmp[8], &pt[2]);
     }
     else if( i==2 || i==6 ){
-      tmp[0] = pt[2];
-      tmp[8] = pt[3];
+      point_copy(&tmp[0], &pt[2]);
+      point_copy(&tmp[8], &pt[3]);
     }
     else if (i==3 || i==7){
-      tmp[0] = pt[3];
-      tmp[8] = pt[0];
+      point_copy(&tmp[0], &pt[3]);
+      point_copy(&tmp[8], &pt[0]);
     }
     else { // i==4
-      tmp[0] = pt[0];
-      tmp[4] = pt[5];
-      tmp[8] = pt[1];
+      point_copy(&tmp[0], &pt[0]);
+      point_copy(&tmp[4], &pt[5]);
+      point_copy(&tmp[8], &pt[1]);
     }
-    
-    point_set3D(&tmp[2], 
+
+    point_set3D(&avg[2], 
                 Average(tmp[0].val[0], tmp[4].val[0]), 
                 Average(tmp[0].val[1], tmp[4].val[1]),
                 Average(tmp[0].val[3], tmp[4].val[3]));
-    point_set3D(&tmp[6], 
+    point_set3D(&avg[6], 
                 Average(tmp[4].val[0], tmp[8].val[0]), 
                 Average(tmp[4].val[1], tmp[8].val[1]), 
                 Average(tmp[4].val[3], tmp[8].val[3]));
-    point_set3D(&tmp[10], 
+    point_set3D(&avg[10], 
                 Average(tmp[0].val[0], tmp[4].val[0]), 
                 Average(tmp[0].val[1], tmp[4].val[1]),
                 Average(tmp[0].val[3], tmp[4].val[3]));
 
-    point_set3D(&tmp[1], 
+    point_set3D(&avg[1], 
                 Average(tmp[0].val[0], tmp[2].val[0]), 
                 Average(tmp[0].val[1], tmp[2].val[1]),
                 Average(tmp[0].val[3], tmp[2].val[3]));
-    point_set3D(&tmp[3], 
+    point_set3D(&avg[3], 
                 Average(tmp[4].val[0], tmp[2].val[0]), 
                 Average(tmp[4].val[1], tmp[2].val[1]),
                 Average(tmp[4].val[3], tmp[2].val[3]));
 
-    point_set3D(&tmp[5], 
+    point_set3D(&avg[5], 
                 Average(tmp[4].val[0], tmp[6].val[0]), 
                 Average(tmp[4].val[1], tmp[6].val[1]),
                 Average(tmp[4].val[3], tmp[6].val[3]));
-    point_set3D(&tmp[7], 
+    point_set3D(&avg[7], 
                 Average(tmp[8].val[0], tmp[6].val[0]), 
                 Average(tmp[8].val[1], tmp[6].val[1]),
                 Average(tmp[8].val[3], tmp[6].val[3]));
 
-     point_set3D(&tmp[9], 
+     point_set3D(&avg[9], 
                 Average(tmp[8].val[0], tmp[10].val[0]), 
                 Average(tmp[8].val[1], tmp[10].val[1]),
                 Average(tmp[8].val[3], tmp[10].val[3]));
-    point_set3D(&tmp[11], 
+    point_set3D(&avg[11], 
                 Average(tmp[0].val[0], tmp[10].val[0]), 
                 Average(tmp[0].val[1], tmp[10].val[1]),
                 Average(tmp[0].val[3], tmp[10].val[3]));
 
-    point_set3D(&tmp[12], 
+    point_set3D(&avg[12], 
                 Average(tmp[2].val[0], tmp[10].val[0]), 
                 Average(tmp[2].val[1], tmp[10].val[1]),
                 Average(tmp[2].val[3], tmp[10].val[3]));
-    point_set3D(&tmp[13], 
+    point_set3D(&avg[13], 
                 Average(tmp[2].val[0], tmp[6].val[0]), 
                 Average(tmp[2].val[1], tmp[6].val[1]),
                 Average(tmp[2].val[3], tmp[6].val[3]));
-    point_set3D(&tmp[14], 
+    point_set3D(&avg[14], 
                 Average(tmp[6].val[0], tmp[10].val[0]), 
                 Average(tmp[6].val[1], tmp[10].val[1]),
                 Average(tmp[6].val[3], tmp[10].val[3]));
-     
+   
     for (j=0; j<15; j++){
-      x = sin(PI*tmp[i].val[0])*cos(2*PI*tmp[i].val[1]);
-      y = sin(PI*tmp[i].val[0])*sin(2*PI*tmp[i].val[1]);
-      z = cos(PI*tmp[i].val[0]);
+      x = sin(PI*avg[i].val[0])*cos(2*PI*avg[i].val[1]);
+      y = sin(PI*avg[i].val[0])*sin(2*PI*avg[i].val[1]);
+      z = cos(PI*avg[i].val[0]);
+      printf("(%f, %f, %f)\n", x, y, z);
       point_set3D(&tmp[i], x, y, z);
     }
 
@@ -839,20 +867,26 @@ void module_sphere( Module *md ){ // still needs normals
           point_copy(&v[2], &tmp[11]);
         case 1:
           point_copy(&v[0], &tmp[11]);
+          point_copy(&v[1], &tmp[1]);
           point_copy(&v[2], &tmp[12]);
         case 2:
+          point_copy(&v[0], &tmp[11]);
           point_copy(&v[1], &tmp[12]);
           point_copy(&v[2], &tmp[10]);
         case 3:
           point_copy(&v[0], &tmp[10]);
+          point_copy(&v[1], &tmp[12]);
           point_copy(&v[2], &tmp[14]);
         case 4:
+          point_copy(&v[0], &tmp[10]);
           point_copy(&v[1], &tmp[14]);
           point_copy(&v[2], &tmp[9]);
         case 5:
           point_copy(&v[0], &tmp[9]);
+          point_copy(&v[1], &tmp[14]);
           point_copy(&v[2], &tmp[7]);
         case 6:
+          point_copy(&v[0], &tmp[9]);
           point_copy(&v[1], &tmp[7]);
           point_copy(&v[2], &tmp[8]);
         case 7:
@@ -861,14 +895,18 @@ void module_sphere( Module *md ){ // still needs normals
           point_copy(&v[2], &tmp[12]);
         case 8:
           point_copy(&v[0], &tmp[12]);
+          point_copy(&v[1], &tmp[2]);
           point_copy(&v[2], &tmp[13]);
         case 9:
+          point_copy(&v[0], &tmp[12]);
           point_copy(&v[1], &tmp[13]);
           point_copy(&v[2], &tmp[14]);
         case 10:
           point_copy(&v[0], &tmp[14]);
+          point_copy(&v[1], &tmp[13]);
           point_copy(&v[2], &tmp[6]);
         case 11:
+          point_copy(&v[0], &tmp[14]);
           point_copy(&v[1], &tmp[6]);
           point_copy(&v[2], &tmp[7]);
         case 12:
@@ -877,8 +915,10 @@ void module_sphere( Module *md ){ // still needs normals
           point_copy(&v[2], &tmp[13]);
         case 13:
           point_copy(&v[0], &tmp[13]);
+          point_copy(&v[1], &tmp[3]);
           point_copy(&v[2], &tmp[5]);
         case 14:
+          point_copy(&v[0], &tmp[13]);
           point_copy(&v[1], &tmp[5]);
           point_copy(&v[2], &tmp[6]);
         case 15:
@@ -886,10 +926,11 @@ void module_sphere( Module *md ){ // still needs normals
           point_copy(&v[1], &tmp[4]);
           point_copy(&v[2], &tmp[5]);
       }
-      polygon_set(p, 3, v);
-      module_polygon(md, p);
-      // polygon_clear(p);
+      printf("bacon\n");
+      polygon_set(&p, 3, v);
+      module_polygon(md, &p);
     }
+
     point_set3D(&pt[0], 0, 1.0, 0);  
     point_set3D(&pt[1], 0, 0, 1.0);
     point_set3D(&pt[2], 0, -1.0, 0);
@@ -910,21 +951,21 @@ void module_color(Module *md, Color *c){
 
 // Adds the body color value to the tail of the module's list
 void module_bodyColor(Module *md, Color *c){
-    Element *e;
+  Element *e;
 	e = element_init(ObjBodyColor, c);
 	module_insert(md, e);
 }
 
 // Adds the surface color value to the tail of the module's list
 void module_surfaceColor(Module *md, Color *c){
-    Element *e;
+  Element *e;
 	e = element_init(ObjSurfaceColor, c);
 	module_insert(md, e);
 }
 
 //Adds the specular coefficeient to the tail of the module's list
 void module_surfaceCoeff(Module *md, float coeff){
-    Element *e;
+  Element *e;
 	e = element_init(ObjSurfaceCoeff, &coeff);
 	module_insert(md, e);
 }

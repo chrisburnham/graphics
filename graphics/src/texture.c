@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
   matrix_setView3D(&VTM, &view);
 
   // print out VTM
-  printf("Final VTM: \n");
+  // printf("Final VTM: \n");
   matrix_print(&VTM, stdout);
 
   // make a simple cube module
@@ -71,19 +71,17 @@ int main(int argc, char *argv[]) {
   point_copy(&(ds->viewer), &(view.vrp));
   ds->shade = ShadeMipmap;
   //  ds->shade = ShadeFlat;
-  texture = image_read("starfuries.ppm");
+  texture = image_read("colors.ppm");
   mipmap = mipmap_create();
   mipmap_fill(texture, mipmap);
-    printf("llama\n");
   ds->mipmap = *mipmap;
-printf("llama0\n");
   matrix_identity(&GTM);
-    printf("llama1\n");
   module_draw(cube, &VTM, &GTM, ds, light, src);
-    printf("llama2\n");
 
   // write out the image
-  image_write(src, "test9a.ppm");
+  image_write(src, "texture.ppm");
+  system ("convert texture.ppm texture.png");
+  system ("rm texture.ppm");
 
   // free stuff here
   module_delete( cube );

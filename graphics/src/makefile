@@ -32,10 +32,10 @@ _DEPS = graphics.h
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = texture test5d test5b test5c test5vt part4cb space part5cb test6a test6b cube christest test7a test7b test7c teapot jetman test6sphere test8a cubism testLighting_shading test9d test9a test9b mipmaptest test9c
+EXECUTABLES = image02 image01 texture test5d test5b test5c test5vt part4cb space part5cb test6a test6b cube christest test7a test7b test7c teapot jetman test6sphere test8a cubism testLighting_shading test9d test9a test9b mipmaptest test9c
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = test5a.o texture.o test5d.o test5b.o test5c.o test5vt.o part4cb.o space.o part5cb.o test6a.o test6b.o cube.o christest.o test7a.o test7b.0 test7c.o teapot.o jetman.o test6sphere test8a.o cubism.o testLighting_shading.o test9d.o test9a.o test9b.o mipmaptest.o test9c.o
+_OBJ = image02.o image01.o test5a.o texture.o test5d.o test5b.o test5c.o test5vt.o part4cb.o space.o part5cb.o test6a.o test6b.o cube.o christest.o test7a.o test7b.0 test7c.o teapot.o jetman.o test6sphere test8a.o cubism.o testLighting_shading.o test9d.o test9a.o test9b.o mipmaptest.o test9c.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -140,6 +140,13 @@ test9c: $(ODIR)/test9c.o
 
 texture: $(ODIR)/texture.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+image01: $(ODIR)/image01.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+image02: $(ODIR)/image02.o
+	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
 
 .PHONY: clean
 

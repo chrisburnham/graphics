@@ -136,11 +136,17 @@ void polygon_zBuffer(Polygon *p, int flag){
 // De-allocates/allocates space and copies the vertex and color data from one
 // polygon to the other.
 void polygon_copy(Polygon *to, Polygon *from){
-  if(from){
+    int i;
+    if(from){
 		polygon_set(to, from->nVertex, from->vertex);
-      polygon_setNormals(to, from->nVertex, from->normal);
-      polygon_setSided(to, from->oneSided);
-		polygon_zBuffer(to, from->zBuffer);
+        polygon_setNormals(to, from->nVertex, from->normal);
+        polygon_setSided(to, from->oneSided);
+    	polygon_zBuffer(to, from->zBuffer);
+        if(from->s && from->t){
+            for (i=0; i<from->nVertex; i++){
+                polygon_setST(to, i, from->s[i], from->t[i]);
+            }
+        }
 	}
 }
 
@@ -184,6 +190,26 @@ void polygon_draw(Polygon *p, Image *src, Color c){
 	}
 }
 
+// set s and t values for texture mapping
+void polygon_setST(Polygon *p, int index, float s, float t){
+    if (s > 1.0 || t > 1.0){
+        printf("!!BAD!! s and t need to be between 0 and 1 !!BAD!!\n");
+        return;
+    }
+    if (index >= p->nVertex){
+        printf("index out of range\n");
+        return;
+    }
+    if (!p->s){
+        p->s = malloc(sizeof(float)*p->nVertex);
+    }
+    if (!p->t){
+        p->t = malloc(sizeof(float)*p->nVertex);
+    }
+    p->s[index] = s;
+    p->t[index] = t;
+}
+
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFill(Polygon *p, Image *src, Color c, int dsFlag){
     scanline_drawFill(p, src, c, dsFlag, NULL);
@@ -195,7 +221,6 @@ void polygon_drawTexture(Polygon *p, Image *src, Mipmap *mipmap){
     scanline_drawFill(p, src, c, 3, mipmap);
     printf("out\n");
 }
-    
 
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFillwithTexture(Polygon *p, Image *src, Color *c){
@@ -403,7 +428,6 @@ void polygon_normalize(Polygon *p){
         point_normalize(&p->vertex[i]);
     }
 }
-
 
 // sets the oneSided field to the value
 void polygon_setSided(Polygon *p, int oneSided){

@@ -16,9 +16,6 @@
 #include "objects.h"
 // #include "matrix.h"
 
-#define PI 3.14
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-
 // define the struct here, because it is local to only this file
 typedef struct tEdge {
   float x0, y0;                   /* start point for the edge */
@@ -78,7 +75,7 @@ static int compXIntersect( const void *a, const void *b ) {
     coordinates.
  */
 static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag, 
-    int dsFlag, Color c1, Color c2, Vector *n1, Vector* n2 )
+    int dsFlag, Color c1, Color c2, float* s)
 {
   Edge *edge;
   float dscan = end.val[1] - start.val[1];
@@ -131,7 +128,6 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
   }
 
   if (dsFlag == 2){ 
-    printf ("(%f, %f, %f)\n", c1.c[0], c1.c[1], c1.c[2]);
     edge->dcPerScan.c[0] = ((c2.c[0]/end.val[2])-(c1.c[0]/start.val[2]))/dscan;
     edge->dcPerScan.c[1] = ((c2.c[1]/end.val[2])-(c1.c[1]/start.val[2]))/dscan;
     edge->dcPerScan.c[2] = ((c2.c[2]/end.val[2])-(c1.c[2]/start.val[2]))/dscan;
@@ -142,19 +138,18 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
 
   // texture mapping
   if (dsFlag == 3){
-      float midt = ( start.val[1] + end.val[1] ) / 2;
       
-    float s0 = (atan2(start.val[0], start.val[2]) / (2.0 * PI) + 0.5);
-    float t0 = (asin(start.val[1] / midt) / PI + .5);
-    float s1 = (atan2(end.val[0], end.val[2]) / (2.0 * PI) + 0.5);
-    float t1 = (asin(end.val[1] / midt) / PI + .5);
-      printf("t0 calc %f, %f\n", start.val[1] / midt, (asin(start.val[1] / midt)));
-      printf("t1 calc %f, %f\n", end.val[1] / midt, (asin(end.val[1] / midt)));
-    edge->dsPerScan = ((s1-s0)/start.val[2])/dscan;
-    edge->dtPerScan = ((t1-t0)/start.val[2])/dscan;
+    float s0 = s[0];
+    float t0 = s[1];
+    float s1 = s[2];
+    float t1 = s[3];
+    // printf("t0 calc %f, %f\n", start.val[1] / midt, (asin(start.val[1] / midt)));
+    // printf("t1 calc %f, %f\n", end.val[1] / midt, (asin(end.val[1] / midt)));
+    edge->dsPerScan = (s0-s1)/(start.val[1]-end.val[1]);
+    edge->dtPerScan = (t0-t1)/(start.val[1]-end.val[1]);
     edge->sIntersect = s0;
     edge->tIntersect = t0;
-      printf("s0: %f,  t0: %f\n", s0, t0);
+    // printf("s0: %f,  t0: %f\n", s0, t0);
   }
 
   return( edge );
@@ -170,7 +165,8 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
   Point v1, v2;
   Color c1, c2;
   int i;
-  Vector *n1, *n2;
+  float s[4];
+  
   edges = ll_new();
 
   v1 = p->vertex[p->nVertex-1];
@@ -178,7 +174,8 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
     color_copy(&c1, &p->color[p->nVertex-1]);
   }
   else if (dsFlag == 3){
-    n1 = &p->normal[p->nVertex-1];
+    s[0] = p->s[p->nVertex-1];
+    s[1] = p->t[p->nVertex-1];
   }
   
 
@@ -189,7 +186,8 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
       color_copy(&c2, &p->color[i]);
     }
     else if (dsFlag == 3){
-      n2 = &p->normal[i];
+      s[2] = p->s[i];
+      s[3] = p->t[i];
     }
     
     if( (int)(v1.val[1]+0.5) != (int)(v2.val[1]+0.5) ) {
@@ -197,20 +195,20 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
 
       if( v1.val[1] < v2.val[1] ){
         if (dsFlag == 3){
-          edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2, n1, n2 );
+          edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2, s);
         }
         else {
-          edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2, NULL, NULL );
+          edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2, NULL);
         }
         
 
       }
       else {
         if (dsFlag == 3){
-          edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1, n1, n2 );
+          edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1, s);
         }
         else {
-          edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1, NULL, NULL ); 
+          edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1, NULL); 
         }
       }
 
@@ -221,6 +219,10 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
     v1 = v2;
     if (dsFlag == 2){
       color_copy(&c2, &c1);
+    }
+    else if (dsFlag == 3){
+      s[0] = s[2];
+      s[1] = s[3];
     }
   }
 
@@ -237,7 +239,7 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
     a DrawState, the image, and some Lights (for Phong shading only).
  */
 static void fillScan( int scan, LinkedList *active, Image *src, Color c, 
-    int zFlag, int dsFlag, Mipmap *mipmap ) {
+  int zFlag, int dsFlag, Mipmap *mipmap ) {
   Edge *p1, *p2;
   int i, start, finish;
   float zBuffer = 1.0, dzPerCol = 0.0;
@@ -245,10 +247,9 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
   color_copy(&tc, &c);
   Color dcPerCol; // c2, 
   float dsPerCol, dtPerCol;
-  // float s, t;
-  float dim, lev;
+  float s, t;
+  float dim, lev, tmp;
   int upper, lower;
-  double tmp;
   float dsdy, dtdy;
 
   p1 = ll_head( active );
@@ -285,11 +286,10 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
       color_copy(&tc, &p1->cIntersect);
     }
     else if (dsFlag == 3){
+      s = p1->sIntersect;
+      t = p1->tIntersect;
       dsPerCol = (p2->sIntersect-p1->sIntersect)/(finish-start);
       dtPerCol = (p2->tIntersect-p1->tIntersect)/(finish-start);
-        printf("%f, %f, %i, %i\n", p2->sIntersect, p1->sIntersect, finish, start);
-        printf("%f, %f, %i, %i\n", p2->tIntersect, p1->tIntersect, finish, start);
-        printf("dtpercall %f\n", dtPerCol);
       dsdy = p1->dsPerScan - (p1->dxPerScan * dsPerCol);
       dtdy = p1->dtPerScan - (p1->dxPerScan * dtPerCol);
     }
@@ -326,31 +326,47 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
         tc.c[2] += dcPerCol.c[2];
       }
       else if (dsFlag == 3){
-        dim = MAX(dsdy+dsPerCol, dtdy+dtPerCol);
-        lev = log(dim);
-        tmp = lev - (int)(lev);
-        lower = pow(2, (int)lev);
-        upper = pow(2, (int)lev+1);
-          printf("probs here\n");
-          printf("first: %f + %f, %f + %f\n", dsdy, dsPerCol, dtdy, dtPerCol);
-          printf("%f, %f\n", dsdy+dsPerCol, dtdy+dtPerCol);
-          printf("dim: %f\n", dim);
-          printf("lev: %f\n", lev);
-          printf("(int)lev: %i\n", (int)lev);
-          printf("vals: %i, %i, %i, %i\n", 512-lower, 512-upper, (512-lower)+(int)pow(2, (int)lev-1), 512-upper+lower);
-        tc.c[0] = (1.0-tmp)*mipmap->data[512-lower][512-lower] + 
-                  (1.0-(1.0-tmp))*mipmap->data[512-upper][512-upper];
-        tc.c[1] = (1.0-tmp)*mipmap->data[512-lower][(512-lower)+(int)pow(2, (int)lev-1)] + 
-                  (1.0-(1.0-tmp))*mipmap->data[512-upper][512-upper+lower];
-        tc.c[2] = (1.0-tmp)*mipmap->data[(512-lower)+(int)pow(2, (int)lev-1)][512-lower] +
-                  (1.0-(1.0-tmp))*mipmap->data[512-lower][512-upper];
+        dim = fmaxf(fabs(dsdy+dsPerCol), fabs(dtdy+dtPerCol));
+        // printf("max. %f %f\n", dsdy+dsPerCol, dtdy+dtPerCol);
+        if (dim == 0){
+          lev = 0.0;
+        }
+        else {
+          lev = log2f(256*dim);
+        }
+        tmp = lev - (int)lev;
+        lower = exp2(floor(lev));
+        upper = exp2(ceil(lev));
+        // printf("[|:^) t: %d, s: %d\n", (int)(lower*(t+dtPerCol+dtdy)), (int)(lower*(s+dsPerCol+dsdy)));
+        // printf("(512-lower)+(int)pow(2, (int)lev-1):  %d\n", (512-lower)+(int)pow(2, (int)lev-1));
+        tc.c[0] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+(lower*t))][(int)((512-lower)+(lower*s))]) + 
+            ((1.0-(1.0-tmp))*mipmap->data[(int)((512-upper)+(upper*t))][(int)((512-upper)+(upper*s))]);
+        tc.c[1] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+(lower*t))][(int)((512-lower)+exp2(lev-1)+(lower*s))]) + 
+            ((1.0-(1.0-tmp))*mipmap->data[(int)((512-upper)+(upper*t))][(int)((512-upper)+lower+(upper*s))]);
+        tc.c[2] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+exp2(lev-1)+(lower*t))][(int)(512-lower+(lower*s))]) +
+            ((1.0-(1.0-tmp))*mipmap->data[(int)((512-upper)+lower+(upper*t))][(int)(512-upper+(upper*s))]);
+
+
+        // c.c[0] = ((1.0-tmp)*mipmap->data[512-lower+(int)(lower*(t+dtPerCol+dtdy))][512-lower+(int)(lower*(s+dsPerCol+dsdy))] + 
+        //           (1.0-(1.0-tmp))*mipmap->data[512-upper+(int)(upper*(t+dtPerCol+dtdy))][512-upper+(int)(upper*(s+dsPerCol+dsdy))]);
+        // c.c[1] = (1.0-tmp)*mipmap->data[512-lower+(int)(lower*(t+dtPerCol+dtdy))][(512-lower)+(int)exp2((int)lev-1)+(int)(lower*(s+dsPerCol+dsdy))] + 
+        //           (1.0-(1.0-tmp))*mipmap->data[512-upper+(int)(upper*(t+dtPerCol+dtdy))][512-upper+lower+(int)(upper*(s+dsPerCol+dsdy))];
+        // c.c[2] = (1.0-tmp)*mipmap->data[(512-lower)+(int)exp2((int)lev-1)+(int)(lower*(t+dtPerCol+dtdy))][512-lower+(int)(lower*(s+dsPerCol+dsdy))] +
+        //           (1.0-(1.0-tmp))*mipmap->data[512-upper+(int)(upper*(t+dtPerCol+dtdy))][512-upper+(int)(upper*(s+dsPerCol+dsdy))];
+        // tc.c[0] = (dcPerCol.c[0]+c.c[0])/2;
+        // tc.c[1] = (dcPerCol.c[1]+c.c[1])/2;
+        // tc.c[2] = (dcPerCol.c[2]+c.c[2])/2;
+        // printf("rgb: %f, %f, %f\n", tc.c[0], tc.c[1], tc.c[2]);
       }
-        printf("probs not\n");
       src->data[scan][i].z = zBuffer;
       image_setColor(src, scan, i, tc);
 
       if (zFlag != 0){
         zBuffer += dzPerCol;
+      }
+      if (dsFlag == 3){
+        s += dsPerCol + dsdy;
+        t += dtPerCol + dsdy;
       }
     }
 
@@ -414,12 +430,12 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
           tedge->cIntersect.c[1] += tedge->dcPerScan.c[1];
           tedge->cIntersect.c[2] += tedge->dcPerScan.c[2];
         }
-        if (dsFlag == 3){
+        else if (dsFlag == 3){
           tedge->sIntersect += tedge->dsPerScan;
           tedge->tIntersect += tedge->dtPerScan;
-            printf("s: %f,  t:  %f\n", tedge->sIntersect, tedge->tIntersect);
+          // printf("s: %f,  t:  %f\n", tedge->sIntersect, tedge->tIntersect);
         }
-
+        
         // adjust in the case of partial overlap
         if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
           a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;

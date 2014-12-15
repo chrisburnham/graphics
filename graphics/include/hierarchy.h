@@ -73,7 +73,7 @@ typedef enum {
 	ShadeDepth,			// draw objects using the current foreground color, fill polygons
 	ShadeFlat,			// draw objects using shading calculations, but each polygon is a constant value
 	ShadeGouraud,		// draw objects using Gouraud shading
-    ShadeMipmap         // draws using the mipmap
+  ShadeMipmap         // draws using the mipmap
 	// optional ShadePhong would go here
 } ShadeMethod;
 
