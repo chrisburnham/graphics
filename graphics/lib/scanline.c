@@ -145,11 +145,12 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
     float t1 = s[3];
     // printf("t0 calc %f, %f\n", start.val[1] / midt, (asin(start.val[1] / midt)));
     // printf("t1 calc %f, %f\n", end.val[1] / midt, (asin(end.val[1] / midt)));
-    edge->dsPerScan = (s0-s1)/(start.val[1]-end.val[1]);
-    edge->dtPerScan = (t0-t1)/(start.val[1]-end.val[1]);
+    edge->dsPerScan = ((s1/end.val[2])-(s0/start.val[2]))/dscan;
+    edge->dtPerScan = ((t1/end.val[2])-(t0/start.val[2]))/dscan;
     edge->sIntersect = s0;
     edge->tIntersect = t0;
-    // printf("s0: %f,  t0: %f\n", s0, t0);
+    printf("s0: %f,  t0: %f\n", s0, t0);
+    printf("ds: %f,  dt: %f\n", edge->dsPerScan, edge->dtPerScan);
   }
 
   return( edge );
@@ -250,7 +251,6 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
   float s, t;
   float dim, lev, tmp;
   int upper, lower;
-  float dsdy, dtdy;
 
   p1 = ll_head( active );
 
@@ -280,9 +280,6 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
       dcPerCol.c[0] = (p2->cIntersect.c[0]-p1->cIntersect.c[0])/(finish-start);
       dcPerCol.c[1] = (p2->cIntersect.c[1]-p1->cIntersect.c[1])/(finish-start);
       dcPerCol.c[2] = (p2->cIntersect.c[0]-p1->cIntersect.c[2])/(finish-start);
-      // tc.c[0] = p1->cIntersect.c[0];
-      // tc.c[1] = p1->cIntersect.c[1];
-      // tc.c[2] = p1->cIntersect.c[2];
       color_copy(&tc, &p1->cIntersect);
     }
     else if (dsFlag == 3){
@@ -290,8 +287,6 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
       t = p1->tIntersect;
       dsPerCol = (p2->sIntersect-p1->sIntersect)/(finish-start);
       dtPerCol = (p2->tIntersect-p1->tIntersect)/(finish-start);
-      dsdy = p1->dsPerScan - (p1->dxPerScan * dsPerCol);
-      dtdy = p1->dtPerScan - (p1->dxPerScan * dtPerCol);
     }
 
     if (start < 0){
@@ -326,7 +321,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
         tc.c[2] += dcPerCol.c[2];
       }
       else if (dsFlag == 3){
-        dim = fmaxf(fabs(dsdy+dsPerCol), fabs(dtdy+dtPerCol));
+        dim = fmaxf(fabs(dsPerCol), fabs(dtPerCol));
         // printf("max. %f %f\n", dsdy+dsPerCol, dtdy+dtPerCol);
         if (dim == 0){
           lev = 0.0;
@@ -335,28 +330,15 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
           lev = log2f(256*dim);
         }
         tmp = lev - (int)lev;
+        int base = exp2(floor(lev-1));
         lower = exp2(floor(lev));
         upper = exp2(ceil(lev));
-        // printf("[|:^) t: %d, s: %d\n", (int)(lower*(t+dtPerCol+dtdy)), (int)(lower*(s+dsPerCol+dsdy)));
-        // printf("(512-lower)+(int)pow(2, (int)lev-1):  %d\n", (512-lower)+(int)pow(2, (int)lev-1));
         tc.c[0] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+(lower*t))][(int)((512-lower)+(lower*s))]) + 
             ((1.0-(1.0-tmp))*mipmap->data[(int)((512-upper)+(upper*t))][(int)((512-upper)+(upper*s))]);
-        tc.c[1] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+(lower*t))][(int)((512-lower)+exp2(lev-1)+(lower*s))]) + 
+        tc.c[1] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+(lower*t))][(int)((512-lower)+base+(lower*s))]) + 
             ((1.0-(1.0-tmp))*mipmap->data[(int)((512-upper)+(upper*t))][(int)((512-upper)+lower+(upper*s))]);
-        tc.c[2] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+exp2(lev-1)+(lower*t))][(int)(512-lower+(lower*s))]) +
+        tc.c[2] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+base+(lower*t))][(int)(512-lower+(lower*s))]) +
             ((1.0-(1.0-tmp))*mipmap->data[(int)((512-upper)+lower+(upper*t))][(int)(512-upper+(upper*s))]);
-
-
-        // c.c[0] = ((1.0-tmp)*mipmap->data[512-lower+(int)(lower*(t+dtPerCol+dtdy))][512-lower+(int)(lower*(s+dsPerCol+dsdy))] + 
-        //           (1.0-(1.0-tmp))*mipmap->data[512-upper+(int)(upper*(t+dtPerCol+dtdy))][512-upper+(int)(upper*(s+dsPerCol+dsdy))]);
-        // c.c[1] = (1.0-tmp)*mipmap->data[512-lower+(int)(lower*(t+dtPerCol+dtdy))][(512-lower)+(int)exp2((int)lev-1)+(int)(lower*(s+dsPerCol+dsdy))] + 
-        //           (1.0-(1.0-tmp))*mipmap->data[512-upper+(int)(upper*(t+dtPerCol+dtdy))][512-upper+lower+(int)(upper*(s+dsPerCol+dsdy))];
-        // c.c[2] = (1.0-tmp)*mipmap->data[(512-lower)+(int)exp2((int)lev-1)+(int)(lower*(t+dtPerCol+dtdy))][512-lower+(int)(lower*(s+dsPerCol+dsdy))] +
-        //           (1.0-(1.0-tmp))*mipmap->data[512-upper+(int)(upper*(t+dtPerCol+dtdy))][512-upper+(int)(upper*(s+dsPerCol+dsdy))];
-        // tc.c[0] = (dcPerCol.c[0]+c.c[0])/2;
-        // tc.c[1] = (dcPerCol.c[1]+c.c[1])/2;
-        // tc.c[2] = (dcPerCol.c[2]+c.c[2])/2;
-        // printf("rgb: %f, %f, %f\n", tc.c[0], tc.c[1], tc.c[2]);
       }
       src->data[scan][i].z = zBuffer;
       image_setColor(src, scan, i, tc);
@@ -365,8 +347,8 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
         zBuffer += dzPerCol;
       }
       if (dsFlag == 3){
-        s += dsPerCol + dsdy;
-        t += dtPerCol + dsdy;
+        s += dsPerCol;
+        t += dtPerCol;
       }
     }
 
