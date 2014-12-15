@@ -139,10 +139,10 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
   // texture mapping
   if (dsFlag == 3){
       
-    float s0 = s[0];
-    float t0 = s[1];
-    float s1 = s[2];
-    float t1 = s[3];
+    float s0 = 256*s[0];
+    float t0 = 256*s[1];
+    float s1 = 256*s[2];
+    float t1 = 256*s[3];
     // printf("t0 calc %f, %f\n", start.val[1] / midt, (asin(start.val[1] / midt)));
     // printf("t1 calc %f, %f\n", end.val[1] / midt, (asin(end.val[1] / midt)));
     edge->dsPerScan = ((s1/end.val[2])-(s0/start.val[2]))/dscan;
@@ -327,7 +327,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
           lev = 0.0;
         }
         else {
-          lev = log2f(256*dim);
+          lev = log2f(dim);
         }
         tmp = lev - (int)lev;
         int base = exp2((int)(lev-1));
