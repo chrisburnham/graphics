@@ -330,9 +330,9 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
           lev = log2f(256*dim);
         }
         tmp = lev - (int)lev;
-        int base = exp2(floor(lev-1));
-        lower = exp2(floor(lev));
-        upper = exp2(ceil(lev));
+        int base = exp2((int)(lev-1));
+        lower = exp2((int)(lev));
+        upper = exp2((int)(lev+1));
         tc.c[0] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+(lower*t))][(int)((512-lower)+(lower*s))]) + 
             ((1.0-(1.0-tmp))*mipmap->data[(int)((512-upper)+(upper*t))][(int)((512-upper)+(upper*s))]);
         tc.c[1] = ((1.0-tmp)*mipmap->data[(int)((512-lower)+(lower*t))][(int)((512-lower)+base+(lower*s))]) + 
