@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
 
   Color White;
   Color Grey;
+  Color Black;
 
   DrawState *ds;
   View3D view;
@@ -26,6 +27,7 @@ int main(int argc, char *argv[]) {
 
   color_set( &White, 1.0, 1.0, 1.0 );
   color_set( &Grey, 0.6, 0.62, 0.64 );
+  color_set( &Black, 0.0, 0.0, 0.0 );
 
   // initialize the image
   src = image_create(rows, cols);
@@ -57,7 +59,7 @@ int main(int argc, char *argv[]) {
   module_scale( cube, 1, 2, 2);
 
   // this would color the cube in ShadeConstant mode
-  module_color( cube, &Grey );
+  module_color(cube, &Grey);
 
   // the example cube is blue (Y/-Y), red (Z/-Z), yellow (X/-X)
   // these colors should be the body colors
@@ -72,10 +74,14 @@ int main(int argc, char *argv[]) {
   point_copy(&(ds->viewer), &(view.vrp));
   ds->shade = ShadeMipmap;
   //  ds->shade = ShadeFlat;
+  // ds->shade = ShadeGouraud;
   texture = image_read("colors.ppm");
   mipmap = mipmap_create();
   mipmap_fill(texture, mipmap);
   ds->mipmap = *mipmap;
+  // drawstate_setColor( ds, Grey );
+  // drawstate_setBody( ds, Black);
+  // drawstate_setSurface( ds, Grey);
 
   matrix_rotateY(&GTM, 0.99619469809, 0.08715574274);
   module_lighting(cube, &VTM, &GTM, light );

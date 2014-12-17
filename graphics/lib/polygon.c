@@ -222,6 +222,9 @@ void polygon_setST(Polygon *p, int index, float s, float t){
 
 // draw the filled polygon using color c with the scanline rendering algorithm.
 void polygon_drawFill(Polygon *p, Image *src, Color c, int dsFlag){
+  if (dsFlag != 0){
+    p->zBuffer = 1;
+  }
   scanline_drawFill(p, src, c, dsFlag, NULL);
 }
 
