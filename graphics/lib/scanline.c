@@ -346,7 +346,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
       float dt = max(max(dtPerCol, dt1dy),max(dt2dy, dtPerCol+dt2dy-dt1dy));
       dim = fabs(max(ds, dt));
       if (dim == 0){
-        lev = 1.0/256; // is this right?
+        lev = 1.0/256; // is this right? shouldn't it be 256?
       }
       else {
         lev = fabs(log2f(256*dim));
