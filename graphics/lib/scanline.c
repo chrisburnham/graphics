@@ -333,6 +333,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
       color_copy(&tc, &p1->cIntersect);
     }
     else if (dsFlag == 3){
+      // you should look at this section....
       s = p1->sIntersect;
       t = p1->tIntersect;
       dsPerCol = (p2->sIntersect-p1->sIntersect)/(p2->xIntersect-p1->xIntersect);
@@ -393,6 +394,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
         tc.c[2] += dcPerCol.c[2];
       }
       else if (dsFlag == 3){
+        // and here and makeEdgeRec above
         tc.c[0] = ((1.0-tmp)*mipmap->data[lower+(int)(s*exp2(8-(int)(lev)))]
                                          [lower+(int)(t*exp2(8-(int)(lev)))]) + 
             ((1.0-(1.0-tmp))*mipmap->data[upper+(int)(s*exp2(8-(int)(lev+1)))]
