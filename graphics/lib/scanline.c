@@ -97,19 +97,16 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
   edge->yStart = (int)(edge->y0+0.5);
   edge->yEnd = (int)(edge->y1+0.5)-1;
 
+  if (edge->yEnd >= src->rows){
+    edge->yEnd = src->rows-1;
+  }
+  edge->dxPerScan = ( edge->x1 - edge->x0 )/(dscan);
+  edge->xIntersect = start.val[0];
   if (zFlag != 0){
     edge->zIntersect = 1/start.val[2];
     edge->dzPerScan = ((1/end.val[2])-(1/start.val[2]))/dscan;
   }
-
-  if (edge->yEnd >= src->rows){
-    edge->yEnd = src->rows-1;
-  }
-
-  edge->dxPerScan = ( edge->x1 - edge->x0 )/(dscan);
-  edge->xIntersect = start.val[0];
-
-  if (dsFlag == 2){ 
+  if (dsFlag == 2){ // shade gouraud
     edge->dcPerScan.c[0] = ((c2.c[0]/(1/end.val[2]))-(c1.c[0]/(1/start.val[2])))/dscan;
     edge->dcPerScan.c[1] = ((c2.c[1]/(1/end.val[2]))-(c1.c[1]/(1/start.val[2])))/dscan;
     edge->dcPerScan.c[2] = ((c2.c[2]/(1/end.val[2]))-(c1.c[2]/(1/start.val[2])))/dscan;
@@ -117,9 +114,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src, int zFlag,
     edge->cIntersect.c[1] = c1.c[1]/(1/start.val[2]);
     edge->cIntersect.c[2] = c1.c[2]/(1/start.val[2]);
   }
-
-  // texture mapping
-  if (dsFlag == 3){
+  if (dsFlag == 3){ // shade texture
     edge->dsPerScan = ((s2[0]/(1/end.val[2]))-(s1[0]/(1/start.val[2])))/dscan;
     edge->dtPerScan = ((s2[1]/(1/end.val[2]))-(s1[1]/(1/start.val[2])))/dscan;
     edge->sIntersect = s1[0]/(1/start.val[2]);
@@ -231,7 +226,6 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
     s1[0] = p->s[p->nVertex-1];
     s1[1] = p->t[p->nVertex-1];
   }
-  
 
   for(i=0;i<p->nVertex;i++) {
         
@@ -254,8 +248,6 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
         else {
           edge = makeEdgeRec( v1, v2, src, p->zBuffer, dsFlag, c1, c2, NULL, NULL);
         }
-        
-
       }
       else {
         if (dsFlag == 3){
@@ -265,7 +257,6 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src, int dsFlag) {
           edge = makeEdgeRec( v2, v1, src, p->zBuffer, dsFlag, c2, c1, NULL, NULL); 
         }
       }
-
       if( edge ){
         ll_insert( edges, edge, compYStart );
       }         
@@ -350,12 +341,12 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
       if (dim == 0){
         lev = 1.0/256; // is this right? shouldn't it be 256?
       }
-      // if (dim<1.0){
-      lev = fabs(log2f(256*dim));
-      // }
-      // else {
-      //   lev = log2f(256*dim);
-      // }
+      if (dim<1.0){
+        lev = fabs(log2f(256*dim));
+      }
+      else {
+        lev = log2f(256*dim);
+      }
       tmp = lev - (int)lev;
       if (lev<8.0){
         levLow = 256;
@@ -432,15 +423,9 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
         s += dsPerCol/zBuffer;
         t += dtPerCol/zBuffer;
       }
-
-      
-      
     }
-
     p1 = ll_next( active );
-
   }
-
   return;
 }
 
@@ -491,7 +476,6 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
         if (zFlag != 0){
           tedge->zIntersect += tedge->dzPerScan;
         }
-
         if (dsFlag == 2){
           tedge->cIntersect.c[0] += tedge->dcPerScan.c[0];
           tedge->cIntersect.c[1] += tedge->dcPerScan.c[1];
@@ -510,9 +494,9 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
             tedge->zIntersect += a*tedge->dzPerScan;
           }
           if (dsFlag == 2){
-          tedge->cIntersect.c[0] += a*tedge->dcPerScan.c[0];
-          tedge->cIntersect.c[1] += a*tedge->dcPerScan.c[1];
-          tedge->cIntersect.c[2] += a*tedge->dcPerScan.c[2];
+            tedge->cIntersect.c[0] += a*tedge->dcPerScan.c[0];
+            tedge->cIntersect.c[1] += a*tedge->dcPerScan.c[1];
+            tedge->cIntersect.c[2] += a*tedge->dcPerScan.c[2];
           }
           else if (dsFlag == 3){
             tedge->sIntersect += a*tedge->dsPerScan;
@@ -527,16 +511,15 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
             tedge->zIntersect += a*tedge->dzPerScan;
           }
           if (dsFlag == 2){
-          tedge->cIntersect.c[0] += a*tedge->dcPerScan.c[0];
-          tedge->cIntersect.c[1] += a*tedge->dcPerScan.c[1];
-          tedge->cIntersect.c[2] += a*tedge->dcPerScan.c[2];
+            tedge->cIntersect.c[0] += a*tedge->dcPerScan.c[0];
+            tedge->cIntersect.c[1] += a*tedge->dcPerScan.c[1];
+            tedge->cIntersect.c[2] += a*tedge->dcPerScan.c[2];
           }
           else if (dsFlag == 3){
             tedge->sIntersect += a*tedge->dsPerScan;
             tedge->tIntersect += a*tedge->dtPerScan;
           }
         }
-
         ll_insert( tmplist, tedge, compXIntersect );
       }
     }
