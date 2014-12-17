@@ -210,17 +210,14 @@ void polygon_setST(Polygon *p, int index, float s, float t){
     printf("index out of range\n");
     return;
   }
-  printf("%d\n", p->s);
   if (!p->s){
     p->s = malloc(sizeof(float)*p->nVertex);
   }
   if (!p->t){
     p->t = malloc(sizeof(float)*p->nVertex);
   }
-  printf("assigning values....\n");
   p->s[index] = s;
   p->t[index] = t;
-  printf("...assigned\n");
 }
 
 // draw the filled polygon using color c with the scanline rendering algorithm.
@@ -233,9 +230,7 @@ void polygon_drawTexture(Polygon *p, Image *src, Mipmap *mipmap){
   if (p->zBuffer == 0 ){
     p->zBuffer = 1;
   }
-  printf("in\n");
   scanline_drawFill(p, src, c, 3, mipmap);
-  printf("out\n");
 }
 
 // draw the filled polygon using color c with the scanline rendering algorithm.

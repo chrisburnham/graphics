@@ -341,12 +341,11 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
       float ds2dy = p2->dsPerScan-(p2->dxPerScan*dsPerCol);
       float dt1dy = p1->dtPerScan-(p1->dxPerScan*dtPerCol);
       float dt2dy = p2->dtPerScan-(p2->dxPerScan*dtPerCol);
-      float s = max(max(dsPerCol, ds1dy),max(ds2dy, dsPerCol+ds2dy-ds1dy));
-      float t = max(max(dtPerCol, dt1dy),max(dt2dy, dtPerCol+dt2dy-dt1dy));
-      dim = fabs(max(s, t));
-      printf("%f\n", dim*256);
+      float ds = max(max(dsPerCol, ds1dy),max(ds2dy, dsPerCol+ds2dy-ds1dy));
+      float dt = max(max(dtPerCol, dt1dy),max(dt2dy, dtPerCol+dt2dy-dt1dy));
+      dim = fabs(max(ds, dt));
       if (dim == 0){
-        lev = 0.0;
+        lev = 1.0/265; // is this right?
       }
       else {
         lev = fabs(log2f(256*dim));
@@ -354,14 +353,12 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
       tmp = lev - (int)lev;
       lower = 0;
       upper = 0;
+      for (j=0; j<(int)(lev-1); j++){
+        lower += exp2(8-j);
+      }
       for (j=0; j<(int)lev; j++){
         lower += exp2(8-j);
       }
-      for (j=0; j<(int)(lev+1); j++){
-        lower += exp2(8-j);
-      }
-      printf("am i a nan? %f\n", tmp);
-
     }
 
     if (start < 0){
@@ -396,20 +393,20 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
         tc.c[2] += dcPerCol.c[2];
       }
       else if (dsFlag == 3){
-        tc.c[0] = ((1.0-tmp)*mipmap->data[lower+(int)(t*exp2(8-(int)lev))]
-                                         [lower+(int)(s*exp2(8-(int)lev))]) + 
-            ((1.0-(1.0-tmp))*mipmap->data[upper+(int)(t*exp2(8-(int)(lev+1)))]
-                                         [upper+(int)(s*exp2(8-(int)(lev+1)))]);
+        tc.c[0] = ((1.0-tmp)*mipmap->data[lower+(int)(s*exp2(8-(int)(lev)))]
+                                         [lower+(int)(t*exp2(8-(int)(lev)))]) + 
+            ((1.0-(1.0-tmp))*mipmap->data[upper+(int)(s*exp2(8-(int)(lev+1)))]
+                                         [upper+(int)(t*exp2(8-(int)(lev+1)))])/zBuffer;
 
-        tc.c[1] = ((1.0-tmp)*mipmap->data[lower+(int)(t*exp2(8-(int)lev))+(int)exp2(8-(int)lev)]
-                                         [lower+(int)(s*exp2(8-(int)lev))]) + 
-            ((1.0-(1.0-tmp))*mipmap->data[upper+(int)(t*exp2(8-(int)(lev+1)))+(int)exp2(8-(int)(lev+1))]
-                                         [upper+(int)(s*exp2(8-(int)(lev+1)))]);
+        tc.c[1] = ((1.0-tmp)*mipmap->data[lower+(int)(s*exp2(8-(int)(lev)))+(int)exp2(8-(int)(lev))]
+                                         [lower+(int)(t*exp2(8-(int)(lev)))]) + 
+            ((1.0-(1.0-tmp))*mipmap->data[upper+(int)(s*exp2(8-(int)(lev+1)))+(int)exp2(8-(int)(lev+1))]
+                                         [upper+(int)(t*exp2(8-(int)(lev+1)))])/zBuffer;
 
-        tc.c[2] = ((1.0-tmp)*mipmap->data[lower+(int)(t*exp2(8-(int)lev))]
-                                         [lower+(int)(s*exp2(8-(int)lev))+(int)exp2(8-(int)lev)]) + 
-            ((1.0-(1.0-tmp))*mipmap->data[upper+(int)(t*exp2(8-(int)(lev+1)))]
-                                         [upper+(int)(s*exp2(8-(int)(lev+1)))+(int)exp2(8-(int)(lev+1))]);
+        tc.c[2] = ((1.0-tmp)*mipmap->data[lower+(int)(s*exp2(8-(int)(lev)))]
+                                         [lower+(int)(t*exp2(8-(int)(lev)))+(int)exp2(8-(int)(lev))]) + 
+            ((1.0-(1.0-tmp))*mipmap->data[upper+(int)(s*exp2(8-(int)(lev+1)))]
+                                         [upper+(int)(t*exp2(8-(int)(lev+1)))+(int)exp2(8-(int)(lev+1))])/zBuffer;
       }
       src->data[scan][i].z = zBuffer;
       image_setColor(src, scan, i, tc);
@@ -486,7 +483,6 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c, int zFlag, i
         else if (dsFlag == 3){
           tedge->sIntersect += tedge->dsPerScan;
           tedge->tIntersect += tedge->dtPerScan;
-          // printf("s: %f,  t:  %f\n", tedge->sIntersect, tedge->tIntersect);
         }
         
         // adjust in the case of partial overlap

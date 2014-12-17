@@ -619,7 +619,6 @@ void module_cube(Module *md, int solid){
     }
     polygon_setNormals( &side[1], 4, nm );
     polygon_setST(&side[1], 0, .25, .5);
-    printf("Hello again, is it you I'm looking for?\n");
     polygon_setST(&side[1], 1, .5, .5);
     polygon_setST(&side[1], 2, .5, .25);
     polygon_setST(&side[1], 3, .25, .25);
@@ -856,7 +855,7 @@ void module_sphere( Module *md ){ // still needs normals
       x = sin(PI*avg[i].val[0])*cos(2*PI*avg[i].val[1]);
       y = sin(PI*avg[i].val[0])*sin(2*PI*avg[i].val[1]);
       z = cos(PI*avg[i].val[0]);
-      printf("(%f, %f, %f)\n", x, y, z);
+      // printf("(%f, %f, %f)\n", x, y, z);
       point_set3D(&tmp[i], x, y, z);
     }
 
