@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
   // drawstate_setBody( ds, Black);
   // drawstate_setSurface( ds, Grey);
 
-  matrix_rotateY(&GTM, 0.3, 0.7);
+  matrix_rotateY(&GTM, 0.8, 0.2);
   module_lighting(cube, &VTM, &GTM, light );
   module_draw(cube, &VTM, &GTM, ds, light, src);
 
