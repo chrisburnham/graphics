@@ -399,15 +399,15 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c,
             ((1.0-(1.0-tmp))*mipmap->data[levUp+(int)(s*exp2(8-(int)lev))]
                                          [levUp+(int)(t*exp2(8-(int)lev))])/zBuffer;
 
-        tc.c[1] = ((1.0-tmp)*mipmap->data[levLow+(int)(s*exp2(7-(int)lev))+(int)exp2(7-(int)lev)]
-                                         [levLow+(int)(t*exp2(7-(int)lev))]) + 
-            ((1.0-(1.0-tmp))*mipmap->data[levUp+(int)(s*exp2(8-(int)lev))+(int)exp2(8-(int)lev)]
-                                         [levUp+(int)(t*exp2(8-(int)lev))])/zBuffer;
-
-        tc.c[2] = ((1.0-tmp)*mipmap->data[levLow+(int)(s*exp2(7-(int)lev))]
+        tc.c[1] = ((1.0-tmp)*mipmap->data[levLow+(int)(s*exp2(7-(int)lev))]
                                          [levLow+(int)(t*exp2(7-(int)lev))+(int)exp2(7-(int)lev)]) + 
             ((1.0-(1.0-tmp))*mipmap->data[levUp+(int)(s*exp2(8-(int)lev))]
                                          [levUp+(int)(t*exp2(8-(int)lev))+(int)exp2(8-(int)lev)])/zBuffer;
+
+        tc.c[2] = ((1.0-tmp)*mipmap->data[levLow+(int)(s*exp2(7-(int)lev))+(int)exp2(7-(int)lev)]
+                                         [levLow+(int)(t*exp2(7-(int)lev))]) + 
+            ((1.0-(1.0-tmp))*mipmap->data[levUp+(int)(s*exp2(8-(int)lev))+(int)exp2(8-(int)lev)]
+                                         [levUp+(int)(t*exp2(8-(int)lev))])/zBuffer;
       }
       src->data[scan][i].z = zBuffer;
       image_setColor(src, scan, i, tc);
