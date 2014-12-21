@@ -21,7 +21,10 @@ int main(int argc, char *argv[]) {
     src = image_read("colors.ppm");
     
     mip = mipmap_create();
-    mipmap_fill(src, mip);
+    if (mipmap_fill(src, mip)<0){
+        printf("quitting...\n");
+        return(-1);
+    };
     // mipmap_print(mip, stdout);
     
     for(i=0; i<512; i++){ // rows

@@ -36,18 +36,17 @@ int mipmap_fill(Image *src, Mipmap *dst){
     printf("Image too small for mipmap\n");
     return (-1);
   }
-    
+  printf("sup?\n");
   for(i=0; i<256; i++){
     for(j=0; j<256; j++){
-      printf("r: %f, g: %f, b: %f\n", src->data[i][j].rgb[0], 
-                                      src->data[i][j].rgb[1], 
-                                      src->data[i][j].rgb[2]);
+      // printf("r: %f, g: %f, b: %f\n", src->data[i][j].rgb[0], 
+      //                                 src->data[i][j].rgb[1], 
+      //                                 src->data[i][j].rgb[2]);
       dst->data[i][j] = src->data[i][j].rgb[0];
       dst->data[i][j+256] = src->data[i][j].rgb[1];
       dst->data[i+256][j] = src->data[i][j].rgb[2];
     }
   }
-    
   pow2 = 1;
   sum0 = 0;
   sum1 = 256;

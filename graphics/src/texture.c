@@ -75,18 +75,24 @@ int main(int argc, char *argv[]) {
   ds->shade = ShadeMipmap;
   //  ds->shade = ShadeFlat;
   // ds->shade = ShadeGouraud;
+  printf("hello\n");
   texture = image_read("colors.ppm");
+  
   mipmap = mipmap_create();
+  printf("rows: %d\ncols: %d\n", texture->rows, texture->cols);
   mipmap_fill(texture, mipmap);
   ds->mipmap = *mipmap;
   // drawstate_setColor( ds, Grey );
   // drawstate_setBody( ds, Black);
   // drawstate_setSurface( ds, Grey);
 
-  matrix_rotateY(&GTM, 0.8, 0.2);
+  matrix_rotateY(&GTM, -1, 0);
+  matrix_rotateX(&GTM, 0, 1);
+  matrix_rotateZ(&GTM, 0, 1);
   module_lighting(cube, &VTM, &GTM, light );
   module_draw(cube, &VTM, &GTM, ds, light, src);
-
+  printf("Victoria\n");
+  
   image_write(src, "texture.ppm");
   system ("convert texture.ppm texture.png");
   system ("rm texture.ppm");

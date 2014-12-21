@@ -202,7 +202,7 @@ void polygon_draw(Polygon *p, Image *src, Color c){
 
 // set s and t values for texture mapping
 void polygon_setST(Polygon *p, int index, float s, float t){
-  if (s > 1.0 || t > 1.0){
+  if ((s > 1.0 || t > 1.0) || (s < 0 || t < 0)){
     printf("!!BAD!! s and t need to be between 0 and 1 !!BAD!!\n");
     return;
   }

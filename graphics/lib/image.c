@@ -92,7 +92,6 @@ Image *image_read(char *filename){
 	Pixel *input;
 	Image *image;
 	int i, rows, cols, colors;
-
 	input = readPPM(&rows, &cols, &colors, filename);
 	image = image_create(rows,cols);
 	image->rows = rows;
